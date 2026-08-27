@@ -42,6 +42,12 @@ RUSTFLAGS='-C link-arg=--allow-undefined' cargo build --workspace --release --ta
 
 Deploy immutable contracts with `--no-admin`. The CW20 wrapper removes any configured minter at instantiation. The CW721 contract intentionally permits its configured collection minter to issue NFTs; choose and protect that minter before deployment.
 
+## Join as a node or validator
+
+Published network files live in [`networks/ire-1/`](networks/ire-1/). That folder is what you share: genesis and the seed peer template. Do not share `.ire/` (validator keys).
+
+Full join and `create-validator` steps: [docs/VALIDATOR.md](docs/VALIDATOR.md).
+
 ## Mainnet launch gate
 
 `ire-1` is currently a local, single-validator network—not a public mainnet. A real mainnet requires independently operated validators, public seed/peer infrastructure, finalized genesis and upgrade governance, external security audit, monitoring/incident response, backups, and a staged public testnet. Do not put real value on this network until those gates are complete.

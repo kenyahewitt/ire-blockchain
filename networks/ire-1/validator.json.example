@@ -1,0 +1,13 @@
+{
+  "pubkey": {"@type":"/cosmos.crypto.ed25519.PubKey","key":"REPLACE_WITH_ired_tendermint_show-validator"},
+  "amount": "1000000uire",
+  "moniker": "myvalidator",
+  "identity": "",
+  "website": "",
+  "security": "",
+  "details": "",
+  "commission-rate": "0.05",
+  "commission-max-rate": "0.20",
+  "commission-max-change-rate": "0.01",
+  "min-self-delegation": "1"
+}
