@@ -12,5 +12,6 @@ build/
 .testnets/
 coverage.out
 target/
+deploy/vps/*.env
 agent/reports/*.json
 agent/logs/*.log
