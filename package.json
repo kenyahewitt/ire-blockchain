@@ -5,6 +5,7 @@
   "scripts": {
     "sentinel:check": "node agent/ire-sentinel.mjs --check",
     "sentinel:watch": "node agent/ire-sentinel.mjs --watch 1800",
-    "sentinel:no-ai": "node agent/ire-sentinel.mjs --check --no-ai"
+    "sentinel:no-ai": "node agent/ire-sentinel.mjs --check --no-ai",
+    "explorer": "node explorer/server.mjs"
   }
 }
