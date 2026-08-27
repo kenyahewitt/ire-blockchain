@@ -1,0 +1,64 @@
+{
+  "_comment": "Ire's Blockchain — genesis parameter overrides. Merge these into the base genesis.json produced by `ignite scaffold chain` / `ired init`. Values here define the permanent, one-time supply.",
+
+  "chain_id": "ire-1",
+  "denom": "uire",
+  "denom_display": "IRE",
+  "decimals": 6,
+
+  "total_supply": {
+    "_comment": "1 trillion IRE, denominated in uire (micro-IRE). This is the ONLY minting event that ever occurs.",
+    "amount": "1000000000000000000",
+    "denom": "uire"
+  },
+
+  "app_state": {
+    "mint": {
+      "_comment": "Standard x/mint module is REPLACED by x/ire-mint (see /x/ire-mint). If you have not yet swapped the module, at minimum set inflation params to zero as a stopgap — but this is a policy setting, not a hard guarantee, until the module itself is removed.",
+      "minter": {
+        "inflation": "0.000000000000000000",
+        "annual_provisions": "0.000000000000000000"
+      },
+      "params": {
+        "mint_denom": "uire",
+        "inflation_rate_change": "0.000000000000000000",
+        "inflation_max": "0.000000000000000000",
+        "inflation_min": "0.000000000000000000",
+        "goal_bonded": "0.670000000000000000",
+        "blocks_per_year": "6311520"
+      }
+    },
+    "bank": {
+      "supply": [
+        { "denom": "uire", "amount": "1000000000000000000" }
+      ]
+    },
+    "gov": {
+      "_comment": "Governance can adjust things like voting periods and deposit minimums, but the mint module's absence is a code-level fact, not a gov param — no proposal can re-enable minting without a coordinated hard fork.",
+      "voting_params": { "voting_period": "172800s" },
+      "deposit_params": { "min_deposit": [{ "denom": "uire", "amount": "10000000000" }] }
+    },
+    "staking": {
+      "params": {
+        "bond_denom": "uire",
+        "unbonding_time": "1814400s",
+        "max_validators": 100
+      }
+    },
+    "slashing": {
+      "params": {
+        "signed_blocks_window": "10000",
+        "min_signed_per_window": "0.050000000000000000",
+        "slash_fraction_double_sign": "0.050000000000000000",
+        "slash_fraction_downtime": "0.000100000000000000"
+      }
+    },
+    "wasm": {
+      "_comment": "CosmWasm module config. code_upload_access controls who can upload contract code; instantiate_default_permission affects who can instantiate. Deploy your NFT/token contracts with --no-admin on the CLI to make them individually immutable regardless of these defaults.",
+      "params": {
+        "code_upload_access": { "permission": "Everybody" },
+        "instantiate_default_permission": "Everybody"
+      }
+    }
+  }
+}

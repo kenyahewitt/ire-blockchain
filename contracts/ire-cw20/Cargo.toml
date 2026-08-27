@@ -1,0 +1,23 @@
+[package]
+name = "ire-cw20"
+version = "0.1.0"
+edition = "2021"
+description = "Fixed-supply fungible token contract for Ire's Blockchain. No mint entrypoint after instantiation."
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+cosmwasm-std = "1.5"
+cosmwasm-schema = "1.5"
+cw-storage-plus = "1.2"
+cw20 = "1.1"
+cw20-base = { version = "1.1", features = ["library"] }
+schemars = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
+
+[profile.release]
+opt-level = "z"
+debug = false
+lto = true

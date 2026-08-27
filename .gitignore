@@ -1,0 +1,16 @@
+vue/node_modules
+vue/dist
+release/
+.idea/
+.vscode/
+.DS_Store
+*.dot
+*.log
+*.ign
+build/
+.ire/
+.testnets/
+coverage.out
+target/
+agent/reports/*.json
+agent/logs/*.log

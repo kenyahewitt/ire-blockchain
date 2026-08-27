@@ -1,0 +1,19 @@
+{
+  "chainId": "ire-1",
+  "baseDenom": "uire",
+  "expectedSupply": "1000000000000000000",
+  "rpcUrl": "http://127.0.0.1:26657",
+  "apiUrl": "http://127.0.0.1:1317",
+  "model": "gpt-5.6-sol",
+  "maxOutputTokens": 800,
+  "reportDirectory": "agent/reports",
+  "allowedWriteOperations": [
+    "create timestamped report files under agent/reports"
+  ],
+  "prohibitedOperations": [
+    "sign, create, or broadcast blockchain transactions",
+    "read private keys, keyrings, or validator secrets",
+    "modify node configuration, chain source, or genesis state",
+    "deploy, migrate, or administer smart contracts"
+  ]
+}

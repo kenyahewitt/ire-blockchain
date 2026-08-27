@@ -1,0 +1,6 @@
+[workspace]
+members = [
+  "contracts/ire-cw20",
+  "contracts/ire-cw721",
+]
+resolver = "2"
