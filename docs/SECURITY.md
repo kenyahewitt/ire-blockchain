@@ -2,9 +2,11 @@
 
 ## Genuinely improved vs. a typical fast-launched fork
 
-1. **No hidden mint function.** Removing `x/mint` entirely closes off the
-   single most common rug-pull vector in copy-paste token launches (a hidden
-   or upgradeable mint call that dumps supply on holders).
+1. **Protocol inflation disabled.** The app supplies a no-op mint
+   begin-block function and the genesis mint parameters are set to zero. The
+   standard Cosmos mint module is retained for compatible state/query wiring,
+   so this is a source-level invariant that must be protected by review and
+   tests for every future release.
 2. **No contract admin key.** Deploying CosmWasm contracts with `--no-admin`
    means there's no `MsgMigrateContract` that a compromised or malicious
    deployer key could use to swap the logic after people have funds in it.
@@ -14,6 +16,9 @@
 4. **Slashing for misbehavior.** Validators that double-sign or go offline
    lose staked funds automatically — this is stock Cosmos SDK `x/slashing`,
    not custom, but worth having explicitly rather than assumed.
+5. **Destructive in-place testnet command disabled.** The generated command
+   that rewrites validator state and mints local testing funds is not exposed
+   from the production CLI.
 
 ## Not improved by this design — still real risks
 
