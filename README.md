@@ -1,5 +1,7 @@
 # IRE blockchain
 
+> **Local testnet only (`ire-1`).** One validator on a home machine. No public seed, no independent operator set, no external audit. Do not send real money, list a token, or treat this as mainnet.
+
 IRE is a Cosmos SDK proof-of-stake chain. Validators produce blocks by signing consensus votes; this is the appropriate equivalent of “mining” for IRE and does not use GPU/ASIC proof-of-work.
 
 ## Current local network

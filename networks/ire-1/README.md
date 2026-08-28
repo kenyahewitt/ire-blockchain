@@ -1,6 +1,6 @@
 # ire-1 network files
 
-Public files for the IRE local/public test network. Chain ID is `ire-1`. Denom is `uire` (6 decimals).
+**Local testnet.** Chain ID `ire-1`. Denom `uire` (6 decimals). Not mainnet. Do not send real money.
 
 ## Share this folder, not `.ire/`
 
