@@ -14,10 +14,10 @@ make build
 cp networks/ire-1/genesis.json "$HOME/.ire/config/genesis.json"
 ```
 
-Set the seed peer in `$HOME/.ire/config/config.toml` (replace `SEED_HOST`):
+Set the seed peer in `$HOME/.ire/config/config.toml`:
 
 ```
-persistent_peers = "07a96f9e703104fb9d03e7da7211ca35cb9089d7@SEED_HOST:26656"
+persistent_peers = "63c21a2befb884a958cdc88a1c78788eae42bf5b@91.99.1.9:26656"
 ```
 
 Optional: set your advertised P2P address if you are not on localhost:

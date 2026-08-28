@@ -16,10 +16,10 @@ Those stay on the machine that already runs the seed validator.
 
 ## Seed peer
 
-Replace `SEED_HOST` with a publicly reachable IP or DNS name for a node listening on TCP 26656:
+Public seed (non-validator) in Falkenstein:
 
 ```
-07a96f9e703104fb9d03e7da7211ca35cb9089d7@SEED_HOST:26656
+63c21a2befb884a958cdc88a1c78788eae42bf5b@91.99.1.9:26656
 ```
 
 Genesis sha256: `20ddba9d70780a09c841287345272cfb82a94c9f67cb98f6b8aa4ec2058a6ea8`
