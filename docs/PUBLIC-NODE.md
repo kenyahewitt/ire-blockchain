@@ -34,9 +34,9 @@ Set the VPS IP or DNS name in `networks/ire-1/README.md` only after the P2P port
 2. Install Nginx and Certbot on the VPS.
 3. Copy `deploy/nginx/ire-explorer.conf` to the Nginx site directory and replace `rpc.example.org` with your hostname.
 4. Obtain a TLS certificate with Certbot, validate the Nginx configuration, and reload it.
-5. Update the Netlify explorer configuration with `https://rpc.example.org`.
+5. The public docs/explorer origin is already `https://illustrious-banoffee-92cafd.netlify.app`. Point `rpc.example.org` (or another hostname you control) at the VPS. Netlify cannot serve CometBFT P2P (`26656`) or RPC (`26657`).
 
-The supplied proxy permits only GET requests to selected query paths, rate-limits callers, and permits browser requests only from the IRE Netlify site. It does not relay transaction broadcasts, signing, or administrative RPC calls.
+The supplied proxy permits only GET requests to selected query paths, rate-limits callers, and permits browser requests only from `https://illustrious-banoffee-92cafd.netlify.app`. It does not relay transaction broadcasts, signing, or administrative RPC calls.
 
 ## Before allowing public validators
 
