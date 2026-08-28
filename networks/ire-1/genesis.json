@@ -1,7 +1,7 @@
 {
   "app_name": "ired",
-  "app_version": "-",
-  "genesis_time": "2026-08-27T05:44:08.241631Z",
+  "app_version": "main-a762557ef38393475688690b9c666561fd99870b",
+  "genesis_time": "2026-08-28T00:03:46.792398Z",
   "chain_id": "ire-1",
   "initial_height": 1,
   "app_hash": null,
@@ -19,16 +19,23 @@
       "accounts": [
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "ire16jwtdrszvleum98lkfgu2unexv37l8wd4uegsm",
+          "address": "ire12cwc26eem6gnsyvf8z6dvkgwplvpt40pjtehmc",
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "ire1qwe229j8eve6zcfsm5uysejtcs6ghf2u2as0dx",
+          "address": "ire1pchh7j8cr9mndj7d0rfw2pq2lv7gyt67sy0ugm",
           "pub_key": null,
           "account_number": "1",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "ire10mevvudwhldxafmss99yzd98ke8h95tyll7hk3",
+          "pub_key": null,
+          "account_number": "2",
           "sequence": "0"
         }
       ]
@@ -43,16 +50,25 @@
       },
       "balances": [
         {
-          "address": "ire1qwe229j8eve6zcfsm5uysejtcs6ghf2u2as0dx",
+          "address": "ire1pchh7j8cr9mndj7d0rfw2pq2lv7gyt67sy0ugm",
           "coins": [
             {
               "denom": "uire",
-              "amount": "999900000000000000"
+              "amount": "999800000000000000"
             }
           ]
         },
         {
-          "address": "ire16jwtdrszvleum98lkfgu2unexv37l8wd4uegsm",
+          "address": "ire12cwc26eem6gnsyvf8z6dvkgwplvpt40pjtehmc",
+          "coins": [
+            {
+              "denom": "uire",
+              "amount": "100000000000000"
+            }
+          ]
+        },
+        {
+          "address": "ire10mevvudwhldxafmss99yzd98ke8h95tyll7hk3",
           "coins": [
             {
               "denom": "uire",
@@ -67,31 +83,7 @@
           "amount": "1000000000000000000"
         }
       ],
-      "denom_metadata": [
-        {
-          "description": "Native staking and fee token of the IRE blockchain",
-          "denom_units": [
-            {
-              "denom": "uire",
-              "exponent": 0,
-              "aliases": []
-            },
-            {
-              "denom": "ire",
-              "exponent": 6,
-              "aliases": [
-                "IRE"
-              ]
-            }
-          ],
-          "base": "uire",
-          "display": "ire",
-          "name": "Ire",
-          "symbol": "IRE",
-          "uri": "",
-          "uri_hash": ""
-        }
-      ],
+      "denom_metadata": [],
       "send_enabled": []
     },
     "circuit": {
@@ -179,16 +171,16 @@
                   "details": ""
                 },
                 "commission": {
-                  "rate": "0.050000000000000000",
+                  "rate": "0.100000000000000000",
                   "max_rate": "0.200000000000000000",
                   "max_change_rate": "0.010000000000000000"
                 },
-                "min_self_delegation": "1000000",
+                "min_self_delegation": "1",
                 "delegator_address": "",
-                "validator_address": "irevaloper16jwtdrszvleum98lkfgu2unexv37l8wd306564",
+                "validator_address": "irevaloper12cwc26eem6gnsyvf8z6dvkgwplvpt40pkc6t3k",
                 "pubkey": {
                   "@type": "/cosmos.crypto.ed25519.PubKey",
-                  "key": "xIyD0jDJVvWNkcDg82Q8DliRwziFWfdMLOsWUMRBXqU="
+                  "key": "KcdDy03gnRI6cXSZ9NPENukgk1abZ3vGqEyK3rwDyqo="
                 },
                 "value": {
                   "denom": "uire",
@@ -196,7 +188,7 @@
                 }
               }
             ],
-            "memo": "07a96f9e703104fb9d03e7da7211ca35cb9089d7@192.168.1.127:26656",
+            "memo": "58e30fa8146cbf7e392eaae13197727e7ed00001@192.168.1.127:26656",
             "timeout_height": "0",
             "unordered": false,
             "timeout_timestamp": null,
@@ -208,7 +200,7 @@
               {
                 "public_key": {
                   "@type": "/cosmos.crypto.secp256k1.PubKey",
-                  "key": "AwUXj1EFJkX5/F2VuDZuz7/nsAqfwQNcUZ/kn5CNx7jh"
+                  "key": "Anq11pohvfZoUK/+1BlaVSk0t3ct2LlojxItBA6vZtP9"
                 },
                 "mode_info": {
                   "single": {
@@ -227,7 +219,7 @@
             "tip": null
           },
           "signatures": [
-            "BK0Yg/1VZcKZd5WvczFMJe3SHe3FaA89paoOPqlzKTpueFYdXvCIWEaO83OeN3uU523rwIvpn1nG7pLvnq3m7A=="
+            "ImOC6RbRx5Hu8UCjuAyzA/0IUjLY6L049dmIFu5YhWgNzLLNKClvijCQdpzOg7OyqSduIDn+s3vWvr4baGuuuQ=="
           ]
         }
       ]

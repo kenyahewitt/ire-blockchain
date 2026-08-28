@@ -22,6 +22,6 @@ Replace `SEED_HOST` with a publicly reachable IP or DNS name for a node listenin
 07a96f9e703104fb9d03e7da7211ca35cb9089d7@SEED_HOST:26656
 ```
 
-Genesis sha256: `8f740001b22380f190d9eacf77cb7f6650599c688df0d336a9afc19a0e9d292a`
+Genesis sha256: `20ddba9d70780a09c841287345272cfb82a94c9f67cb98f6b8aa4ec2058a6ea8`
 
 Build the same `ired` as the seed (`make build`). Prefer commit `a762557` if you need to match the currently running binary.
