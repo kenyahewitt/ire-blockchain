@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Join — IRE blockchain</title>
+<meta name="description" content="Run a full node on ire-1 or create a validator. Public seed, genesis, and exact join commands. There is no faucet.">
+<link rel="canonical" href="https://illustrious-banoffee-92cafd.netlify.app/join/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Join — IRE blockchain">
+<meta property="og:description" content="Run a full node on ire-1 or create a validator. Public seed, genesis, and exact join commands. There is no faucet.">
+<meta property="og:url" content="https://illustrious-banoffee-92cafd.netlify.app/join/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+
+<p class="advisory">Pre-mainnet — <code>ire-1</code> is a public testnet with one validator. Do not put real value on it.</p>
+
+<div class="frame">
+  <nav class="rail" aria-label="Documentation">
+    <a class="mark" href="/">IRE<span>docs</span></a>
+    <ul><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/" aria-current="page"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li></ul>
+    <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
+  </nav>
+
+  <main id="main">
+    <header class="page-head reveal">
+        <p class="micro">Join</p>
+        <h1>Join</h1>
+        <p class="lead">Run a full node on <code>ire-1</code>, or create a validator after you have <code>uire</code>. There is no faucet. This is a public testnet with one validator — not mainnet.</p>
+      </header>
+    <div class="prose reveal"><h2 id="requirements"><a class="anchor" href="#requirements">Requirements</a></h2>
+<p>Go 1.21+, git, and <a href="https://github.com/kenyahewitt/ire-blockchain">this repository</a>.</p>
+<h2 id="full-node"><a class="anchor" href="#full-node">Full node</a></h2>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">git clone https://github.com/kenyahewitt/ire-blockchain.git
+cd ire-blockchain
+git checkout a762557   # match the running seed binary; omit to build latest
+make build
+
+./build/ired init mymoniker --chain-id ire-1 --home "$HOME/.ire"
+cp networks/ire-1/genesis.json "$HOME/.ire/config/genesis.json"
+</code></pre></figure>
+<p>Set the seed peer in <code>$HOME/.ire/config/config.toml</code>:</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-text">persistent_peers = "63c21a2befb884a958cdc88a1c78788eae42bf5b@91.99.1.9:26656"
+</code></pre></figure>
+<p>Optional: set your advertised P2P address if you are not on localhost:</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-text">external_address = "tcp://YOUR_PUBLIC_IP:26656"
+</code></pre></figure>
+<p>Start:</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">./build/ired start --home "$HOME/.ire"
+</code></pre></figure>
+<p>Wait until <code>/status</code> shows <code>"catching_up": false</code> before sending transactions.</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">curl -s http://127.0.0.1:26657/status | python3 -c 'import sys,json; s=json.load(sys.stdin)["result"]["sync_info"]; print(s["latest_block_height"], s["catching_up"])'
+</code></pre></figure>
+<h2 id="become-a-validator"><a class="anchor" href="#become-a-validator">Become a validator</a></h2>
+<p>You need <code>uire</code> in a local key for self-delegation and fees (<code>minimum-gas-prices</code> is <code>0.001uire</code>). There is no public faucet. The create-validator transaction will fail until an existing holder sends <code>uire</code> to your address. After the node is synced:</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">./build/ired keys add myvalidator --home "$HOME/.ire"
+./build/ired tendermint show-validator --home "$HOME/.ire"
+</code></pre></figure>
+<p>Copy <code>networks/ire-1/validator.json.example</code> to <code>validator.json</code>, paste that pubkey, set <code>moniker</code> and <code>amount</code>, then:</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">./build/ired tx staking create-validator validator.json \
+  --from myvalidator \
+  --chain-id ire-1 \
+  --home "$HOME/.ire" \
+  --gas auto \
+  --gas-adjustment 1.4 \
+  --gas-prices 0.001uire \
+  --yes
+</code></pre></figure>
+<p>The create-validator transaction will fail until this account has a balance. Ask an existing token holder to send <code>uire</code> to the address from <code>ired keys show myvalidator -a --home "$HOME/.ire"</code>. Do not treat the current local operator as a mainnet set; there is still one validator.</p></div>
+    <footer class="foot">
+      <p class="micro">Source: the <code>site/</code> folder in <a href="https://github.com/kenyahewitt/ire-blockchain">kenyahewitt/ire-blockchain</a>.</p>
+      <p class="micro">Security disclosures are handled in-repo and are not published here.</p>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-labelledby="toc-label">
+        <p class="micro" id="toc-label">On this page</p>
+        <ol><li><a href="#requirements">Requirements</a></li><li><a href="#full-node">Full node</a></li><li><a href="#become-a-validator">Become a validator</a></li></ol>
+      </aside>
+</div>
+<script src="/assets/docs.js" defer></script>
+</body>
+</html>

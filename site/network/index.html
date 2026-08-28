@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Network — IRE blockchain</title>
+<meta name="description" content="Public seed, genesis sha256, and what is (and is not) a public endpoint on the ire-1 testnet.">
+<link rel="canonical" href="https://illustrious-banoffee-92cafd.netlify.app/network/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Network — IRE blockchain">
+<meta property="og:description" content="Public seed, genesis sha256, and what is (and is not) a public endpoint on the ire-1 testnet.">
+<meta property="og:url" content="https://illustrious-banoffee-92cafd.netlify.app/network/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+
+<p class="advisory">Pre-mainnet — <code>ire-1</code> is a public testnet with one validator. Do not put real value on it.</p>
+
+<div class="frame">
+  <nav class="rail" aria-label="Documentation">
+    <a class="mark" href="/">IRE<span>docs</span></a>
+    <ul><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/" aria-current="page"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li></ul>
+    <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
+  </nav>
+
+  <main id="main">
+    <header class="page-head reveal">
+        <p class="micro">Network</p>
+        <h1>Network</h1>
+        <p class="lead">Public seed, genesis hash, and what this host is not. <code>ire-1</code> is a public testnet with one local validator. It is not mainnet.</p>
+      </header>
+    <div class="prose reveal"><h2 id="public-seed"><a class="anchor" href="#public-seed">Public seed</a></h2>
+<p>Non-validator peer in Falkenstein (Hetzner). Use this as <code>persistent_peers</code>. It is P2P only.</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-text">63c21a2befb884a958cdc88a1c78788eae42bf5b@91.99.1.9:26656
+</code></pre></figure>
+<h2 id="genesis"><a class="anchor" href="#genesis">Genesis sha256</a></h2>
+<p>Verify <code>networks/ire-1/genesis.json</code> against this digest before starting a node.</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-text">20ddba9d70780a09c841287345272cfb82a94c9f67cb98f6b8aa4ec2058a6ea8
+</code></pre></figure>
+<h2 id="network-files"><a class="anchor" href="#network-files">Network files</a></h2>
+<p>Published genesis and seed template: <a href="https://github.com/kenyahewitt/ire-blockchain/tree/main/networks/ire-1">https://github.com/kenyahewitt/ire-blockchain/tree/main/networks/ire-1</a>. Share that folder. Do not share <code>.ire/</code>, validator keys, <code>node_key</code>, or <code>priv_validator_key</code>.</p>
+<h2 id="what-is-public"><a class="anchor" href="#what-is-public">What is public</a></h2>
+<ul>
+<li><strong>Public:</strong> P2P port 26656 on the Falkenstein seed.</li>
+<li><strong>Not public:</strong> RPC 26657 and LCD 1317 stay localhost-only on the VPS. The Mac home-machine validator is not a public endpoint. This Netlify URL is documentation only.</li>
+</ul>
+<p>Do not point wallets or explorers at this docs host. Netlify cannot serve 26656 or 26657. There is no public RPC URL; do not treat this site as one.</p>
+<h2 id="binary"><a class="anchor" href="#binary">Binary</a></h2>
+<p>Build <code>ired</code> from <a href="https://github.com/kenyahewitt/ire-blockchain">kenyahewitt/ire-blockchain</a>. Prefer commit <code>a762557</code> to match the running seed binary.</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">git clone https://github.com/kenyahewitt/ire-blockchain.git
+cd ire-blockchain
+git checkout a762557   # match the running seed binary; omit to build latest
+make build
+</code></pre></figure>
+<p>Join steps live on <a href="/join/">Join</a>.</p></div>
+    <footer class="foot">
+      <p class="micro">Source: the <code>site/</code> folder in <a href="https://github.com/kenyahewitt/ire-blockchain">kenyahewitt/ire-blockchain</a>.</p>
+      <p class="micro">Security disclosures are handled in-repo and are not published here.</p>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-labelledby="toc-label">
+        <p class="micro" id="toc-label">On this page</p>
+        <ol><li><a href="#public-seed">Public seed</a></li><li><a href="#genesis">Genesis sha256</a></li><li><a href="#network-files">Network files</a></li><li><a href="#what-is-public">What is public</a></li><li><a href="#binary">Binary</a></li></ol>
+      </aside>
+</div>
+<script src="/assets/docs.js" defer></script>
+</body>
+</html>

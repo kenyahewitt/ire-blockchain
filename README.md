@@ -1,6 +1,6 @@
 # IRE blockchain
 
-> **Local testnet only (`ire-1`).** One validator on a home machine. No public seed, no independent operator set, no external audit. Do not send real money, list a token, or treat this as mainnet.
+> **Local/public testnet only (`ire-1`).** A public seed exists (Falkenstein), but this is still one validator, with no independent operator set and no external audit. Do not send real money, list a token, or treat this as mainnet.
 
 Public protocol docs: [https://illustrious-banoffee-92cafd.netlify.app](https://illustrious-banoffee-92cafd.netlify.app/). That host is documentation only. It is not a seed, RPC, or P2P endpoint.
 
@@ -8,7 +8,7 @@ IRE is a Cosmos SDK proof-of-stake chain. Validators produce blocks by signing c
 
 ## Current local network
 
-This repository builds the `ired` node. The local configuration uses chain ID `ire-1`, base denomination `uire` (6 decimals), one trillion IRE of genesis supply, a bonded local validator, and no protocol inflation. The binary supplies a no-op mint begin-block function; the standard mint module remains available for state/query compatibility, but does not issue new coins.
+This repository builds the `ired` node. `ire-1` is a public testnet with one local validator. A public seed is published (see [Join as a node](#join-as-a-node-or-validator) and [`networks/ire-1/`](networks/ire-1/)). The local configuration uses chain ID `ire-1`, base denomination `uire` (6 decimals), one trillion IRE of genesis supply, a bonded local validator, and no protocol inflation. The binary supplies a no-op mint begin-block function; the standard mint module remains available for state/query compatibility, but does not issue new coins.
 
 ```sh
 make build
@@ -48,10 +48,16 @@ Deploy immutable contracts with `--no-admin`. The CW20 wrapper removes any confi
 
 ## Join as a node or validator
 
+A non-validator public seed is published:
+
+```
+persistent_peers = "63c21a2befb884a958cdc88a1c78788eae42bf5b@91.99.1.9:26656"
+```
+
 Published network files live in [`networks/ire-1/`](networks/ire-1/). That folder is what you share: genesis and the seed peer template. Do not share `.ire/` (validator keys).
 
 Full join and `create-validator` steps: [docs/VALIDATOR.md](docs/VALIDATOR.md).
 
 ## Mainnet launch gate
 
-`ire-1` is currently a local, single-validator network—not a public mainnet. A real mainnet requires independently operated validators, public seed/peer infrastructure, finalized genesis and upgrade governance, external security audit, monitoring/incident response, backups, and a staged public testnet. Do not put real value on this network until those gates are complete.
+`ire-1` is a public testnet with one validator — not mainnet. A public seed now exists. Still missing: independent validators, a public RPC/domain, a final allocation, a treasury multisig, an external audit, and legal. Do not put real value on this network until those gates are complete.

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IRE Sentinel — IRE blockchain</title>
+<meta name="description" content="IRE Sentinel monitors the local IRE node and creates timestamped reports. It reads only the local RPC and REST health endpoints. It can write only to agent/reports; it cannot sign…">
+<link rel="canonical" href="https://illustrious-banoffee-92cafd.netlify.app/sentinel/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="IRE Sentinel — IRE blockchain">
+<meta property="og:description" content="IRE Sentinel monitors the local IRE node and creates timestamped reports. It reads only the local RPC and REST health endpoints. It can write only to agent/reports; it cannot sign…">
+<meta property="og:url" content="https://illustrious-banoffee-92cafd.netlify.app/sentinel/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+
+<p class="advisory">Pre-mainnet — <code>ire-1</code> is a public testnet with one validator. Do not put real value on it.</p>
+
+<div class="frame">
+  <nav class="rail" aria-label="Documentation">
+    <a class="mark" href="/">IRE<span>docs</span></a>
+    <ul><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/" aria-current="page"><span class="idx">06</span>Sentinel</a></li></ul>
+    <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
+  </nav>
+
+  <main id="main">
+    <header class="page-head reveal">
+        <p class="micro">Sentinel</p>
+        <h1>IRE Sentinel</h1>
+        <p class="lead">IRE Sentinel monitors the local IRE node and creates timestamped reports. It reads only the local RPC and REST health endpoints. It can write only to <code>agent/reports</code>; it cannot sign or broadcast transactions, access node keys, change node configuration, or deploy contracts.</p>
+      </header>
+    <div class="prose reveal"><h2 id="run-a-deterministic-check"><a class="anchor" href="#run-a-deterministic-check">Run a deterministic check</a></h2>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">npm run sentinel:no-ai
+</code></pre></figure>
+<p>This confirms the chain ID, sync state, fixed supply, zero inflation, and presence of a bonded validator without using any AI service.</p>
+<h2 id="enable-ai-analysis-securely"><a class="anchor" href="#enable-ai-analysis-securely">Enable AI analysis securely</a></h2>
+<p>Create a dedicated OpenAI project service account API key for IRE Sentinel, with a project budget and no broader access than needed. OpenAI shows the full value only once; do not place it in Git, <code>.env</code> files, the node configuration, or chat.</p>
+<p>Store it in the logged-in macOS Keychain (this command prompts for the secret):</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">security add-generic-password -U -a &quot;$USER&quot; -s IRE_SENTINEL_OPENAI_API_KEY -w
+</code></pre></figure>
+<p>Then run:</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">npm run sentinel:check
+</code></pre></figure>
+<p>The default analysis model is <code>gpt-5.6-sol</code>. Override it for a run with <code>IRE_AGENT_MODEL=&lt;model&gt; npm run sentinel:check</code>.</p>
+<h2 id="keep-it-running-on-this-mac"><a class="anchor" href="#keep-it-running-on-this-mac">Keep it running on this Mac</a></h2>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">zsh agent/install-launchd.sh
+</code></pre></figure>
+<p>This installs a user-level LaunchAgent which runs once when loaded and every 30 minutes afterward. Check <code>agent/logs/sentinel.log</code> and <code>agent/reports/</code> for results. Unload it with:</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">launchctl bootout &quot;gui/$(id -u)/com.ire.sentinel&quot;
+</code></pre></figure>
+</div>
+    <footer class="foot">
+      <p class="micro">Source: the <code>site/</code> folder in <a href="https://github.com/kenyahewitt/ire-blockchain">kenyahewitt/ire-blockchain</a>.</p>
+      <p class="micro">Security disclosures are handled in-repo and are not published here.</p>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-labelledby="toc-label">
+        <p class="micro" id="toc-label">On this page</p>
+        <ol><li><a href="#run-a-deterministic-check">Run a deterministic check</a></li><li><a href="#enable-ai-analysis-securely">Enable AI analysis securely</a></li><li><a href="#keep-it-running-on-this-mac">Keep it running on this Mac</a></li></ol>
+      </aside>
+</div>
+<script src="/assets/docs.js" defer></script>
+</body>
+</html>

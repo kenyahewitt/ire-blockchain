@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tokenomics — IRE blockchain</title>
+<meta name="description" content="The fixed one-trillion IRE supply, how omitting the mint module turns that into a protocol guarantee rather than a policy promise, and the placeholder genesis distribution.">
+<link rel="canonical" href="https://illustrious-banoffee-92cafd.netlify.app/tokenomics/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tokenomics — IRE blockchain">
+<meta property="og:description" content="The fixed one-trillion IRE supply, how omitting the mint module turns that into a protocol guarantee rather than a policy promise, and the placeholder genesis distribution.">
+<meta property="og:url" content="https://illustrious-banoffee-92cafd.netlify.app/tokenomics/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+
+<p class="advisory">Pre-mainnet — <code>ire-1</code> is a public testnet with one validator. Do not put real value on it.</p>
+
+<div class="frame">
+  <nav class="rail" aria-label="Documentation">
+    <a class="mark" href="/">IRE<span>docs</span></a>
+    <ul><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/" aria-current="page"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li></ul>
+    <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
+  </nav>
+
+  <main id="main">
+    <header class="page-head reveal">
+        <p class="micro">Tokenomics</p>
+        <h1>Tokenomics</h1>
+        <p class="lead">The fixed one-trillion IRE supply, how omitting the mint module turns that into a protocol guarantee rather than a policy promise, and the placeholder genesis distribution.</p>
+      </header>
+    <div class="prose reveal"><h2 id="supply"><a class="anchor" href="#supply">Supply</a></h2>
+<ul>
+<li><strong>Denom</strong>: <code>uire</code> (micro-IRE, 1 IRE = 1,000,000 <code>uire</code>, standard Cosmos SDK convention)</li>
+<li><strong>Max supply</strong>: 1,000,000,000,000 IRE (1 trillion) — fixed forever</li>
+<li><strong>Mechanism</strong>: the entire supply is minted exactly once, in the genesis
+block, and allocated per the distribution table below. After genesis, no
+code path in the chain can create new <code>uire</code>. This is enforced by
+<strong>omitting</strong> the <code>x/mint</code> module&#39;s periodic inflation logic entirely (see
+<code>x/ire-mint/README.md</code>) — there&#39;s no minting function to call, not even one
+gated behind governance.</li>
+</ul>
+<h2 id="why-this-is-stronger-than-we-promise-not-to-inflate-it"><a class="anchor" href="#why-this-is-stronger-than-we-promise-not-to-inflate-it">Why this is stronger than &quot;we promise not to inflate it&quot;</a></h2>
+<p>Many tokens claim a fixed supply but retain a mint function gated by
+multisig/governance &quot;just in case.&quot; That&#39;s a <em>policy</em> promise, not a
+<em>protocol</em> guarantee — the code can still do it. Ire&#39;s Blockchain removes the
+mint capability from the binary itself. Changing it would require a hard
+fork that every validator would have to knowingly opt into — the same bar as
+Bitcoin&#39;s 21M cap.</p>
+<h2 id="market-cap-note-important-honesty-check"><a class="anchor" href="#market-cap-note-important-honesty-check">Market cap note (important honesty check)</a></h2>
+<p>You mentioned a &quot;max market cap of 1 trillion.&quot; That&#39;s not something a
+blockchain can enforce — <strong>market cap = circulating supply × market price</strong>,
+and price is set by whoever is willing to buy and sell, not by protocol code.
+What you <em>can</em> enforce is the supply side (done above). If price rises,
+market cap rises with it; no contract can cap that without literally halting
+trading, which defeats the purpose of a tradable asset.</p>
+<h2 id="suggested-initial-distribution-edit-to-your-actual-plan"><a class="anchor" href="#suggested-initial-distribution-edit-to-your-actual-plan">Suggested initial distribution (edit to your actual plan)</a></h2>
+<div class="scroller"><table>
+<thead>
+<tr>
+<th>Allocation</th>
+<th>%</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Community/ecosystem fund</td>
+<td>30%</td>
+<td>Grants, liquidity incentives</td>
+</tr>
+<tr>
+<td>Validator/staking rewards pool</td>
+<td>25%</td>
+<td>Pre-minted since there&#39;s no ongoing inflation — this pool pays staking rewards until exhausted, then rewards taper to transaction fees only</td>
+</tr>
+<tr>
+<td>Team/founders</td>
+<td>15%</td>
+<td>Should vest over 3-4 years, enforced by a vesting module, not a promise</td>
+</tr>
+<tr>
+<td>Public sale / airdrop</td>
+<td>20%</td>
+<td>However you plan to distribute to early users</td>
+</tr>
+<tr>
+<td>Reserve</td>
+<td>10%</td>
+<td>Held for future partnerships, exchange listings, etc.</td>
+</tr>
+</tbody></table></div>
+<p>This table is a placeholder — the actual split is a product/business decision,
+not a technical one. The important technical property is that whatever
+numbers go in the genesis file are the permanent total.</p>
+</div>
+    <footer class="foot">
+      <p class="micro">Source: the <code>site/</code> folder in <a href="https://github.com/kenyahewitt/ire-blockchain">kenyahewitt/ire-blockchain</a>.</p>
+      <p class="micro">Security disclosures are handled in-repo and are not published here.</p>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-labelledby="toc-label">
+        <p class="micro" id="toc-label">On this page</p>
+        <ol><li><a href="#supply">Supply</a></li><li><a href="#why-this-is-stronger-than-we-promise-not-to-inflate-it">Why this is stronger than &amp;quot;we promise not to inflate it&amp;quot;</a></li><li><a href="#market-cap-note-important-honesty-check">Market cap note (important honesty check)</a></li><li><a href="#suggested-initial-distribution-edit-to-your-actual-plan">Suggested initial distribution (edit to your actual plan)</a></li></ol>
+      </aside>
+</div>
+<script src="/assets/docs.js" defer></script>
+</body>
+</html>

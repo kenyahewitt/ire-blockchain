@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture — IRE blockchain</title>
+<meta name="description" content="Why IRE is built on Cosmos SDK and CometBFT, how the modules are composed, what validator hardware actually costs, and which risks this design does not remove.">
+<link rel="canonical" href="https://illustrious-banoffee-92cafd.netlify.app/architecture/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Architecture — IRE blockchain">
+<meta property="og:description" content="Why IRE is built on Cosmos SDK and CometBFT, how the modules are composed, what validator hardware actually costs, and which risks this design does not remove.">
+<meta property="og:url" content="https://illustrious-banoffee-92cafd.netlify.app/architecture/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+
+<p class="advisory">Pre-mainnet — <code>ire-1</code> is a public testnet with one validator. Do not put real value on it.</p>
+
+<div class="frame">
+  <nav class="rail" aria-label="Documentation">
+    <a class="mark" href="/">IRE<span>docs</span></a>
+    <ul><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/" aria-current="page"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li></ul>
+    <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
+  </nav>
+
+  <main id="main">
+    <header class="page-head reveal">
+        <p class="micro">Architecture</p>
+        <h1>Architecture</h1>
+        <p class="lead">Why IRE is built on Cosmos SDK and CometBFT, how the modules are composed, what validator hardware actually costs, and which risks this design does not remove.</p>
+      </header>
+    <div class="prose reveal"><h2 id="why-cosmos-sdk-cometbft"><a class="anchor" href="#why-cosmos-sdk-cometbft">Why Cosmos SDK + CometBFT</a></h2>
+<div class="scroller"><table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Cosmos SDK / CometBFT</th>
+<th>Forked Geth (PoW)</th>
+<th>From scratch</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Low-power validation</td>
+<td>Native — PoS voting, no hashing</td>
+<td>Needs a custom PoW algo (RandomX-style) to be CPU-friendly at all</td>
+<td>You build consensus from zero — highest risk of subtle bugs</td>
+</tr>
+<tr>
+<td>Time to a running testnet</td>
+<td>Weeks</td>
+<td>Weeks–months (consensus rewrite)</td>
+<td>Months–years</td>
+</tr>
+<tr>
+<td>Audited primitives</td>
+<td>Yes — IBC, staking, slashing, gov all battle-tested across hundreds of live chains</td>
+<td>Ethereum&#39;s own code is audited, but PoW retrofitting isn&#39;t</td>
+<td>None</td>
+</tr>
+<tr>
+<td>Smart contracts</td>
+<td>CosmWasm (Rust, sandboxed, no reentrancy-by-default class of bugs)</td>
+<td>Solidity/EVM (mature but reentrancy, unbounded gas footguns are well-known attack classes)</td>
+<td>Your choice — but you&#39;re now also maintaining a VM</td>
+</tr>
+<tr>
+<td>Sovereign control over supply/consensus</td>
+<td>Full</td>
+<td>Full</td>
+<td>Full</td>
+</tr>
+</tbody></table></div>
+<p>CometBFT gives you <strong>instant finality</strong> (a block is final the moment it&#39;s
+committed — no &quot;wait 6 confirmations&quot; ambiguity like Bitcoin/Ethereum PoW),
+which is also a genuine safety improvement: no reorg risk once a block lands.</p>
+<h2 id="module-layout-cosmos-sdk-apps-are-composed-of-modules"><a class="anchor" href="#module-layout-cosmos-sdk-apps-are-composed-of-modules">Module layout (Cosmos SDK apps are composed of modules)</a></h2>
+<ul>
+<li><code>x/auth</code> — accounts (stock Cosmos SDK)</li>
+<li><code>x/bank</code> — token transfers (stock)</li>
+<li><code>x/staking</code> — validator bonding/unbonding (stock)</li>
+<li><code>x/slashing</code> — penalizes double-signing/downtime (stock)</li>
+<li><code>x/gov</code> — on-chain governance for parameter changes (stock — but supply cap
+itself is NOT a governable param, see TOKENOMICS.md)</li>
+<li><code>x/mint</code> — stock mint module is in the running <code>ired</code> binary, with a no-op begin-blocker so inflation stays 0. It remains for state/query compatibility and does not issue new coins.</li>
+<li><code>x/ire-mint</code> — documented custom mint replacement (see <code>x/ire-mint/README.md</code>). It is <strong>not</strong> wired into this running binary.</li>
+<li>CosmWasm contracts live in <code>contracts/</code> in this repository. <code>x/wasm</code> is <strong>not</strong> in the running binary yet (LCD <code>/cosmwasm</code> → Not Implemented; no wasm in <code>app_state</code>).</li>
+</ul>
+<h2 id="validator-hardware-reality"><a class="anchor" href="#validator-hardware-reality">Validator hardware reality</a></h2>
+<p>CometBFT validators for a moderate-throughput chain run comfortably on:</p>
+<ul>
+<li>2-4 CPU cores, 4-8GB RAM, SSD storage</li>
+<li>No GPU, no ASIC</li>
+</ul>
+<p>This is why &quot;CPU/mobile&quot; framing works for <em>validating</em> — it does not mean
+someone mines blocks by burning phone battery on hash puzzles (that model,
+used by projects like Pi Network, generally isn&#39;t real PoW; it&#39;s usually a
+centralized ledger with a mining-themed UI). Full validating nodes on Cosmos
+chains have run on Raspberry Pi hardware in testnets.</p>
+<h2 id="what-this-design-does-not-solve"><a class="anchor" href="#what-this-design-does-not-solve">What this design does NOT solve</a></h2>
+<p>Being honest about limits, since &quot;fixing everything wrong with crypto&quot; isn&#39;t
+a real technical target:</p>
+<ul>
+<li><strong>Bridge/exchange risk</strong> — most stolen funds in crypto history come from
+bridge and exchange hacks, not base-layer consensus flaws. This
+architecture doesn&#39;t make a future bridge automatically safe.</li>
+<li><strong>Key management</strong> — a fixed-supply, immutable-contract chain still loses
+user funds the moment a private key leaks or a seed phrase is phished.</li>
+<li><strong>Validator decentralization</strong> — the protocol can be perfectly designed and
+still end up with 3 validators controlling 90% of stake if nobody else
+bothers running a node. Decentralization is a social/economic outcome, not
+just code. <code>ire-1</code> currently has one validator.</li>
+</ul>
+</div>
+    <footer class="foot">
+      <p class="micro">Source: the <code>site/</code> folder in <a href="https://github.com/kenyahewitt/ire-blockchain">kenyahewitt/ire-blockchain</a>.</p>
+      <p class="micro">Security disclosures are handled in-repo and are not published here.</p>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-labelledby="toc-label">
+        <p class="micro" id="toc-label">On this page</p>
+        <ol><li><a href="#why-cosmos-sdk-cometbft">Why Cosmos SDK + CometBFT</a></li><li><a href="#module-layout-cosmos-sdk-apps-are-composed-of-modules">Module layout (Cosmos SDK apps are composed of modules)</a></li><li><a href="#validator-hardware-reality">Validator hardware reality</a></li><li><a href="#what-this-design-does-not-solve">What this design does NOT solve</a></li></ol>
+      </aside>
+</div>
+<script src="/assets/docs.js" defer></script>
+</body>
+</html>

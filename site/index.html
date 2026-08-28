@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IRE blockchain — protocol documentation</title>
+<meta name="description" content="IRE is a Cosmos SDK proof-of-stake chain. Validators produce blocks by signing consensus votes; this is the appropriate equivalent of “mining” for IRE and does not use GPU/ASIC…">
+<link rel="canonical" href="https://illustrious-banoffee-92cafd.netlify.app/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="IRE blockchain — protocol documentation">
+<meta property="og:description" content="IRE is a Cosmos SDK proof-of-stake chain. Validators produce blocks by signing consensus votes; this is the appropriate equivalent of “mining” for IRE and does not use GPU/ASIC…">
+<meta property="og:url" content="https://illustrious-banoffee-92cafd.netlify.app/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+
+<p class="advisory">Pre-mainnet — <code>ire-1</code> is a public testnet with one validator. Do not put real value on it.</p>
+
+<div class="frame">
+  <nav class="rail" aria-label="Documentation">
+    <a class="mark" href="/">IRE<span>docs</span></a>
+    <ul><li><a href="/" aria-current="page"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li></ul>
+    <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
+  </nav>
+
+  <main id="main">
+    <header class="hero">
+        <p class="micro reveal">Cosmos SDK &middot; CometBFT &middot; fixed supply</p>
+        <h1 class="reveal">IRE<em>blockchain</em></h1>
+        <p class="lead reveal">IRE is a Cosmos SDK proof-of-stake chain. Validators produce blocks by signing consensus votes; this is the appropriate equivalent of “mining” for IRE and does not use GPU/ASIC proof-of-work.</p>
+        <dl class="facts reveal">
+          <div><dt>Chain ID</dt><dd>ire-1</dd></div><div><dt>Base denom</dt><dd>uire &middot; 6 dp</dd></div><div><dt>Genesis supply</dt><dd>1,000,000,000,000 IRE</dd></div><div><dt>Annual provisions</dt><dd>0</dd></div><div><dt>Public seed</dt><dd>91.99.1.9:26656</dd></div><div><dt>Validators</dt><dd>1 (local)</dd></div><div><dt>Min gas price</dt><dd>0.001 uire</dd></div><div><dt>Consensus</dt><dd>CometBFT proof-of-stake</dd></div>
+        </dl>
+      </header>
+    <div class="prose reveal"><h2 id="current-status"><a class="anchor" href="#current-status">Current status</a></h2>
+<p><code>ire-1</code> is a public testnet, still a single-validator network. A non-validator public seed is up in Falkenstein. This Netlify host is documentation only — it is not a seed, RPC, LCD, or P2P endpoint, and cannot serve ports 26656 or 26657.</p>
+<p>Network files, the seed string, and the genesis hash: <a href="/network/">Network</a>. Join a full node or create a validator: <a href="/join/">Join</a>. Source repository: <a href="https://github.com/kenyahewitt/ire-blockchain">github.com/kenyahewitt/ire-blockchain</a>.</p>
+<p>The original operator can still start the local validator from this repository:</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">make build
+./build/ired start --home .ire
+</code></pre></figure>
+<p>Check the local node with:</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">curl -s http://127.0.0.1:26657/status
+curl -s &#39;http://127.0.0.1:1317/cosmos/bank/v1beta1/supply/by_denom?denom=uire&#39;
+</code></pre></figure>
+<h2 id="ire-sentinel"><a class="anchor" href="#ire-sentinel">IRE Sentinel</a></h2>
+<p><a href="/sentinel/">IRE Sentinel</a> is the local, read-only chain-security agent. It checks the local node’s chain ID, sync status, supply, inflation, and validator health, then writes timestamped reports. It cannot sign transactions, access node keys, change node configuration, or deploy contracts. It can use GPT-5.6 Sol for a concise evidence-based assessment after you store your own OpenAI project key in the macOS Keychain.</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">npm run sentinel:no-ai
+</code></pre></figure>
+<h2 id="smart-contracts"><a class="anchor" href="#smart-contracts">Smart contracts</a></h2>
+<p>The CosmWasm contracts live in <code>contracts/</code>. They are not in the running <code>ired</code> binary yet (<code>/cosmwasm</code> on LCD is Not Implemented; there is no wasm in <code>app_state</code>). Run their tests with:</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">cargo test --workspace
+</code></pre></figure>
+<p>Build Wasm artifacts with the CosmWasm-compatible linker setting:</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">RUSTFLAGS=&#39;-C link-arg=--allow-undefined&#39; cargo build --workspace --release --target wasm32-unknown-unknown
+</code></pre></figure>
+<p>Deploy immutable contracts with <code>--no-admin</code>. The CW20 wrapper removes any configured minter at instantiation. The CW721 contract intentionally permits its configured collection minter to issue NFTs; choose and protect that minter before deployment.</p>
+<h2 id="mainnet-launch-gate"><a class="anchor" href="#mainnet-launch-gate">Mainnet launch gate</a></h2>
+<p><code>ire-1</code> is a public testnet with one validator — not mainnet. A public seed now exists. Still missing: independent validators, a public RPC/domain, a final allocation, a treasury multisig, an external audit, and legal. Do not put real value on this network until those gates are complete.</p>
+</div>
+    <footer class="foot">
+      <p class="micro">Source: the <code>site/</code> folder in <a href="https://github.com/kenyahewitt/ire-blockchain">kenyahewitt/ire-blockchain</a>.</p>
+      <p class="micro">Security disclosures are handled in-repo and are not published here.</p>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-labelledby="toc-label">
+        <p class="micro" id="toc-label">On this page</p>
+        <ol><li><a href="#current-status">Current status</a></li><li><a href="#ire-sentinel">IRE Sentinel</a></li><li><a href="#smart-contracts">Smart contracts</a></li><li><a href="#mainnet-launch-gate">Mainnet launch gate</a></li></ol>
+      </aside>
+</div>
+<script src="/assets/docs.js" defer></script>
+</body>
+</html>
