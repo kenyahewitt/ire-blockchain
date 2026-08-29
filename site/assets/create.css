@@ -1,0 +1,149 @@
+/* Create / launch pad. Docs chrome stays in styles.css. */
+
+body.create-page .frame {
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+}
+body.create-page .toc { display: none; }
+body.create-page main { max-width: none; }
+
+.cr-head { max-width: 44rem; }
+
+.cr-first {
+  max-width: 52rem;
+  margin: 1.8rem 0 0;
+  padding: 1rem 1.15rem 1.1rem;
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--ember-lo);
+  background: var(--ink-lift);
+}
+.cr-first h2 {
+  margin: 0 0 0.45rem;
+  font: 500 0.62rem var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ember);
+}
+.cr-first p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #d3cabb;
+}
+.cr-first a {
+  color: var(--paper);
+  text-decoration: underline;
+  text-decoration-color: var(--ember);
+  text-underline-offset: 3px;
+}
+.cr-first a:hover { color: var(--ember); }
+
+.cr-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.15rem;
+  margin: 2.2rem 0 0;
+}
+
+.cr-card {
+  min-width: 0;
+  padding: 1.2rem 1.2rem 1.3rem;
+  border: 1px solid var(--rule);
+  background: var(--ink-lift);
+}
+.cr-card h2 {
+  margin: 0 0 0.4rem;
+  font: 400 1.55rem/1.15 var(--serif);
+  letter-spacing: -0.016em;
+}
+.cr-card .cr-lede {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #d3cabb;
+}
+
+.cr-steps {
+  margin: 0 0 1.1rem;
+  padding-left: 1.2rem;
+  color: #d3cabb;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+.cr-steps li + li { margin-top: 0.4rem; }
+.cr-steps a {
+  color: var(--paper);
+  text-decoration: underline;
+  text-decoration-color: var(--ember);
+  text-underline-offset: 3px;
+}
+
+.cr-form label {
+  display: block;
+  margin: 0.7rem 0 0.3rem;
+  font: 500 0.62rem var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.cr-form label:first-child { margin-top: 0; }
+.cr-form input,
+.cr-form textarea,
+.cr-form select {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--ink);
+  color: var(--paper);
+  font: 400 0.86rem/1.45 var(--mono);
+}
+.cr-form textarea { min-height: 5.5rem; resize: vertical; }
+.cr-form .cr-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+.cr-file {
+  margin-top: 0.7rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.cr-file input[type="file"] {
+  margin-top: 0.35rem;
+  font: 400 0.78rem var(--sans);
+  color: var(--muted);
+}
+
+.cr-warn {
+  margin: 0.8rem 0 0;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--ember-lo);
+  background: rgba(196, 98, 45, 0.12);
+  color: #e4c4ae;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+.cr-note {
+  margin: 0.8rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.cr-card .snippet { margin: 1rem 0 0; }
+.cr-card .snippet pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.cr-count {
+  margin: 0.4rem 0 0;
+  font: 400 0.68rem var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--faint);
+}
+.cr-count.is-over { color: #d98d6a; }
+
+@media (max-width: 980px) {
+  .cr-grid { grid-template-columns: 1fr; }
+}

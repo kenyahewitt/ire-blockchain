@@ -24,7 +24,9 @@
 <div class="frame">
   <nav class="rail" aria-label="Documentation">
     <a class="mark" href="/">IRE<span>docs</span></a>
-    <ul><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li><li><a href="/mempool/"><span class="idx">07</span>Mempool</a></li><li><a href="/use/" aria-current="page"><span class="idx">08</span>Use</a></li><li><a href="/markets/"><span class="idx">09</span>Markets</a></li></ul>
+    <ul class="rail-product"><li><a href="/wallet/">Wallet</a></li><li><a href="/create/">Create</a></li><li><a href="/markets/">Markets</a></li><li><a href="/mempool/">Mempool</a></li></ul>
+    <p class="micro rail-group">Protocol</p>
+    <ul class="rail-protocol"><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li><li><a href="/use/" aria-current="page"><span class="idx">07</span>Use</a></li></ul>
     <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
   </nav>
 
@@ -45,8 +47,8 @@
 </code></pre></figure>
 <p>The transaction sits in the mempool, then a block (~5s). Watch it on <a href="/mempool/">Mempool</a>.</p>
 <h2 id="transactions"><a class="anchor" href="#transactions">Transactions</a></h2>
-<p>CometBFT holds unconfirmed txs until the validator includes them. Empty blocks are normal on a quiet testnet; they show as dim ash on the mempool page. There is no faucet. You need <code>uire</code> already in a local key.</p>
-<p>This docs host reverse-proxies <strong>read-only GET</strong> <code>/rpc/</code> and <code>/api/</code>. It will not relay <code>broadcast_tx</code>. Signing and broadcast stay on your machine with <code>ired</code>.</p>
+<p>The human view of sends, receives, inscriptions, stakes, and bets is <a href="/wallet/">Wallet</a> — look up an <code>ire1</code> address, then scan the last blocks plus the mempool. Cubes of the same traffic live on <a href="/mempool/">Mempool</a>. Empty blocks are normal on a quiet testnet.</p>
+<p>There is no faucet. You need <code>uire</code> already in a local key. This docs host reverse-proxies <strong>read-only GET</strong> <code>/rpc/</code> and <code>/api/</code>. It will not relay <code>broadcast_tx</code>. Signing and broadcast stay on your machine with <code>ired</code>.</p>
 <h2 id="wallet"><a class="anchor" href="#wallet">Wallet</a></h2>
 <p>IRE is a <strong>Cosmos</strong> chain. It is not Solana and not Bitcoin. Do not use Phantom. Do not use a Bitcoin wallet. Use Keplr or Leap as a custom/experimental chain, or just <code>ired keys</code>.</p>
 <p>Copy-paste experimental chain JSON:</p>

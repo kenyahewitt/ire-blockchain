@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create — IRE blockchain</title>
+<meta name="description" content="Launch a token tick or inscribe art, a file catalog, or a game catalog on ire-1. Copy a local ired command. This page does not broadcast.">
+<link rel="canonical" href="https://illustrious-banoffee-92cafd.netlify.app/create/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Create — IRE blockchain">
+<meta property="og:description" content="Launch a token tick or inscribe art, a file catalog, or a game catalog on ire-1. Copy a local ired command. This page does not broadcast.">
+<meta property="og:url" content="https://illustrious-banoffee-92cafd.netlify.app/create/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+<link rel="stylesheet" href="/assets/create.css">
+</head>
+<body class="create-page">
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+
+<p class="advisory">Pre-mainnet — <code>ire-1</code> is a public testnet with one validator. Do not put real value on it.</p>
+
+<div class="frame">
+  <nav class="rail" aria-label="Documentation">
+    <a class="mark" href="/">IRE<span>docs</span></a>
+    <ul class="rail-product"><li><a href="/wallet/">Wallet</a></li><li><a href="/create/" aria-current="page">Create</a></li><li><a href="/markets/">Markets</a></li><li><a href="/mempool/">Mempool</a></li></ul>
+    <p class="micro rail-group">Protocol</p>
+    <ul class="rail-protocol"><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li><li><a href="/use/"><span class="idx">07</span>Use</a></li></ul>
+    <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
+  </nav>
+
+  <main id="main">
+    <header class="page-head cr-head reveal">
+      <p class="micro">Create</p>
+      <h1>Launch pad</h1>
+      <p class="lead">Four inscription recipes. Fill the form, copy a local <code>ired</code> command, and broadcast from your machine. Carrier is a self-send of <code>1uire</code>. This host will not relay <code>broadcast_tx</code>.</p>
+    </header>
+
+    <aside class="cr-first reveal">
+      <h2>First time?</h2>
+      <p>You need <code>ired</code> and a key with a little <code>uire</code>. This page does not broadcast. Gas is <code>0.001uire</code>. Watch the cube on <a href="/mempool/">Mempool</a>, then the row on <a href="/wallet/">Wallet</a>.</p>
+    </aside>
+
+    <div class="cr-grid reveal">
+      <article class="cr-card" id="token">
+        <h2>Launch a token</h2>
+        <p class="cr-lede">Deploy an <code>ire-insc</code> tick. The JSON is the inscription; the send is only the carrier. This is not CW20 — wasm is not in the running binary.</p>
+        <ol class="cr-steps">
+          <li>Pick a 4-letter tick.</li>
+          <li>Copy the command.</li>
+          <li>Run it with <code>ired</code>, then watch <a href="/mempool/">Mempool</a> and <a href="/wallet/">Wallet</a>.</li>
+        </ol>
+        <div class="cr-form">
+          <label for="tk-tick">Tick (4 letters)</label>
+          <input id="tk-tick" maxlength="4" spellcheck="false" value="ABCD" autocomplete="off">
+          <div class="cr-row">
+            <div>
+              <label for="tk-max">Max</label>
+              <input id="tk-max" value="21000000" inputmode="numeric">
+            </div>
+            <div>
+              <label for="tk-lim">Limit</label>
+              <input id="tk-lim" value="1000" inputmode="numeric">
+            </div>
+          </div>
+        </div>
+        <figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh" id="tk-cli"></code></pre></figure>
+      </article>
+
+      <article class="cr-card" id="art">
+        <h2>Inscribe art</h2>
+        <p class="cr-lede">Small SVG or text only. Cosmos memo is 256 characters; we stop you around 180 of payload after the prefix. There is no IPFS path.</p>
+        <ol class="cr-steps">
+          <li>Give it a title and paste SVG or text.</li>
+          <li>If it fits, copy the command.</li>
+          <li>Run <code>ired</code>, then check <a href="/mempool/">Mempool</a>.</li>
+        </ol>
+        <div class="cr-form">
+          <label for="art-title">Title</label>
+          <input id="art-title" value="ember" autocomplete="off">
+          <label for="art-body">SVG or text</label>
+          <textarea id="art-body">&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8"&gt;&lt;rect width="8" height="8" fill="#c4622d"/&gt;&lt;/svg&gt;</textarea>
+          <p class="cr-count" id="art-count"></p>
+        </div>
+        <p class="cr-warn" id="art-warn" hidden>This will not fit in the memo until a chain upgrade. Shorten the SVG or text. Do not pin it off-chain.</p>
+        <figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh" id="art-cli"></code></pre></figure>
+      </article>
+
+      <article class="cr-card" id="file">
+        <h2>Inscribe a file / video</h2>
+        <p class="cr-lede">Honest: the bytes cannot live in a 256-character memo. What you inscribe now is a <strong>catalog record</strong> — name, mime, size. The video itself is not stored. A later inscription module is required for the payload.</p>
+        <ol class="cr-steps">
+          <li>Name the file and set mime + byte size (optional local picker fills those fields only — nothing is uploaded).</li>
+          <li>Copy the catalog command.</li>
+          <li>The record is on-chain after ~5s. Full video bytes are not, and will not be, until the module exists.</li>
+        </ol>
+        <div class="cr-form">
+          <label for="file-name">File label</label>
+          <input id="file-name" value="clip.mp4" autocomplete="off">
+          <div class="cr-row">
+            <div>
+              <label for="file-mime">Mime</label>
+              <input id="file-mime" value="video/mp4" autocomplete="off">
+            </div>
+            <div>
+              <label for="file-bytes">Bytes</label>
+              <input id="file-bytes" value="12345" inputmode="numeric">
+            </div>
+          </div>
+          <label class="cr-file" for="file-pick">Local file (metadata only)
+            <input id="file-pick" type="file">
+          </label>
+        </div>
+        <p class="cr-note">This page never reads file bytes and never sends them to Netlify.</p>
+        <figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh" id="file-cli"></code></pre></figure>
+      </article>
+
+      <article class="cr-card" id="game">
+        <h2>Inscribe a game</h2>
+        <p class="cr-lede">Same catalog pattern as video: <code>op:game</code> with a name and mime. The playable bytes are not in the memo. Do not pretend the game is stored on chain yet.</p>
+        <ol class="cr-steps">
+          <li>Set a name and mime.</li>
+          <li>Copy the catalog command.</li>
+          <li>Run <code>ired</code>. The catalog is on-chain; the game payload needs the later module.</li>
+        </ol>
+        <div class="cr-form">
+          <label for="game-name">Name</label>
+          <input id="game-name" value="ember-cart" autocomplete="off">
+          <label for="game-mime">Mime</label>
+          <input id="game-mime" value="text/html" autocomplete="off">
+          <label class="cr-file" for="game-pick">Local file (metadata only)
+            <input id="game-pick" type="file">
+          </label>
+        </div>
+        <p class="cr-note">Catalog only. Wasm / CW20 is not live in this binary.</p>
+        <figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh" id="game-cli"></code></pre></figure>
+      </article>
+    </div>
+
+    <footer class="foot">
+      <p class="micro">Source: the <code>site/</code> folder in <a href="https://github.com/kenyahewitt/ire-blockchain">kenyahewitt/ire-blockchain</a>.</p>
+      <p class="micro">Security disclosures are handled in-repo and are not published here.</p>
+    </footer>
+  </main>
+</div>
+<script src="/assets/docs.js" defer></script>
+<script src="/assets/create.js" defer></script>
+</body>
+</html>

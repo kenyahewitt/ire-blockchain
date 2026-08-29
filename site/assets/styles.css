@@ -167,6 +167,33 @@ a { color: inherit; }
 
 .rail-foot { margin-top: auto; line-height: 1.9; }
 
+.rail ul.rail-product { margin-top: 2.2rem; }
+.rail ul.rail-protocol { margin-top: 0.35rem; }
+.rail-group {
+  margin: 1.85rem 0 0.45rem;
+  padding-left: 0.9rem;
+  margin-left: -0.9rem;
+  color: var(--faint);
+  opacity: 0.9;
+}
+.rail ul.rail-product a:not(.mark) {
+  font-size: 1.02rem;
+  color: #b7aea0;
+}
+.rail ul.rail-protocol a:not(.mark) {
+  font-size: 0.86rem;
+  color: var(--faint);
+  padding-top: 0.38rem;
+  padding-bottom: 0.38rem;
+}
+.rail ul.rail-protocol a:not(.mark):hover,
+.rail ul.rail-product a:not(.mark):hover,
+.rail ul.rail-protocol a[aria-current="page"],
+.rail ul.rail-product a[aria-current="page"] {
+  color: var(--paper);
+}
+
+
 /* ---------- main ---------- */
 
 main {
@@ -458,6 +485,13 @@ main > .prose.reveal { animation-delay: 0.22s; }
     flex-wrap: wrap;
     gap: 0.25rem 1.4rem;
     margin-top: 1.6rem;
+  }
+  .rail ul.rail-protocol { margin-top: 0.35rem; }
+  .rail-group {
+    flex-basis: 100%;
+    margin: 0.85rem 0 0.15rem;
+    padding-left: 0;
+    margin-left: 0;
   }
   .rail li + li { margin-top: 0; }
   .rail a:not(.mark) { padding: 0.3rem 0; border-left: 0; margin-left: 0; padding-left: 0; }

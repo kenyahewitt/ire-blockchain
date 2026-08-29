@@ -24,7 +24,9 @@
 <div class="frame">
   <nav class="rail" aria-label="Documentation">
     <a class="mark" href="/">IRE<span>docs</span></a>
-    <ul><li><a href="/" aria-current="page"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li><li><a href="/mempool/"><span class="idx">07</span>Mempool</a></li><li><a href="/use/"><span class="idx">08</span>Use</a></li><li><a href="/markets/"><span class="idx">09</span>Markets</a></li></ul>
+    <ul class="rail-product"><li><a href="/wallet/">Wallet</a></li><li><a href="/create/">Create</a></li><li><a href="/markets/">Markets</a></li><li><a href="/mempool/">Mempool</a></li></ul>
+    <p class="micro rail-group">Protocol</p>
+    <ul class="rail-protocol"><li><a href="/" aria-current="page"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li><li><a href="/use/"><span class="idx">07</span>Use</a></li></ul>
     <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
   </nav>
 
@@ -39,7 +41,7 @@
       </header>
     <div class="prose reveal"><h2 id="current-status"><a class="anchor" href="#current-status">Current status</a></h2>
 <p><code>ire-1</code> is a public testnet, still a single-validator network. A non-validator public seed is up in Falkenstein. This Netlify host serves documentation and a read-only GET proxy at <code>/rpc/</code> and <code>/api/</code>. It is not a seed or P2P endpoint, and cannot serve ports 26656 or 26657.</p>
-<p>Network files, the seed string, and the genesis hash: <a href="/network/">Network</a>. Join a full node or create a validator: <a href="/join/">Join</a>. Watch live cubes: <a href="/mempool/">Mempool</a>. Send and inscribe: <a href="/use/">Use</a>. Inscribed prediction markets: <a href="/markets/">Markets</a>. Source repository: <a href="https://github.com/kenyahewitt/ire-blockchain">github.com/kenyahewitt/ire-blockchain</a>.</p>
+<p>Network files, the seed string, and the genesis hash: <a href="/network/">Network</a>. Join a full node or create a validator: <a href="/join/">Join</a>. Watch live cubes: <a href="/mempool/">Mempool</a>. Send and inscribe: <a href="/use/">Use</a>. Inscribed prediction markets: <a href="/markets/">Markets</a>. Look up a balance and activity: <a href="/wallet/">Wallet</a>. Launch a tick or inscribe a catalog record: <a href="/create/">Create</a>. Source repository: <a href="https://github.com/kenyahewitt/ire-blockchain">github.com/kenyahewitt/ire-blockchain</a>.</p>
 <p>The original operator can still start the local validator from this repository:</p>
 <figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">make build
 ./build/ired start --home .ire

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wallet — IRE blockchain</title>
+<meta name="description" content="Look up an ire1 balance and watch send, receive, inscribe, stake, and bet activity on ire-1. Read-only. No signing or broadcast.">
+<link rel="canonical" href="https://illustrious-banoffee-92cafd.netlify.app/wallet/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Wallet — IRE blockchain">
+<meta property="og:description" content="Look up an ire1 balance and watch send, receive, inscribe, stake, and bet activity on ire-1. Read-only. No signing or broadcast.">
+<meta property="og:url" content="https://illustrious-banoffee-92cafd.netlify.app/wallet/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+<link rel="stylesheet" href="/assets/wallet.css">
+</head>
+<body class="wallet-page">
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+
+<p class="advisory">Pre-mainnet — <code>ire-1</code> is a public testnet with one validator. Do not put real value on it.</p>
+
+<div class="frame">
+  <nav class="rail" aria-label="Documentation">
+    <a class="mark" href="/">IRE<span>docs</span></a>
+    <ul class="rail-product"><li><a href="/wallet/" aria-current="page">Wallet</a></li><li><a href="/create/">Create</a></li><li><a href="/markets/">Markets</a></li><li><a href="/mempool/">Mempool</a></li></ul>
+    <p class="micro rail-group">Protocol</p>
+    <ul class="rail-protocol"><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li><li><a href="/use/"><span class="idx">07</span>Use</a></li></ul>
+    <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
+  </nav>
+
+  <main id="main">
+    <header class="page-head wa-head reveal">
+      <p class="micro">Wallet</p>
+      <h1>Activity</h1>
+      <p class="lead">A phone-format feed for one <code>ire1</code> address. This page only GETs <code>/rpc/</code> and <code>/api/</code>. It never signs, never broadcasts, and never holds a key.</p>
+      <div class="wa-status">
+        <span class="wa-pill" id="wa-pill" data-state="offline"><i aria-hidden="true"></i>CONNECTING</span>
+        <span class="wa-updated" id="wa-updated">Waiting for /rpc/status</span>
+      </div>
+    </header>
+
+    <aside class="wa-first reveal">
+      <h2>First run</h2>
+      <ol>
+        <li>Get an <code>ire1</code> address: <code>ired keys add</code> or Keplr as a custom chain (see <a href="/use/#wallet">Use</a>).</li>
+        <li>Someone sends you <code>uire</code>. There is no faucet.</li>
+        <li>It shows here after ~5s. Then <a href="/create/">Create</a> a tick or open a market on <a href="/markets/">Markets</a>.</li>
+      </ol>
+    </aside>
+
+    <section class="wa-phone reveal" aria-label="Wallet">
+      <div class="wa-balance">
+        <label for="wa-address">Address</label>
+        <form class="wa-lookup" id="wa-form">
+          <input id="wa-address" name="address" type="text" spellcheck="false" autocomplete="off" placeholder="ire1…" inputmode="text">
+          <button type="submit">Look up</button>
+        </form>
+        <p class="wa-amount" id="wa-amount-wrap">—<span id="wa-amount-note">Enter an ire1 address</span></p>
+      </div>
+      <div class="wa-feed-h">
+        <h2>Activity</h2>
+        <p id="wa-feed-label">connecting</p>
+      </div>
+      <p class="wa-offline-msg" id="wa-offline" hidden>OFFLINE — could not reach <code>/rpc/status</code>. This page will not invent transactions.</p>
+      <p class="wa-empty" id="wa-empty">Connecting to /rpc…</p>
+      <ul class="wa-list" id="wa-list"></ul>
+    </section>
+
+    <footer class="foot">
+      <p class="micro">Source: the <code>site/</code> folder in <a href="https://github.com/kenyahewitt/ire-blockchain">kenyahewitt/ire-blockchain</a>.</p>
+      <p class="micro">Security disclosures are handled in-repo and are not published here.</p>
+    </footer>
+  </main>
+</div>
+<script src="/assets/docs.js" defer></script>
+<script src="/assets/wallet.js" defer></script>
+</body>
+</html>

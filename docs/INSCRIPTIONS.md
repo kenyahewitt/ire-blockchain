@@ -92,6 +92,46 @@ analyze point at that id in `m`. A buy is a public pledge, not a locked
 position. AI analysis is `op:analyze` — an analyst note, not an unsupervised
 trading bot, and it must not spend the validator key.
 
+## ire-insc deploy, file, and game
+
+The `ire-insc` JSON protocol rides the same memo carrier. Live forms that fill
+the `ired` command: `/create/`. Watch the result on `/wallet/` and `/mempool/`.
+
+Keep the whole memo under 256 characters (`IREINSCRIBE1` + media type + JSON).
+
+Deploy a tick (self-send `1uire`):
+
+```
+IREINSCRIBE1 application/json {"p":"ire-insc","op":"deploy","tick":"ABCD","max":"21000000","lim":"1000"}
+```
+
+This is a ticker inscription, not CW20. Wasm is **not** in the running `ired`
+binary.
+
+### Size wall for video and games
+
+A video, binary, or playable game **cannot** fit in a 256-character memo. Do
+not pin the bytes to IPFS or Arweave. The current path is a **catalog
+inscription only** — a record that the file exists, not the payload:
+
+```
+IREINSCRIBE1 application/json {"p":"ire-insc","op":"file","name":"clip.mp4","mime":"video/mp4","bytes":12345,"note":"on-chain catalog; payload needs inscription module"}
+```
+
+Games use the same catalog shape with `op:game`:
+
+```
+IREINSCRIBE1 application/json {"p":"ire-insc","op":"game","name":"ember-cart","mime":"text/html"}
+```
+
+The catalog is on-chain after the transaction lands. Full video/game bytes need
+a later inscription module with a larger payload limit. Until that upgrade,
+do not claim the file is stored.
+
+Small SVG or text can still use `image/svg+xml` or `text/plain` directly, if
+the payload after the prefix stays small (~180 characters). Larger art will
+not fit until the same module exists.
+
 ## What this is not
 
 - Not an NFT standard on IPFS.
