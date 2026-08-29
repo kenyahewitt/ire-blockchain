@@ -108,6 +108,10 @@ IREINSCRIBE1 application/json {"p":"ire-insc","op":"deploy","tick":"ABCD","max":
 This is a ticker inscription, not CW20. Wasm is **not** in the running `ired`
 binary.
 
+Tick `NINJ` is an inscribed **mapping** to Ninjaagent ERC-20
+`0x5Ce837Cf242e763F9b0E9A87AA7907C3f5DD083C` on Robinhood EVM. It is not a
+minted bank denom and not a 1:1 bridge. See [BRIDGE.md](BRIDGE.md).
+
 ### Size wall for video and games
 
 A video, binary, or playable game **cannot** fit in a 256-character memo. Do
