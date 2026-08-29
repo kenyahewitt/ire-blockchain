@@ -82,6 +82,12 @@ func NewRootCmd() *cobra.Command {
 		autoCliOpts.Modules[name] = mod
 	}
 
+	tfModules := app.RegisterTokenFactory(clientCtx.Codec)
+	for name, mod := range tfModules {
+		moduleBasicManager[name] = module.CoreAppModuleBasicAdaptor(name, mod)
+		autoCliOpts.Modules[name] = mod
+	}
+
 	initRootCmd(rootCmd, clientCtx.TxConfig, moduleBasicManager)
 
 	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {

@@ -46,6 +46,7 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v10/modules/core/keeper"
 
 	"github.com/kenyahewitt/ire-blockchain/docs"
+	tokenfactorykeeper "github.com/kenyahewitt/ire-blockchain/x/tokenfactory/keeper"
 )
 
 const (
@@ -103,6 +104,9 @@ type App struct {
 	ICAControllerKeeper icacontrollerkeeper.Keeper
 	ICAHostKeeper       icahostkeeper.Keeper
 	TransferKeeper      ibctransferkeeper.Keeper
+
+	// tokenfactory (added at v1-tokenfactory; mint/burn for factory denoms only)
+	TokenFactoryKeeper tokenfactorykeeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -201,6 +205,14 @@ func New(
 	if err := app.registerIBCModules(appOpts); err != nil {
 		panic(err)
 	}
+
+	if err := app.registerTokenFactoryModule(); err != nil {
+		panic(err)
+	}
+
+	// Must run after tokenfactory is registered and before Load, so the
+	// v1-tokenfactory store loader can add the new KV store at upgrade height.
+	app.registerUpgradeHandlers()
 
 	/****  Module Options ****/
 

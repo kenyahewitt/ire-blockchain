@@ -25,6 +25,7 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
 	"github.com/kenyahewitt/ire-blockchain/app"
+	tokenfactory "github.com/kenyahewitt/ire-blockchain/x/tokenfactory"
 )
 
 func initRootCmd(
@@ -77,6 +78,7 @@ func queryCommand() *cobra.Command {
 		server.QueryBlocksCmd(),
 		authcmd.QueryTxCmd(),
 		server.QueryBlockResultsCmd(),
+		tokenfactory.NewAppModuleBasic().GetQueryCmd(),
 	)
 
 	return cmd
@@ -102,6 +104,7 @@ func txCommand() *cobra.Command {
 		authcmd.GetEncodeCommand(),
 		authcmd.GetDecodeCommand(),
 		authcmd.GetSimulateCmd(),
+		tokenfactory.NewAppModuleBasic().GetTxCmd(),
 	)
 
 	return cmd

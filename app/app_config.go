@@ -68,6 +68,8 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v10/modules/core/exported"
 	"google.golang.org/protobuf/types/known/durationpb"
+
+	tokenfactorytypes "github.com/kenyahewitt/ire-blockchain/x/tokenfactory/types"
 )
 
 var (
@@ -81,6 +83,7 @@ var (
 		{Account: nft.ModuleName},
 		{Account: ibctransfertypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
 		{Account: icatypes.ModuleName},
+		{Account: tokenfactorytypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
 	}
 
 	// blocked account addresses
@@ -91,6 +94,7 @@ var (
 		stakingtypes.BondedPoolName,
 		stakingtypes.NotBondedPoolName,
 		nft.ModuleName,
+		tokenfactorytypes.ModuleName,
 		// We allow the following module accounts to receive funds:
 		// govtypes.ModuleName
 	}
@@ -164,14 +168,15 @@ var (
 						ibctransfertypes.ModuleName,
 						icatypes.ModuleName,
 						// chain modules
+						tokenfactorytypes.ModuleName,
 					},
 				}),
 			},
 			{
 				Name: authtypes.ModuleName,
 				Config: appconfig.WrapAny(&authmodulev1.Module{
-					Bech32Prefix:             AccountAddressPrefix,
-					ModuleAccountPermissions: moduleAccPerms,
+					Bech32Prefix:                AccountAddressPrefix,
+					ModuleAccountPermissions:    moduleAccPerms,
 					EnableUnorderedTransactions: true,
 					// By default modules authority is the governance module. This is configurable with the following:
 					// Authority: "group", // A custom module authority can be set using a module name
