@@ -5,6 +5,7 @@
 /sentinel     /sentinel/      301
 /mempool      /mempool/      301
 /use          /use/          301
+/markets      /markets/      301
 
 /rpc/*  http://91.99.1.9/rpc/:splat  200
 /api/*  http://91.99.1.9/api/:splat  200

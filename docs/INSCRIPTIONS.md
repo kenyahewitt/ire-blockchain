@@ -69,6 +69,29 @@ On each inscription cube and in the detail panel the page shows `{txhash}i{index
 the media type, and a truncated payload. Confirmed txs keep the same id
 after they leave the mempool.
 
+
+## Sub-protocol: ire-bet (prediction markets)
+
+Prediction markets use the same memo carrier. There is no IPFS and no
+escrow in this binary. Protocol fee is **0%** — gas only (`0.001uire`).
+Full rules: [MARKETS.md](MARKETS.md). Live board: `/markets/`.
+
+Keep JSON tiny so the whole memo fits in 256 characters:
+
+```
+IREINSCRIBE1 application/json {json}
+```
+
+- open: `{"p":"ire-bet","op":"open","q":"ETF approved 2026?","o":["y","n"]}`
+- buy: `{"p":"ire-bet","op":"buy","m":"{txid}i0","s":"y","a":"1000000"}` (`a` is uire; also bank-send that amount as the carrier)
+- resolve: `{"p":"ire-bet","op":"resolve","m":"{txid}i0","w":"y"}`
+- analyze: `{"p":"ire-bet","op":"analyze","m":"{txid}i0","y":65,"n":35,"note":"brief"}`
+
+The market id is the open inscription `{txhash}i{index}`. Buy / resolve /
+analyze point at that id in `m`. A buy is a public pledge, not a locked
+position. AI analysis is `op:analyze` — an analyst note, not an unsupervised
+trading bot, and it must not spend the validator key.
+
 ## What this is not
 
 - Not an NFT standard on IPFS.
