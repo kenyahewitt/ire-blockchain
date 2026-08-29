@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mempool — IRE blockchain</title>
+<meta name="description" content="Live rainbow mempool and recent blocks for the ire-1 public testnet. Read-only. No signing or broadcast.">
+<link rel="canonical" href="https://illustrious-banoffee-92cafd.netlify.app/mempool/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Mempool — IRE blockchain">
+<meta property="og:description" content="Live rainbow mempool and recent blocks for the ire-1 public testnet. Read-only. No signing or broadcast.">
+<meta property="og:url" content="https://illustrious-banoffee-92cafd.netlify.app/mempool/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+<link rel="stylesheet" href="/assets/mempool.css">
+</head>
+<body class="mempool-page">
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+
+<p class="advisory">Pre-mainnet — <code>ire-1</code> is a public testnet with one validator. Do not put real value on it.</p>
+
+<div class="frame">
+  <nav class="rail" aria-label="Documentation">
+    <a class="mark" href="/">IRE<span>docs</span></a>
+    <ul><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li><li><a href="/mempool/" aria-current="page"><span class="idx">07</span>Mempool</a></li><li><a href="/use/"><span class="idx">08</span>Use</a></li></ul>
+    <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
+  </nav>
+
+  <main id="main">
+    <header class="page-head mp-head reveal">
+      <p class="micro">Mempool</p>
+      <h1>Mempool</h1>
+      <p class="lead">Pending transactions as a well of cubes, and recent blocks that shift as height advances (~5s). Read-only GETs to <code>/rpc/</code> and <code>/api/</code>. If the proxy is down, this page shows OFFLINE — it will not invent a height.</p>
+      <div class="mp-status">
+        <span class="mp-pill" id="mp-pill" data-state="offline"><i aria-hidden="true"></i>CONNECTING</span>
+        <span class="mp-updated" id="mp-updated">Waiting for /rpc/status</span>
+      </div>
+    </header>
+
+    <dl class="facts mp-facts reveal">
+      <div><dt>Height</dt><dd id="mp-height">—</dd></div>
+      <div><dt>Pending</dt><dd id="mp-pending">—</dd></div>
+      <div><dt>Supply</dt><dd id="mp-supply">—</dd></div>
+      <div><dt>Bonded validators</dt><dd id="mp-vals">—</dd></div>
+    </dl>
+
+    <div class="mp-stage reveal">
+      <section class="mp-panel" aria-labelledby="well-label">
+        <div class="mp-panel-head">
+          <h2 id="well-label">Pending</h2>
+          <p id="mp-pending-label">connecting</p>
+        </div>
+        <div class="mp-well">
+          <p class="mp-empty" id="mp-empty">Connecting to /rpc…</p>
+          <div class="mp-cubes" id="mp-cubes"></div>
+        </div>
+      </section>
+      <section class="mp-panel" aria-labelledby="blocks-label">
+        <div class="mp-panel-head">
+          <h2 id="blocks-label">Recent blocks</h2>
+          <p>Newest first</p>
+        </div>
+        <div class="mp-blocks" id="mp-blocks"></div>
+      </section>
+    </div>
+
+    <ul class="mp-legend reveal">
+      <li><span class="mp-swatch mp-swatch--bank" aria-hidden="true"></span> Bank / token send</li>
+      <li><span class="mp-swatch mp-swatch--inscription" aria-hidden="true"></span> Inscription <code>IREINSCRIBE1</code></li>
+      <li><span class="mp-swatch mp-swatch--other" aria-hidden="true"></span> Staking / other</li>
+      <li><span class="mp-swatch mp-swatch--empty" aria-hidden="true"></span> Empty block</li>
+    </ul>
+
+    <aside class="mp-detail" id="mp-detail" hidden>
+      <div id="mp-detail-body"></div>
+    </aside>
+
+    <div class="prose reveal">
+      <h2 id="how-to-read-this"><a class="anchor" href="#how-to-read-this">How to read this</a></h2>
+      <p>Each cube is a transaction. Color is by kind, not by fee. Inscription ids are <code>{txhash}i{index}</code> — lowercase hex, the letter <code>i</code>, then the message index. Click a cube or a block for the hash and, when present, the memo payload. Send and inscribe from <a href="/use/">Use</a>.</p>
+      <p>This page never asks for a key and never broadcasts. The public seed is P2P only: <code>63c21a2befb884a958cdc88a1c78788eae42bf5b@91.99.1.9:26656</code>.</p>
+    </div>
+
+    <footer class="foot">
+      <p class="micro">Source: the <code>site/</code> folder in <a href="https://github.com/kenyahewitt/ire-blockchain">kenyahewitt/ire-blockchain</a>.</p>
+      <p class="micro">Security disclosures are handled in-repo and are not published here.</p>
+    </footer>
+  </main>
+</div>
+<script src="/assets/mempool.js" defer></script>
+</body>
+</html>

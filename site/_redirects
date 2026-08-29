@@ -3,3 +3,8 @@
 /architecture /architecture/  301
 /tokenomics   /tokenomics/    301
 /sentinel     /sentinel/      301
+/mempool      /mempool/      301
+/use          /use/          301
+
+/rpc/*  http://91.99.1.9/rpc/:splat  200
+/api/*  http://91.99.1.9/api/:splat  200

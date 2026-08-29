@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Use — IRE blockchain</title>
+<meta name="description" content="Send IRE, watch the mempool, add ire-1 to a Cosmos wallet, and inscribe data into a transaction. Public testnet — not mainnet.">
+<link rel="canonical" href="https://illustrious-banoffee-92cafd.netlify.app/use/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Use — IRE blockchain">
+<meta property="og:description" content="Send IRE, watch the mempool, add ire-1 to a Cosmos wallet, and inscribe data into a transaction. Public testnet — not mainnet.">
+<meta property="og:url" content="https://illustrious-banoffee-92cafd.netlify.app/use/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+
+<p class="advisory">Pre-mainnet — <code>ire-1</code> is a public testnet with one validator. Do not put real value on it.</p>
+
+<div class="frame">
+  <nav class="rail" aria-label="Documentation">
+    <a class="mark" href="/">IRE<span>docs</span></a>
+    <ul><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li><li><a href="/mempool/"><span class="idx">07</span>Mempool</a></li><li><a href="/use/" aria-current="page"><span class="idx">08</span>Use</a></li></ul>
+    <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
+  </nav>
+
+  <main id="main">
+    <header class="page-head reveal">
+        <p class="micro">Use</p>
+        <h1>Use</h1>
+        <p class="lead">Token, transactions, wallet, and inscriptions on <code>ire-1</code>. This is a public testnet with one validator — not mainnet. Operators broadcast with local <code>ired</code>.</p>
+      </header>
+    <div class="prose reveal"><h2 id="token"><a class="anchor" href="#token">Token</a></h2>
+<p>1 IRE = 1,000,000 <code>uire</code>. The base denom on chain is <code>uire</code> (6 decimals). Send with <code>ired tx bank send</code>, chain-id <code>ire-1</code>, gas-prices <code>0.001uire</code>.</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">ired tx bank send &lt;from&gt; &lt;to&gt; 1000000uire \
+  --chain-id ire-1 \
+  --from &lt;key&gt; \
+  --gas-prices 0.001uire \
+  --home "$HOME/.ire" \
+  --yes
+</code></pre></figure>
+<p>The transaction sits in the mempool, then a block (~5s). Watch it on <a href="/mempool/">Mempool</a>.</p>
+<h2 id="transactions"><a class="anchor" href="#transactions">Transactions</a></h2>
+<p>CometBFT holds unconfirmed txs until the validator includes them. Empty blocks are normal on a quiet testnet; they show as dim ash on the mempool page. There is no faucet. You need <code>uire</code> already in a local key.</p>
+<p>This docs host reverse-proxies <strong>read-only GET</strong> <code>/rpc/</code> and <code>/api/</code>. It will not relay <code>broadcast_tx</code>. Signing and broadcast stay on your machine with <code>ired</code>.</p>
+<h2 id="wallet"><a class="anchor" href="#wallet">Wallet</a></h2>
+<p>IRE is a <strong>Cosmos</strong> chain. It is not Solana and not Bitcoin. Do not use Phantom. Do not use a Bitcoin wallet. Use Keplr or Leap as a custom/experimental chain, or just <code>ired keys</code>.</p>
+<p>Copy-paste experimental chain JSON:</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-json">{
+  "chainId": "ire-1",
+  "chainName": "IRE Testnet",
+  "rpc": "https://illustrious-banoffee-92cafd.netlify.app/rpc",
+  "rest": "https://illustrious-banoffee-92cafd.netlify.app/api",
+  "bip44": { "coinType": 118 },
+  "bech32Config": {
+    "bech32PrefixAccAddr": "ire",
+    "bech32PrefixAccPub": "irepub",
+    "bech32PrefixValAddr": "irevaloper",
+    "bech32PrefixValPub": "irevaloperpub",
+    "bech32PrefixConsAddr": "irevalcons",
+    "bech32PrefixConsPub": "irevalconspub"
+  },
+  "currencies": [{
+    "coinDenom": "IRE",
+    "coinMinimalDenom": "uire",
+    "coinDecimals": 6
+  }],
+  "feeCurrencies": [{
+    "coinDenom": "IRE",
+    "coinMinimalDenom": "uire",
+    "coinDecimals": 6,
+    "gasPriceStep": { "low": 0.001, "average": 0.001, "high": 0.0025 }
+  }],
+  "stakeCurrency": {
+    "coinDenom": "IRE",
+    "coinMinimalDenom": "uire",
+    "coinDecimals": 6
+  }
+}
+</code></pre></figure>
+<p><strong>Honest:</strong> that proxy is read-only GET, so Keplr cannot broadcast through it yet. Balances and chain status may load; sends will fail until there is a public write RPC. Operators broadcast with local <code>ired</code> against <code>127.0.0.1:26657</code>. A custom IRE wallet app is optional later, not required.</p>
+<h2 id="inscriptions"><a class="anchor" href="#inscriptions">Inscriptions (not IPFS)</a></h2>
+<p>NFTs on IRE are <strong>not</strong> IPFS and <strong>not</strong> Arweave. You inscribe the payload into the transaction so every full node stores it. The id is <code>{txid}i0</code> for the first message (lowercase hex + <code>i</code> + index). See <a href="https://github.com/kenyahewitt/ire-blockchain/blob/main/docs/INSCRIPTIONS.md">docs/INSCRIPTIONS.md</a>.</p>
+<p>The current binary has no dedicated inscription module. The path is a memo convention: the memo starts with <code>IREINSCRIBE1</code>. Cosmos’s default memo is small (256 characters), so the current path is text, JSON, or small SVG. Large images need a later chain upgrade. Never pin to IPFS for IRE inscriptions — that would put the bytes off this chain.</p>
+<h2 id="cli-inscribe"><a class="anchor" href="#cli-inscribe">CLI inscribe</a></h2>
+<p>Self-send <code>1uire</code> with a memo. The send is only the carrier.</p>
+<figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">ired tx bank send &lt;from&gt; &lt;from&gt; 1uire --chain-id ire-1 --from &lt;key&gt; --gas-prices 0.001uire --memo 'IREINSCRIBE1 application/json {"p":"ire-insc","op":"deploy","tick":"IRE","name":"example"}' --home $HOME/.ire --yes
+</code></pre></figure>
+<p>Then open <a href="/mempool/">Mempool</a>. The cube should be magenta→violet and show <code>{txhash}i0</code>.</p>
+<h2 id="more"><a class="anchor" href="#more">More</a></h2>
+<ul>
+<li>Source: <a href="https://github.com/kenyahewitt/ire-blockchain">github.com/kenyahewitt/ire-blockchain</a></li>
+<li>Join a node or validator: <a href="/join/">Join</a></li>
+<li>Public seed and genesis: <a href="/network/">Network</a></li>
+<li>Live cubes and blocks: <a href="/mempool/">Mempool</a></li>
+</ul>
+</div>
+    <footer class="foot">
+      <p class="micro">Source: the <code>site/</code> folder in <a href="https://github.com/kenyahewitt/ire-blockchain">kenyahewitt/ire-blockchain</a>.</p>
+      <p class="micro">Security disclosures are handled in-repo and are not published here.</p>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-labelledby="toc-label">
+        <p class="micro" id="toc-label">On this page</p>
+        <ol><li><a href="#token">Token</a></li><li><a href="#transactions">Transactions</a></li><li><a href="#wallet">Wallet</a></li><li><a href="#inscriptions">Inscriptions (not IPFS)</a></li><li><a href="#cli-inscribe">CLI inscribe</a></li><li><a href="#more">More</a></li></ol>
+      </aside>
+</div>
+<script src="/assets/docs.js" defer></script>
+</body>
+</html>

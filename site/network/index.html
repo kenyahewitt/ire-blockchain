@@ -24,7 +24,7 @@
 <div class="frame">
   <nav class="rail" aria-label="Documentation">
     <a class="mark" href="/">IRE<span>docs</span></a>
-    <ul><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/" aria-current="page"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li></ul>
+    <ul><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/" aria-current="page"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li><li><a href="/mempool/"><span class="idx">07</span>Mempool</a></li><li><a href="/use/"><span class="idx">08</span>Use</a></li></ul>
     <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
   </nav>
 
@@ -47,9 +47,10 @@
 <h2 id="what-is-public"><a class="anchor" href="#what-is-public">What is public</a></h2>
 <ul>
 <li><strong>Public:</strong> P2P port 26656 on the Falkenstein seed.</li>
-<li><strong>Not public:</strong> RPC 26657 and LCD 1317 stay localhost-only on the VPS. The Mac home-machine validator is not a public endpoint. This Netlify URL is documentation only.</li>
+<li><strong>Read-only via this host:</strong> GET <code>/rpc/</code> and <code>/api/</code> reverse-proxied to localhost RPC/LCD on the VPS (after nginx is installed). POST, broadcast, and <code>net_info</code> are denied. Keplr cannot broadcast through this proxy.</li>
+<li><strong>Not public:</strong> RPC 26657 and LCD 1317 stay localhost-only on the VPS. The Mac home-machine validator is not a public endpoint. This Netlify URL cannot serve ports 26656 or 26657.</li>
 </ul>
-<p>Do not point wallets or explorers at this docs host. Netlify cannot serve 26656 or 26657. There is no public RPC URL; do not treat this site as one.</p>
+<p>Do not treat this docs host as a P2P seed. Watch live transactions on <a href="/mempool/">Mempool</a>.</p>
 <h2 id="binary"><a class="anchor" href="#binary">Binary</a></h2>
 <p>Build <code>ired</code> from <a href="https://github.com/kenyahewitt/ire-blockchain">kenyahewitt/ire-blockchain</a>. Prefer commit <code>a762557</code> to match the running seed binary.</p>
 <figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">git clone https://github.com/kenyahewitt/ire-blockchain.git
