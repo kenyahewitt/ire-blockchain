@@ -10,9 +10,13 @@
   var R = window.BrokersRender;
 
   var CONFIG = {
-    CONTRACT: null,
-    PREVIEW: true,
+    CONTRACT: "0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041",
+    PREVIEW: false,
     OWNER: M.OWNER,
+    TWITTER: "FURBI50360",
+    OPENSEA: "https://opensea.io/collection/crypto-brokers-894013111",
+    EXPLORER: "https://robinhoodchain.blockscout.com/token/0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041",
+    BLOCKSCOUT_TOKEN: "https://robinhoodchain.blockscout.com/api/v2/tokens/0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041",
     CHAIN: {
       chainId: 4663,
       chainIdHex: "0x1237",
@@ -32,7 +36,9 @@
     id: null,
     filter: "",
     universe: "",
-    strategy: ""
+    strategy: "",
+    minted: 20,
+    maxSupply: 5000
   };
 
   function $(id) { return document.getElementById(id); }
@@ -85,6 +91,84 @@
   function eth() {
     return window.ethereum || null;
   }
+
+  function pad32(n) {
+    var h = (typeof n === "number" ? n.toString(16) : String(n).replace(/^0x/, ""));
+    return h.padStart(64, "0");
+  }
+
+  function decodeUint(hex) {
+    if (!hex || hex === "0x") return null;
+    return parseInt(hex, 16);
+  }
+
+  function decodeAddress(hex) {
+    if (!hex || hex === "0x" || hex.length < 66) return null;
+    return "0x" + hex.slice(-40);
+  }
+
+  async function ethCall(data) {
+    var provider = eth();
+    var params = [{ to: CONFIG.CONTRACT, data: data }, "latest"];
+    if (provider) {
+      return await provider.request({ method: "eth_call", params: params });
+    }
+    var rpcs = CONFIG.CHAIN.rpcUrls || [];
+    var i, res, j;
+    for (i = 0; i < rpcs.length; i++) {
+      try {
+        res = await fetch(rpcs[i], {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: params })
+        });
+        j = await res.json();
+        if (j && j.result) return j.result;
+      } catch (e) {}
+    }
+    res = await fetch(CONFIG.BLOCKSCOUT_TOKEN);
+    j = await res.json();
+    if (j && j.total_supply) return null;
+    return null;
+  }
+
+  async function refreshMinted() {
+    var n = state.minted;
+    try {
+      var hex = await ethCall("0x18160ddd");
+      if (hex) n = decodeUint(hex);
+    } catch (e) {
+      try {
+        var res = await fetch(CONFIG.BLOCKSCOUT_TOKEN);
+        var j = await res.json();
+        if (j && j.total_supply) n = parseInt(j.total_supply, 10);
+      } catch (e2) {}
+    }
+    if (Number.isFinite(n) && n >= 0) state.minted = n;
+    var el = $("bk-mint-count");
+    if (el) el.innerHTML = "<strong>" + state.minted + " / " + state.maxSupply + "</strong> minted on-chain";
+    var live = $("bk-mint-live");
+    if (live) live.textContent = "SeaDrop ERC-721 · ids 1–" + state.minted + " live";
+    var contractEl = $("bk-contract");
+    if (contractEl) contractEl.textContent = CONFIG.CONTRACT;
+    document.querySelectorAll("[data-contract]").forEach(function (n) { n.textContent = CONFIG.CONTRACT; });
+    renderLandingGrid();
+  }
+
+  async function ownerOf(id) {
+    if (!CONFIG.CONTRACT) return null;
+    var data = "0x6352211e" + pad32(id);
+    try {
+      var hex = await ethCall(data);
+      var a = decodeAddress(hex);
+      if (!a || a === "0x0000000000000000000000000000000000000000") return null;
+      return a;
+    } catch (e) {
+      return null;
+    }
+  }
+
+
 
   function hexToInt(hex) {
     if (hex == null) return null;
@@ -226,9 +310,13 @@
   function cardHtml(id, href) {
     var m = M.mandateFor(id);
     var on = isActivated(id);
-    return '<a href="' + href + '" data-id="' + id + '" data-activated="' + (on ? "1" : "0") + '">' +
+    var minted = id <= state.minted;
+    var tags = "";
+    if (minted) tags += ' <span class="bk-tag">minted</span>';
+    if (on) tags += ' <span class="bk-tag">activated</span>';
+    return '<a href="' + href + '" data-id="' + id + '" data-activated="' + (on ? "1" : "0") + '" data-minted="' + (minted ? "1" : "0") + '">' +
       R.svg(id) +
-      '<p class="bk-card-meta"><strong>#' + id + (on ? ' <span class="bk-tag">activated</span>' : "") +
+      '<p class="bk-card-meta"><strong>#' + id + tags +
       "</strong>" + m.primaryAsset + " · " + m.strategy + "</p></a>";
   }
 
@@ -373,10 +461,8 @@
     setText("bk-quote", m.quote);
     var pill = $("bk-mode-pill");
     if (pill) {
-      pill.dataset.state = CONFIG.CONTRACT ? "live" : "preview";
-      pill.innerHTML = CONFIG.CONTRACT
-        ? "<i></i>CONTRACT SET"
-        : "<i></i>PREVIEW · CONTRACT null";
+      pill.dataset.state = "live";
+      pill.innerHTML = "<i></i>ON-CHAIN · " + state.minted + " minted";
     }
     var cap = $("bk-size");
     if (cap) {
@@ -386,6 +472,14 @@
     renderPaperRows(id);
     renderLiveRows(id);
     refreshActivation();
+    ownerOf(id).then(function (own) {
+      var box = $("bk-onchain-owner");
+      if (!box) return;
+      if (!own) { box.textContent = id <= state.minted ? "Minted; owner lookup failed." : "Not minted yet (supply " + state.minted + " / " + state.maxSupply + ")."; return; }
+      var mine = state.address && own.toLowerCase() === state.address.toLowerCase();
+      box.innerHTML = (mine ? "You own this token on-chain. " : "On-chain owner <code>" + shortAddr(own) + "</code>. ") +
+        "<a href=\"https://opensea.io/item/robinhood/0x9f7a3adbf611cbeec95ce40e0259bbf96b8df041/" + id + "\">OpenSea</a>";
+    });
     setHtml("bk-mark", "Public mark not fetched.");
     show("bk-offline", false);
     var link = $("bk-activate-link");
@@ -636,8 +730,9 @@
     bind();
     setWalletUi();
     var contractEl = $("bk-contract");
-    if (contractEl) contractEl.textContent = CONFIG.CONTRACT == null ? "null (PREVIEW)" : CONFIG.CONTRACT;
+    if (contractEl) contractEl.textContent = CONFIG.CONTRACT;
     route();
+    refreshMinted();
     if (eth()) {
       eth().request({ method: "eth_accounts" }).then(function (acc) {
         state.address = acc && acc[0] ? acc[0] : null;

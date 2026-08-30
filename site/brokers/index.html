@@ -15,7 +15,7 @@
 <div class="grain" aria-hidden="true"></div>
 <a class="skip" href="#main">Skip to content</a>
 
-<p class="advisory">Not a licensed broker-dealer. Not Robinhood Inc. Intended chain: Robinhood Chain <code>4663</code>. ERC-721 address is <code>null</code> (PREVIEW) until the owner deploys. <code>ire-1</code> is a separate Cosmos testnet — do not put real value on it.</p>
+<p class="advisory">Not a licensed broker-dealer. Not Robinhood Inc. Live ERC-721 on Robinhood Chain <code>4663</code>: <code>0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041</code>. Owner <a href="https://x.com/FURBI50360">@FURBI50360</a>. <code>ire-1</code> is a separate Cosmos testnet.</p>
 
 <div class="frame">
   <nav class="rail" aria-label="Documentation">
@@ -34,25 +34,30 @@
         <a class="bk-btn" href="/brokers/activated.html">Activated</a>
       </p>
       <header class="hero">
-        <p class="micro reveal">boomer250.com/brokers · 5000 unique agents</p>
+        <p class="micro reveal">boomer250.com/brokers · @FURBI50360 · 5000 unique agents</p>
         <h1 class="reveal">Crypto <em>Brokers</em></h1>
         <p class="lead reveal">Five thousand original agent NFTs. Each token is one AI trading agent with a <strong>unique primary asset</strong>. No two share the same book. Connect a wallet, activate, then run paper or owner-signed live intents. Not a licensed broker. No custody.</p>
-        <p class="bk-preview reveal">PREVIEW · CONTRACT <code id="bk-contract">null</code></p>
+        <p class="bk-preview reveal">LIVE · CONTRACT <code id="bk-contract">0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041</code></p>
         <div class="bk-mintbar reveal" id="bk-mintbar">
-          <span id="bk-mint-count"><strong>5000 / 5000</strong> agents in the drop</span>
-          <span>On-chain mint: CONTRACT null (PREVIEW)</span>
+          <span id="bk-mint-count"><strong>20 / 5000</strong> minted on-chain</span>
+          <span id="bk-mint-live">SeaDrop ERC-721 · ids 1–20 live</span>
         </div>
         <div class="bk-actions reveal">
           <button class="bk-btn bk-btn-ember" type="button" data-connect>Connect wallet</button>
           <a class="bk-btn" href="/brokers/activate.html">Activate an agent</a>
           <a class="bk-btn" href="/brokers/activated.html">Activated desk</a>
+          <a class="bk-btn" href="https://opensea.io/collection/crypto-brokers-894013111">OpenSea</a>
+          <a class="bk-btn" href="https://x.com/FURBI50360">@FURBI50360</a>
         </div>
         <p class="bk-wallet reveal"><span class="bk-wallet-label">Wallet not connected.</span> <span class="bk-wallet-chain"></span></p>
         <dl class="facts reveal">
           <div><dt>Size</dt><dd>5000</dd></div>
           <div><dt>Owner / minter</dt><dd>0xdfF1a5dc565a2D8d0C2818f8B190ca8399B869b3</dd></div>
+          <div><dt>Twitter</dt><dd><a href="https://x.com/FURBI50360">@FURBI50360</a></dd></div>
+          <div><dt>OpenSea</dt><dd><a href="https://opensea.io/collection/crypto-brokers-894013111">crypto-brokers-894013111</a></dd></div>
+          <div><dt>Minted</dt><dd>20 / 5000 (ids 1–20)</dd></div>
           <div><dt>Intended chain</dt><dd>Robinhood Chain · 4663</dd></div>
-          <div><dt>Contract</dt><dd>null until deploy</dd></div>
+          <div><dt>Contract</dt><dd><a href="https://robinhoodchain.blockscout.com/token/0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041"><code>0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041</code></a></dd></div>
           <div><dt>Gas token</dt><dd>ETH</dd></div>
           <div><dt>Explorer</dt><dd>robinhoodchain.blockscout.com</dd></div>
           <div><dt>IRE vault (separate)</dt><dd>ire1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8nanfuy</dd></div>
@@ -81,7 +86,7 @@
 
       <div class="prose reveal">
         <h2 id="browse">All 5000 agents</h2>
-        <p>The full drop, ids 1–5000. Each card is a unique mandate. Open one to activate. After mint the ERC-721 still maps here: <code>https://boomer250.com/brokers/?id=N</code>.</p>
+        <p>The full drop, ids 1–5000. Minted tokens show a mint tag. Open one to activate. tokenURI host: <code>https://boomer250.com/brokers/?id=N</code>.</p>
       </div>
 
       <div class="bk-browse reveal">
@@ -151,6 +156,7 @@
             <button class="bk-btn bk-btn-ember" type="button" id="bk-activate">Activate this agent</button>
           </div>
           <p class="bk-note" id="bk-activation-state"></p>
+          <p class="bk-note" id="bk-onchain-owner"></p>
 
           <h2>Paper blotter</h2>
           <p>Fetches a public Dexscreener search for the unique primary asset. If that fails, the blotter is offline. No invented marks. No invented PnL.</p>
@@ -202,7 +208,7 @@
 
     <footer class="foot">
       <p class="micro">Drop-in for <code>site/brokers/</code> in <a href="https://github.com/kenyahewitt/ire-blockchain">kenyahewitt/ire-blockchain</a>. tokenURI should point here.</p>
-      <p class="micro">Owner <code>0xdfF1a5dc565a2D8d0C2818f8B190ca8399B869b3</code> · chainId 4663 · CONTRACT null</p>
+      <p class="micro">Owner <a href="https://x.com/FURBI50360">@FURBI50360</a> · <code>0xdfF1a5dc565a2D8d0C2818f8B190ca8399B869b3</code> · <a href="https://robinhoodchain.blockscout.com/token/0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041">contract</a> · <a href="https://opensea.io/collection/crypto-brokers-894013111">OpenSea</a></p>
     </footer>
   </main>
 </div>
