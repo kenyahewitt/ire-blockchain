@@ -280,6 +280,38 @@
     );
   }
 
+
+  var HEAD_SHOT = {
+    "Gold Skull": "gold-skull.jpg",
+    "Chrome Skull": "chrome-skull.jpg",
+    "Matte Helm": "matte-helm.jpg",
+    "Violet Slit": "violet-slit.jpg",
+    "Ember Mask": "ember-mask.jpg",
+    "Paper Visor": "paper-visor.jpg"
+  };
+
+  function shotUrl(m) {
+    var f = HEAD_SHOT[m.head] || "gold-skull.jpg";
+    return "/brokers/assets/agents3d/" + f;
+  }
+
+  function tapeText(m) {
+    var side = (m.id % 2 === 0) ? "BUY" : "SELL";
+    var px = ((m.id % 97) / 10).toFixed(2);
+    return "LIVE  ·  #" + m.id + "  ·  " + m.primaryAsset + "  " + side + "  " + px +
+      "%  ·  " + m.strategy + "  ·  " + m.venue + "  ·  MAX $" + m.maxNotionalUsd +
+      "  ·  CRYPTO BROKERS FLOOR  ·  ";
+  }
+
+  function shotHtml(m) {
+    var t = tapeText(m);
+    return '<div class="bk-shot">' +
+      '<img src="' + shotUrl(m) + '" alt="' + m.name + ' 3D agent">' +
+      '<span class="bk-pulse"><i></i>trading</span>' +
+      '<div class="bk-tape"><span>' + t + t + '</span></div>' +
+      '</div>';
+  }
+
   function isActivated(id) {
     if (!state.address) return false;
     var rec = readJSON(storageKey("activation", id));
@@ -315,9 +347,9 @@
     if (minted) tags += ' <span class="bk-tag">minted</span>';
     if (on) tags += ' <span class="bk-tag">activated</span>';
     return '<a href="' + href + '" data-id="' + id + '" data-activated="' + (on ? "1" : "0") + '" data-minted="' + (minted ? "1" : "0") + '">' +
-      R.svg(id) +
+      shotHtml(m) +
       '<p class="bk-card-meta"><strong>#' + id + tags +
-      "</strong>" + m.primaryAsset + " · " + m.strategy + "</p></a>";
+      "</strong>" + m.primaryAsset + " · " + m.strategy + " · live tape</p></a>";
   }
 
   function renderLandingGrid() {
@@ -456,7 +488,7 @@
     show("bk-console", true);
     setText("bk-console-name", m.name);
     setText("bk-console-asset", m.primaryAsset);
-    setHtml("bk-art", R.svg(id));
+    setHtml("bk-art", shotHtml(m));
     setHtml("bk-facts", factsHtml(m));
     setText("bk-quote", m.quote);
     var pill = $("bk-mode-pill");
