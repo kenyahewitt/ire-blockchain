@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whitepaper — IRE blockchain</title>
+<meta name="description" content="IRE whitepaper: Cosmos chain ire-1, fixed supply, Volt vault, inscriptions, Crypto Brokers agents, points. Public testnet.">
+<link rel="canonical" href="https://boomer250.com/whitepaper/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Whitepaper — IRE blockchain">
+<meta property="og:description" content="IRE whitepaper: Cosmos chain ire-1, fixed supply, Volt vault, inscriptions, Crypto Brokers agents, points. Public testnet.">
+<meta property="og:url" content="https://boomer250.com/whitepaper/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<p class="advisory">Pre-mainnet — <code>ire-1</code> is a public testnet with one validator. Do not put real value on it.</p>
+<div class="frame">
+  <nav class="rail" aria-label="Documentation">
+    <a class="mark" href="/">IRE<span>docs</span></a>
+    <ul class="rail-product"><li><a href="/wallet/">Wallet</a></li><li><a href="/id/">Profile</a></li><li><a href="/brokers/">Brokers</a></li><li><a href="/create/">Create</a></li><li><a href="/markets/">Markets</a></li><li><a href="/mempool/">Mempool</a></li><li><a href="/points/">Points</a></li><li><a href="/vault/">Vault</a></li></ul>
+    <p class="micro rail-group">Protocol</p>
+    <ul class="rail-protocol"><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li><li><a href="/use/"><span class="idx">07</span>Use</a></li><li><a href="/whitepaper/" aria-current="page"><span class="idx">08</span>Whitepaper</a></li></ul>
+    <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
+  </nav>
+  <main id="main">
+    <header class="page-head reveal">
+      <p class="micro">Whitepaper</p>
+      <h1>IRE <em style="font-style:italic;color:var(--ember)">blockchain</em></h1>
+      <p class="lead">A Cosmos SDK proof-of-stake chain. Send IRE, inscribe on the chain itself, earn usage points, and activate unique Crypto Broker agents. Network gas feeds the Volt. This paper is the public spec. It is not a securities offering and not a licensed brokerage.</p>
+    </header>
+    <div class="prose reveal">
+      <h2 id="what"><a class="anchor" href="#what">What IRE is</a></h2>
+      <p>IRE is a Cosmos SDK + CometBFT chain. Chain ID <code>ire-1</code>. Base denom <code>uire</code> (6 decimals). Consensus is proof-of-stake: validators sign votes. There is no GPU mining. This domain, <a href="https://boomer250.com">boomer250.com</a>, is the public home for the chain, the Volt, this paper, and Crypto Brokers activation.</p>
+      <p><code>ire-1</code> is a <strong>public testnet with one validator</strong>. A public seed exists in Falkenstein. Do not send real money, list a token, or treat this as mainnet until independent validators, a treasury multisig, an external audit, and legal are in place.</p>
+
+      <h2 id="token"><a class="anchor" href="#token">Token and supply</a></h2>
+      <p>Genesis supply is 1,000,000,000,000 IRE, minted once. Annual provisions are 0. The running binary does not inflate <code>uire</code>. Changing that would take a hard fork every validator opts into. Market cap is price times supply. The chain cannot cap price.</p>
+      <p>Minimum gas price <code>0.001uire</code>. Gas is how you pay to use the network.</p>
+
+      <h2 id="volt"><a class="anchor" href="#volt">Volt (IRE Vault)</a></h2>
+      <p>The vault is the Cosmos community pool, not a company wallet. Address <code>ire1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8nanfuy</code>. Genesis <code>community_tax</code> is 2% of gas. Proposal 001 can set it to 100% so usage fees stay with the chain. Governance spends the vault on rewards, airdrops, and ops. Anyone can fund it. Live board: <a href="/vault/">Vault</a>.</p>
+
+      <h2 id="use"><a class="anchor" href="#use">What you can do</a></h2>
+      <ul>
+        <li><a href="/wallet/">Wallet</a> — look up an <code>ire1</code>, share a receive link, copy a send command. This host never holds a key.</li>
+        <li><a href="/id/">Profile</a> — inscribe X, Telegram, Discord, and a site onto your address (<code>ire-id</code> memo, 256 characters).</li>
+        <li><a href="/create/">Create</a> — launch a token, art, file, or game inscription. On-chain memos, not IPFS.</li>
+        <li><a href="/markets/">Markets</a> — yes/no boards as inscriptions. Protocol fee 0%. No escrow in the running binary.</li>
+        <li><a href="/mempool/">Mempool</a> — live blocks.</li>
+        <li><a href="/points/">Points</a> — usage score (send 1, inscribe +5, markets +10, fund Volt +20). Not IRE. Not a listed token.</li>
+      </ul>
+
+      <h2 id="brokers"><a class="anchor" href="#brokers">Crypto Brokers (5,000 agents)</a></h2>
+      <p>A 5,000-piece NFT collection. Each token is a unique agent with its own primary asset. No two brokers share the same book. Intended chain: Robinhood Chain (EVM chainId 4663). Owner / minter <code>0xdfF1a5dc565a2D8d0C2818f8B190ca8399B869b3</code>. ERC-721 is not deployed yet. Activate on <a href="/brokers/">Brokers</a>: connect a wallet, sign to activate, paper blotter by default. Live trades are owner-signed intents only. No custody. Not a licensed broker-dealer. Not Robinhood Inc.</p>
+      <p>OpenSea drop files live on the operator machine as two zips: images (<code>1.png</code>…<code>5000.png</code>) and metadata (<code>1.json</code>…<code>5000.json</code>).</p>
+
+      <h2 id="join"><a class="anchor" href="#join">Join the network</a></h2>
+      <p>Public seed: <code>63c21a2befb884a958cdc88a1c78788eae42bf5b@91.99.1.9:26656</code>. Full steps: <a href="/join/">Join</a> and <a href="/network/">Network</a>. Source: <a href="https://github.com/kenyahewitt/ire-blockchain">github.com/kenyahewitt/ire-blockchain</a>. Never share <code>.ire/</code> validator keys.</p>
+
+      <h2 id="not"><a class="anchor" href="#not">What this is not</a></h2>
+      <p>Not mainnet. Not a licensed broker, advisor, or exchange. Not Robinhood Markets. CosmWasm is not in the running <code>ired</code> binary. Ninjaagent on Robinhood Chain is a related token, not this NFT contract. Points are not IRE. The Solana Boomer250 memecoin that used to live on this domain is not this chain.</p>
+    </div>
+    <footer class="foot">
+      <p class="micro">Source: the <code>site/</code> folder in <a href="https://github.com/kenyahewitt/ire-blockchain">kenyahewitt/ire-blockchain</a>.</p>
+      <p class="micro">Security disclosures are handled in-repo and are not published here.</p>
+    </footer>
+  </main>
+  <aside class="toc" aria-labelledby="toc-label">
+    <p class="micro" id="toc-label">On this page</p>
+    <ol>
+      <li><a href="#what">What IRE is</a></li>
+      <li><a href="#token">Token and supply</a></li>
+      <li><a href="#volt">Volt</a></li>
+      <li><a href="#use">What you can do</a></li>
+      <li><a href="#brokers">Crypto Brokers</a></li>
+      <li><a href="#join">Join</a></li>
+      <li><a href="#not">What this is not</a></li>
+    </ol>
+  </aside>
+</div>
+<script src="/assets/docs.js" defer></script>
+</body>
+</html>

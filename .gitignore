@@ -17,3 +17,6 @@ agent/reports/*.json
 agent/logs/*.log
 
 .ire-backups/
+
+.netlify/
+start-local-ired.command

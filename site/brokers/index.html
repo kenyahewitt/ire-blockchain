@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crypto Brokers — IRE</title>
+<meta name="description" content="5000 Crypto Brokers NFTs. Each token is a unique AI trading agent with a unique primary asset. Paper blotter and owner-signed live intents. Not a licensed broker. Not Robinhood Inc.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+<link rel="stylesheet" href="assets/brokers.css">
+</head>
+<body class="brokers-page">
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+
+<p class="advisory">Not a licensed broker-dealer. Not Robinhood Inc. Intended chain: Robinhood Chain <code>4663</code>. ERC-721 address is <code>null</code> (PREVIEW) until the owner deploys. <code>ire-1</code> is a separate Cosmos testnet — do not put real value on it.</p>
+
+<div class="frame">
+  <nav class="rail" aria-label="Documentation">
+    <a class="mark" href="/">IRE<span>docs</span></a>
+    <ul class="rail-product"><li><a href="/wallet/">Wallet</a></li><li><a href="/id/">Profile</a></li><li><a href="/brokers/" aria-current="page">Brokers</a></li><li><a href="/create/">Create</a></li><li><a href="/markets/">Markets</a></li><li><a href="/mempool/">Mempool</a></li><li><a href="/points/">Points</a></li><li><a href="/vault/">Vault</a></li></ul>
+    <p class="micro rail-group">Protocol</p>
+    <ul class="rail-protocol"><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li><li><a href="/use/"><span class="idx">07</span>Use</a></li><li><a href="/whitepaper/"><span class="idx">08</span>Whitepaper</a></li></ul>
+    <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
+  </nav>
+
+  <main id="main">
+    <div id="bk-landing">
+      <header class="hero">
+        <p class="micro reveal">Collection · 5000 unique agents · PREVIEW</p>
+        <h1 class="reveal">Crypto <em>Brokers</em></h1>
+        <p class="lead reveal">Five thousand original agent NFTs. Each token is one AI trading agent with a <strong>unique primary asset</strong> — no two share the same book. The NFT is art plus a public mandate. It is not a licensed broker, does not take custody, and does not place unsupervised live trades.</p>
+        <p class="bk-preview reveal">PREVIEW · CONTRACT <code id="bk-contract">null</code></p>
+        <div class="bk-actions reveal">
+          <button class="bk-btn bk-btn-ember" type="button" data-connect>Connect wallet</button>
+          <a class="bk-btn" href="activate.html">Activate an agent</a>
+        </div>
+        <p class="bk-wallet reveal"><span class="bk-wallet-label">Wallet not connected.</span> <span class="bk-wallet-chain"></span></p>
+        <dl class="facts reveal">
+          <div><dt>Size</dt><dd>5000</dd></div>
+          <div><dt>Owner / minter</dt><dd>0xdfF1a5dc565a2D8d0C2818f8B190ca8399B869b3</dd></div>
+          <div><dt>Intended chain</dt><dd>Robinhood Chain · 4663</dd></div>
+          <div><dt>Contract</dt><dd>null until deploy</dd></div>
+          <div><dt>Gas token</dt><dd>ETH</dd></div>
+          <div><dt>Explorer</dt><dd>robinhoodchain.blockscout.com</dd></div>
+          <div><dt>IRE vault (separate)</dt><dd>ire1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8nanfuy</dd></div>
+          <div><dt>Related RH token</dt><dd>Ninjaagent — not this NFT</dd></div>
+        </dl>
+      </header>
+
+      <section class="vt-rules reveal" aria-label="What this is" style="margin:2.4rem 0">
+        <article>
+          <h2>Unique agents</h2>
+          <p>Every id 1–5000 has its own traits, strategy, venue, timeframe, max notional, and a primary asset no other token holds. Secondary is a hedge pair. Min $1M mcap is a mandate filter, not a claimed floor or market cap.</p>
+        </article>
+        <article>
+          <h2>Paper vs live</h2>
+          <p><strong>Paper</strong> records simulated marks from a public quote if one is fetchable. If the quote fails, the blotter goes offline — it will not invent prices or PnL. <strong>Live</strong> is an owner-signed intent (<code>personal_sign</code>) only. No swap-router calldata. No <code>eth_sendTransaction</code> for trades. No custody.</p>
+        </article>
+        <article>
+          <h2>Not Robinhood Inc</h2>
+          <p>Robinhood Chain is the intended EVM home (chainId 4663). This collection is not a product of Robinhood Markets, Inc. It is not a broker-dealer. Testnet-adjacent: <code>ire-1</code> points and the Volt vault exist on Cosmos, separately. Wasm is not in <code>ired</code>. This is not an IRE ERC-721.</p>
+        </article>
+        <article>
+          <h2>Ninjaagent</h2>
+          <p><code>0x5Ce837Cf242e763F9b0E9A87AA7907C3F5DD083C</code> is a related Robinhood Chain token, not this NFT contract. Do not treat it as Crypto Brokers.</p>
+        </article>
+      </section>
+
+      <div class="prose reveal">
+        <h2 id="browse">Browse #1–5000</h2>
+        <p>Deterministic SVG cards until the 3D PNGs are hosted. Open any id for the agent console, or use <a href="activate.html">activate</a>. Deep link: <code>/brokers/?id=42</code>.</p>
+      </div>
+
+      <div class="bk-browse reveal">
+        <div class="bk-browse-bar">
+          <button class="bk-btn" type="button" id="bk-prev">Prev</button>
+          <button class="bk-btn" type="button" id="bk-next">Next</button>
+          <p class="micro" id="bk-page-label"></p>
+          <form class="bk-field" id="bk-jump-form">
+            <label for="bk-jump">Jump to id</label>
+            <input id="bk-jump" name="id" type="number" min="1" max="5000" placeholder="42">
+          </form>
+        </div>
+        <div class="bk-grid" id="bk-grid"></div>
+      </div>
+    </div>
+
+    <div id="bk-console" class="bk-hidden">
+      <header class="page-head reveal">
+        <p class="micro">Agent console</p>
+        <h1 id="bk-console-name">Crypto Broker</h1>
+        <p class="lead">Primary asset <strong id="bk-console-asset"></strong>. Each agent trades a different item. Paper marks if a public quote exists. Live trades require the owner’s signature every time.</p>
+        <div class="bk-status">
+          <span class="bk-pill" id="bk-mode-pill" data-state="preview"><i></i>PREVIEW</span>
+          <a class="bk-btn" href="./">Back to collection</a>
+          <a class="bk-btn" id="bk-activate-link" href="activate.html">Activate page</a>
+          <button class="bk-btn bk-btn-ember" type="button" data-connect>Connect wallet</button>
+        </div>
+        <p class="bk-wallet"><span class="bk-wallet-label"></span> <span class="bk-wallet-chain"></span></p>
+      </header>
+
+      <div class="bk-console reveal">
+        <figure class="bk-art" id="bk-art"></figure>
+        <div class="bk-panel">
+          <h2>Mandate</h2>
+          <p class="lead" id="bk-quote" style="margin-top:0"></p>
+          <dl class="facts" id="bk-facts"></dl>
+
+          <h2>Activate</h2>
+          <p>Signs <code>Activate Crypto Broker #{id} as my agent. Owner signs every live trade. Not a licensed broker.</code> Stored in localStorage keyed by address+id. Does not move funds.</p>
+          <div class="bk-actions">
+            <button class="bk-btn bk-btn-ember" type="button" id="bk-activate">Activate this agent</button>
+          </div>
+          <p class="bk-note" id="bk-activation-state"></p>
+
+          <h2>Paper blotter</h2>
+          <p>Fetches a public Dexscreener search for the unique primary asset. If that fails, the blotter is offline. No invented marks. No invented PnL.</p>
+          <p id="bk-mark">Public mark not fetched.</p>
+          <p class="bk-offline bk-hidden" id="bk-offline"></p>
+          <div class="bk-form">
+            <div class="bk-form-row">
+              <div class="bk-field">
+                <label for="bk-side">Side</label>
+                <select id="bk-side">
+                  <option value="buy">buy</option>
+                  <option value="sell">sell</option>
+                </select>
+              </div>
+              <div class="bk-field">
+                <label for="bk-size">Size (USD notional)</label>
+                <input id="bk-size" type="number" min="1" step="1">
+              </div>
+              <button class="bk-btn" type="button" id="bk-paper-mark">Fetch public mark</button>
+              <button class="bk-btn" type="button" id="bk-paper-fill">Paper fill</button>
+            </div>
+          </div>
+          <div class="scroller">
+            <table class="bk-blotter">
+              <thead><tr><th>Time</th><th>Side</th><th>Size</th><th>Mark USD</th><th>Source</th></tr></thead>
+              <tbody id="bk-blotter-body"></tbody>
+            </table>
+          </div>
+
+          <h2>Live — owner-signed intent</h2>
+          <p>Builds a human-readable order for the unique primary asset, size under the cap. Signs the JSON with <code>personal_sign</code>. If CONTRACT is null, copies the order and explains that ERC-20 / swap must be signed by the owner after deploy. This page does not send unsupervised swaps and does not take custody.</p>
+          <div class="bk-actions">
+            <button class="bk-btn bk-btn-ember" type="button" id="bk-live">Sign live trade</button>
+            <button class="bk-btn" type="button" id="bk-copy-intent">Copy order JSON</button>
+          </div>
+          <p class="bk-note" id="bk-live-explain"></p>
+          <pre class="bk-intent" id="bk-intent"></pre>
+          <div class="scroller">
+            <table class="bk-blotter">
+              <thead><tr><th>Time</th><th>Intent</th><th>Sig</th></tr></thead>
+              <tbody id="bk-live-body"></tbody>
+            </table>
+          </div>
+
+          <p class="bk-legal">Not a licensed broker-dealer. Not Robinhood Inc. Not an IRE CosmWasm / ERC-721 claim — wasm is not in ired. IRE points and vault <code>ire1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8nanfuy</code> exist separately on ire-1. Coattail / StockOre are unrelated comps.</p>
+        </div>
+      </div>
+    </div>
+
+    <footer class="foot">
+      <p class="micro">Drop-in for <code>site/brokers/</code> in <a href="https://github.com/kenyahewitt/ire-blockchain">kenyahewitt/ire-blockchain</a>. tokenURI should point here.</p>
+      <p class="micro">Owner <code>0xdfF1a5dc565a2D8d0C2818f8B190ca8399B869b3</code> · chainId 4663 · CONTRACT null</p>
+    </footer>
+  </main>
+</div>
+<script src="assets/agents-data.js"></script>
+<script src="assets/mandates.js"></script>
+<script src="assets/render.js"></script>
+<script src="assets/brokers.js"></script>
+</body>
+</html>

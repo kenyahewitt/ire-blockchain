@@ -1,0 +1,326 @@
+/* Crypto Brokers — IRE ember/paper palette. Works with /assets/styles.css or standalone. */
+
+:root {
+  --ink: #100e0b;
+  --ink-lift: #16130f;
+  --surface: #1b1712;
+  --paper: #ece4d6;
+  --muted: #988f80;
+  --faint: #6d6559;
+  --ember: #c4622d;
+  --ember-lo: #8f4620;
+  --rule: rgba(236, 228, 214, 0.11);
+  --rule-lo: rgba(236, 228, 214, 0.055);
+  --serif: "Instrument Serif", Georgia, serif;
+  --sans: "IBM Plex Sans", ui-sans-serif, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --rail: 15rem;
+  --toc: 13rem;
+}
+
+.brokers-page .frame {
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+}
+
+.brokers-page .toc { display: none; }
+
+.bk-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid rgba(196, 98, 45, 0.45);
+  font: 500 0.68rem/1.4 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #e4b998;
+}
+
+.bk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin: 1.6rem 0 0;
+}
+
+.bk-btn {
+  appearance: none;
+  padding: 0.65rem 1.05rem;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--paper);
+  font: 500 0.72rem var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.bk-btn:hover { border-color: var(--ember-lo); color: #fff; }
+
+.bk-btn-ember {
+  background: var(--ember-lo);
+  border-color: var(--ember);
+  color: #fff;
+}
+
+.bk-btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.bk-wallet {
+  margin: 1.2rem 0 0;
+  font: 400 0.82rem/1.5 var(--mono);
+  color: var(--muted);
+}
+
+.bk-wallet strong { color: var(--paper); font-weight: 500; }
+
+.bk-status {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 1.1rem;
+  flex-wrap: wrap;
+}
+
+.bk-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font: 500 0.68rem/1 var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.bk-pill i {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--faint);
+  display: inline-block;
+}
+
+.bk-pill[data-state="live"] { color: #c8e0c0; }
+.bk-pill[data-state="live"] i { background: #6fbf63; box-shadow: 0 0 0 3px rgba(111,191,99,0.18); }
+.bk-pill[data-state="preview"] { color: #e4b998; }
+.bk-pill[data-state="preview"] i { background: var(--ember); }
+.bk-pill[data-state="offline"] { color: #d4a090; }
+.bk-pill[data-state="offline"] i { background: #c4622d; }
+
+.bk-browse {
+  margin: 2.4rem 0 0;
+}
+
+.bk-browse-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  align-items: end;
+  margin: 0 0 1.1rem;
+}
+
+.bk-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.bk-field label,
+.bk-form label {
+  font: 500 0.62rem var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.bk-field input,
+.bk-form input,
+.bk-form select {
+  min-width: 8rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--ink-lift);
+  color: var(--paper);
+  font: 400 0.9rem var(--mono);
+}
+
+.bk-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
+  gap: 1px;
+  border: 1px solid var(--rule);
+  background: var(--rule);
+}
+
+.bk-grid a {
+  display: block;
+  padding: 0.7rem 0.7rem 0.85rem;
+  background: var(--ink-lift);
+  text-decoration: none;
+  color: inherit;
+}
+
+.bk-grid a:hover { background: var(--surface); }
+
+.bk-grid svg { display: block; width: 100%; height: auto; }
+
+.bk-grid .bk-card-meta {
+  margin: 0.55rem 0 0;
+  font: 500 0.68rem var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.bk-grid .bk-card-meta strong {
+  display: block;
+  color: var(--paper);
+  font-weight: 500;
+}
+
+.bk-console {
+  display: grid;
+  grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  margin: 2rem 0 0;
+  align-items: start;
+}
+
+.bk-art {
+  position: sticky;
+  top: 1.2rem;
+  border: 1px solid var(--rule);
+  background: var(--ink-lift);
+}
+
+.bk-art svg { display: block; width: 100%; height: auto; }
+
+.bk-panel {
+  min-width: 0;
+}
+
+.bk-panel h2 {
+  margin: 2.2rem 0 0.8rem;
+  padding-top: 1.3rem;
+  border-top: 1px solid var(--rule);
+  font: 400 1.55rem/1.2 var(--serif);
+}
+
+.bk-panel h2:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.bk-form {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.bk-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  align-items: end;
+}
+
+.bk-note, .bk-offline, .bk-legal {
+  margin: 0.9rem 0;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--rule);
+  color: #dcc6b3;
+  font: 400 0.88rem/1.55 var(--sans);
+}
+
+.bk-offline {
+  border-color: rgba(196, 98, 45, 0.35);
+}
+
+.bk-legal { color: var(--muted); font-size: 0.84rem; }
+
+.bk-blotter {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.bk-blotter th {
+  padding: 0.7rem 0.8rem;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  font: 500 0.62rem var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.bk-blotter td {
+  padding: 0.7rem 0.8rem;
+  border-bottom: 1px solid var(--rule-lo);
+  font-family: var(--mono);
+  color: #cdc4b4;
+}
+
+.bk-intent {
+  margin: 1rem 0;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--ember-lo);
+  background: var(--ink-lift);
+  overflow-x: auto;
+  font: 400 0.8rem/1.6 var(--mono);
+  color: #ddd3c4;
+  white-space: pre-wrap;
+}
+
+.bk-hidden { display: none !important; }
+
+.bk-id-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+}
+
+@media (max-width: 980px) {
+  .bk-console {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .bk-art { position: static; }
+}
+
+@media (max-width: 860px) {
+  .brokers-page .frame { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* landing cards — same module as IRE vault.css so brokers does not depend on it */
+.vt-rules {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1px;
+  margin: 0 0 2.4rem;
+  border: 1px solid var(--rule);
+  background: var(--rule);
+}
+.vt-rules article {
+  margin: 0;
+  padding: 1.15rem 1.2rem 1.25rem;
+  background: var(--ink-lift);
+}
+.vt-rules h2 {
+  margin: 0 0 0.45rem;
+  font: 400 1.15rem var(--serif);
+  color: var(--paper);
+}
+.vt-rules p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+.vt-rules a {
+  color: var(--paper);
+  text-decoration: underline;
+  text-decoration-color: var(--ember);
+  text-underline-offset: 3px;
+}
