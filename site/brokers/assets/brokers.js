@@ -290,8 +290,22 @@
     "Paper Visor": "paper-visor.jpg"
   };
 
+  var HEAD_TRADE = {
+    "Gold Skull": "trade-gold-skull.mp4",
+    "Chrome Skull": "trade-chrome-skull.mp4",
+    "Matte Helm": "trade-matte-helm.mp4",
+    "Violet Slit": "trade-violet-slit.mp4",
+    "Ember Mask": "trade-ember-mask.mp4",
+    "Paper Visor": "trade-paper-visor.mp4"
+  };
+
   function shotUrl(m) {
     var f = HEAD_SHOT[m.head] || "gold-skull.jpg";
+    return "/brokers/assets/agents3d/" + f;
+  }
+
+  function tradeUrl(m) {
+    var f = HEAD_TRADE[m.head] || "trade-gold-skull.mp4";
     return "/brokers/assets/agents3d/" + f;
   }
 
@@ -306,7 +320,7 @@
   function shotHtml(m) {
     var t = tapeText(m);
     return '<div class="bk-shot">' +
-      '<img src="' + shotUrl(m) + '" alt="' + m.name + ' 3D agent">' +
+      '<video autoplay muted loop playsinline poster="' + shotUrl(m) + '" src="' + tradeUrl(m) + '"></video>' +
       '<span class="bk-pulse"><i></i>trading</span>' +
       '<div class="bk-tape"><span>' + t + t + '</span></div>' +
       '</div>';
@@ -344,7 +358,7 @@
     var on = isActivated(id);
     var minted = id <= state.minted;
     var tags = "";
-    if (minted) tags += ' <span class="bk-tag">minted</span>';
+    if (minted) tags += ' <span class="bk-tag">minted · hidden</span>';
     if (on) tags += ' <span class="bk-tag">activated</span>';
     return '<a href="' + href + '" data-id="' + id + '" data-activated="' + (on ? "1" : "0") + '" data-minted="' + (minted ? "1" : "0") + '">' +
       shotHtml(m) +
