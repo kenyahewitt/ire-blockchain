@@ -40,6 +40,7 @@
     if (ascii.indexOf("IREINSCRIBE1") >= 0) pts += 5;
     if (ascii.indexOf("ire-bet") >= 0) pts += 10;
     if (ascii.indexOf("fund-community-pool") >= 0 || ascii.indexOf("CommunityPool") >= 0) pts += 20;
+    if (ascii.indexOf("IREVAL1") >= 0) pts += 25;
     return pts;
   }
   async function mapPool(items, n, fn) {

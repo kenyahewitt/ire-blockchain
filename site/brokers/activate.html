@@ -85,6 +85,17 @@
           <p class="bk-note" id="bk-activation-state"></p>
           <p class="bk-note" id="bk-onchain-owner"></p>
 
+          <h2>IRE validator</h2>
+          <p>This EVM wallet signs up as an <code>ire-1</code> validator candidate. One signup per wallet. That is a waitlist + usage-point claim, not a seat in the current consensus set (<code>ire-1</code> still has one operator). No custody. Does not mint <code>uire</code>. Not money.</p>
+          <p>Reward: <strong>25 testnet points</strong> when an <code>IREVAL1</code> inscription from your IRE key hits the chain (scored on <a href="/points/">Points</a>). Volt airdrops later are governance, not a promise. To actually run a node, follow <a href="/join/">Join</a>.</p>
+          <div class="bk-actions">
+            <button class="bk-btn bk-btn-ember" type="button" id="bk-validator">Sign up this wallet as an IRE validator</button>
+            <a class="bk-btn" href="/join/">Run a node</a>
+            <a class="bk-btn" href="/points/">Points</a>
+          </div>
+          <p class="bk-note" id="bk-validator-state"></p>
+          <pre class="bk-intent" id="bk-validator-cli" hidden></pre>
+
           <h2>Paper blotter</h2>
           <p>Public Dexscreener search for this id’s unique primary asset. Fail → offline. No invented prices or PnL.</p>
           <p id="bk-mark">Public mark not fetched.</p>

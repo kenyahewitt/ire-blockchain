@@ -72,6 +72,31 @@
     return "Activate Crypto Broker #" + id + " as my agent. Owner signs every live trade. Not a licensed broker.";
   }
 
+  function validatorMessage(addr, id) {
+    return "IRE validator candidate. Wallet " + addr +
+      " for Crypto Broker #" + id +
+      " on 0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041. ire-1 is a testnet. This does not mint uire, take custody, or add this key to the current consensus set.";
+  }
+
+  function validatorMemo(addr, id) {
+    return 'IREVAL1 {"e":"' + addr + '","b":' + id + "}";
+  }
+
+  function validatorCli(addr, id) {
+    var note = validatorMemo(addr, id);
+    return "./build/ired tx bank send \\\n" +
+      "  $(./build/ired keys show myvalidator -a --home \"$HOME/.ire\") \\\n" +
+      "  $(./build/ired keys show myvalidator -a --home \"$HOME/.ire\") 1uire \\\n" +
+      "  --from myvalidator --chain-id ire-1 --home \"$HOME/.ire\" \\\n" +
+      "  --gas-prices 0.001uire --yes --note '" + note + "'\n\n" +
+      "# Needs uire in that key. No faucet. Does not join the current 1-validator set.\n" +
+      "# 25 testnet points score when this memo lands. See /join and /points.";
+  }
+
+  function validatorKey(addr) {
+    return "crypto-brokers:validator:" + String(addr || "").toLowerCase();
+  }
+
   function setText(id, text) {
     var el = $(id);
     if (el) el.textContent = text;
@@ -148,7 +173,7 @@
     var el = $("bk-mint-count");
     if (el) el.innerHTML = "<strong>" + state.minted + " / " + state.maxSupply + "</strong> minted on-chain";
     var live = $("bk-mint-live");
-    if (live) live.textContent = "SeaDrop ERC-721 · ids 1–" + state.minted + " live";
+    if (live) live.textContent = "ids 1–" + state.minted + " minted · unrevealed until mint-out";
     var contractEl = $("bk-contract");
     if (contractEl) contractEl.textContent = CONFIG.CONTRACT;
     document.querySelectorAll("[data-contract]").forEach(function (n) { n.textContent = CONFIG.CONTRACT; });
@@ -431,6 +456,29 @@
     }).join("");
   }
 
+  function refreshValidator() {
+    var box = $("bk-validator-state");
+    var cli = $("bk-validator-cli");
+    if (!box) return;
+    if (!state.address) {
+      box.textContent = "Connect a wallet, then sign to join the IRE validator waitlist.";
+      if (cli) { cli.hidden = true; cli.textContent = ""; }
+      return;
+    }
+    var rec = readJSON(validatorKey(state.address));
+    if (rec && rec.signature) {
+      box.innerHTML = "Validator candidate for <code>" + shortAddr(rec.address) + "</code> (broker #" + rec.id +
+        "). Waitlist only — not in the current consensus set. 25 testnet points when you broadcast the <code>IREVAL1</code> memo from an IRE key that has <code>uire</code>.";
+      if (cli) {
+        cli.hidden = false;
+        cli.textContent = rec.cli || validatorCli(rec.address, rec.id);
+      }
+    } else {
+      box.textContent = "This wallet is not on the IRE validator waitlist yet.";
+      if (cli) { cli.hidden = true; cli.textContent = ""; }
+    }
+  }
+
   function refreshActivation() {
     var id = state.id;
     var box = $("bk-activation-state");
@@ -518,6 +566,7 @@
     renderPaperRows(id);
     renderLiveRows(id);
     refreshActivation();
+    refreshValidator();
     ownerOf(id).then(function (own) {
       var box = $("bk-onchain-owner");
       if (!box) return;
@@ -581,8 +630,34 @@
     renderActivated();
     var box = $("bk-activation-state");
     if (box) {
-      box.innerHTML = "Activated #" + state.id + " for <code>" + shortAddr(state.address) + "</code>. Open your <a href=\"/brokers/activated.html\">activated desk</a>. Signature is local until CONTRACT is set.";
+      box.innerHTML = "Activated #" + state.id + " for <code>" + shortAddr(state.address) + "</code>. Open your <a href=\"/brokers/activated.html\">activated desk</a>. Next: sign up this wallet as an IRE validator.";
     }
+    refreshValidator();
+  }
+
+  async function onValidatorSignup() {
+    if (!state.address) { await connectWallet(); if (!state.address) return; }
+    var id = state.id || 1;
+    var existing = readJSON(validatorKey(state.address));
+    if (existing && existing.signature) {
+      refreshValidator();
+      return;
+    }
+    var msg = validatorMessage(state.address, id);
+    var sig = await personalSign(msg);
+    var rec = {
+      address: state.address,
+      id: id,
+      message: msg,
+      signature: sig,
+      chainId: state.chainId,
+      memo: validatorMemo(state.address, id),
+      cli: validatorCli(state.address, id),
+      reward: "25 testnet points on IREVAL1 inscription",
+      ts: new Date().toISOString()
+    };
+    writeJSON(validatorKey(state.address), rec);
+    refreshValidator();
   }
 
   async function onPaper() {
@@ -748,6 +823,8 @@
     if (strat) strat.addEventListener("change", applyFilters);
     var act = $("bk-activate");
     if (act) act.addEventListener("click", function () { onActivate().catch(function (e) { alert(e.message || e); }); });
+    var valBtn = $("bk-validator");
+    if (valBtn) valBtn.addEventListener("click", function () { onValidatorSignup().catch(function (e) { alert(e.message || e); }); });
     var paper = $("bk-paper-mark");
     if (paper) paper.addEventListener("click", function () { onPaper().catch(function (e) { alert(e.message || e); }); });
     var fill = $("bk-paper-fill");
@@ -762,7 +839,7 @@
       provider.on("accountsChanged", function (acc) {
         state.address = acc && acc[0] ? acc[0] : null;
         setWalletUi();
-        if (state.id) refreshActivation();
+        if (state.id) { refreshActivation(); refreshValidator(); }
         renderActivated();
       });
       provider.on("chainChanged", function (hex) {
@@ -786,7 +863,7 @@
       }).then(function (hex) {
         state.chainId = hexToInt(hex);
         setWalletUi();
-        if (state.id) refreshActivation();
+        if (state.id) { refreshActivation(); refreshValidator(); }
         renderActivated();
       }).catch(function () {});
     }
