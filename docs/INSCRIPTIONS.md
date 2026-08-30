@@ -143,3 +143,14 @@ not fit until the same module exists.
 - Not CosmWasm / CW721 — wasm is **not** in the running `ired` binary.
 - Not a promise that every wallet will render the payload. Wallets that
   show memos can display it; the chain of record is the tx itself.
+
+
+## Profiles (`ire-id`)
+
+Public social profile for an `ire1`. Spec: [PROFILE.md](PROFILE.md). Live: `/id/`.
+
+```
+IREINSCRIBE1 application/json {"p":"ire-id","op":"set","n":"name","x":"handle","tg":"user"}
+```
+
+Self-send `1uire` with `--note`. Latest `op:set` in the scan window is the profile `/id/` shows.

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vault — IRE blockchain</title>
+<meta name="description" content="IRE Vault (Volt) is the ire-1 community pool. Network gas feeds it. Governance spends it on rewards, airdrops, and fees. Public testnet — do not put real value on it.">
+<link rel="canonical" href="https://illustrious-banoffee-92cafd.netlify.app/vault/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Vault — IRE blockchain">
+<meta property="og:description" content="IRE Vault (Volt) is the ire-1 community pool. Network gas feeds it. Governance spends it on rewards, airdrops, and fees.">
+<meta property="og:url" content="https://illustrious-banoffee-92cafd.netlify.app/vault/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+<link rel="stylesheet" href="/assets/vault.css">
+</head>
+<body class="vault-page">
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+
+<p class="advisory">Pre-mainnet — <code>ire-1</code> is a public testnet with one validator. Do not put real value on it.</p>
+
+<div class="frame">
+  <nav class="rail" aria-label="Documentation">
+    <a class="mark" href="/">IRE<span>docs</span></a>
+    <ul class="rail-product"><li><a href="/wallet/">Wallet</a></li><li><a href="/id/">Profile</a></li><li><a href="/create/">Create</a></li><li><a href="/markets/">Markets</a></li><li><a href="/mempool/">Mempool</a></li><li><a href="/points/">Points</a></li><li><a href="/vault/" aria-current="page">Vault</a></li></ul>
+    <p class="micro rail-group">Protocol</p>
+    <ul class="rail-protocol"><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li><li><a href="/use/"><span class="idx">07</span>Use</a></li></ul>
+    <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
+  </nav>
+
+  <main id="main">
+    <header class="page-head vt-head reveal">
+      <p class="micro">Vault</p>
+      <h1>IRE <em style="font-style:italic;color:var(--ember)">Volt</em></h1>
+      <p class="lead">The chain vault is the Cosmos community pool, not a company wallet. Gas from using <code>ire-1</code> lands here. Governance spends it on rewards, airdrops, and network fees. This page only GETs <code>/rpc/</code> and <code>/api/</code>. It never signs, never broadcasts, and never holds a key.</p>
+      <div class="vt-status">
+        <span class="vt-pill" id="vt-pill" data-state="offline"><i aria-hidden="true"></i><span id="vt-pill-label">CONNECTING</span></span>
+        <span class="vt-updated" id="vt-updated">Waiting for /rpc/status</span>
+      </div>
+    </header>
+
+    <p class="vt-offline" id="vt-offline" hidden>OFFLINE — could not reach <code>/rpc/status</code>. This page will not invent a vault balance.</p>
+
+    <section class="vt-balance reveal" aria-label="Vault balance">
+      <p class="micro">On-chain balance</p>
+      <p class="vt-amount" id="vt-balance">—</p>
+      <p class="vt-amount-note" id="vt-balance-note">Fetching <code>ire1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8nanfuy</code></p>
+    </section>
+
+    <dl class="facts reveal">
+      <div><dt>Height</dt><dd id="vt-height">—</dd></div>
+      <div><dt>community_tax</dt><dd id="vt-tax">—</dd></div>
+      <div><dt>Fee split</dt><dd id="vt-split">—</dd></div>
+      <div><dt>Module</dt><dd>distribution</dd></div>
+    </dl>
+
+    <section class="vt-rules reveal" aria-label="Vault rules">
+      <article>
+        <h2>In: network gas</h2>
+        <p>Every tx pays gas in <code>uire</code>. Fees hit <code>fee_collector</code>, then distribution. <code>community_tax</code> is the slice that stays in this vault. Genesis is 2%. Proposal <code>001</code> sets it to 100% so usage pays the chain, not a company address.</p>
+      </article>
+      <article>
+        <h2>Out: rewards</h2>
+        <p>Staking and usage rewards are a <code>CommunityPoolSpend</code> gov send from this vault. There is no inflation. After the pre-minted rewards pool is spoken for, fees in the vault are what is left to pay.</p>
+      </article>
+      <article>
+        <h2>Out: airdrops</h2>
+        <p>Same spend path. A proposal names recipients and amounts. The vault does not auto-spray tokens. No hot wallet.</p>
+      </article>
+      <article>
+        <h2>Out: fees</h2>
+        <p>Ops (seed, RPC, explorer) can be paid the same way: gov spend to an operator address. Still on-chain, still voted.</p>
+      </article>
+      <article>
+        <h2>No extra treasury</h2>
+        <p>Address <code>ire1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8nanfuy</code> is the <code>distribution</code> module account. Do not invent a second company <code>ire1</code>.</p>
+      </article>
+      <article>
+        <h2>Testnet</h2>
+        <p><code>ire-1</code> is a public testnet with one validator. Do not put real value on it.</p>
+      </article>
+    </section>
+
+    <div class="prose reveal">
+      <h2 id="pay-in"><a class="anchor" href="#pay-in">Pay into the vault</a></h2>
+      <p>Anyone can fund it. This is not a deposit product and not a brokerage.</p>
+      <figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">ired tx distribution fund-community-pool 1000000uire \
+  --chain-id ire-1 \
+  --from &lt;key&gt; \
+  --gas-prices 0.001uire \
+  --home "$HOME/.ire" \
+  --yes</code></pre></figure>
+
+      <h2 id="spend"><a class="anchor" href="#spend">Spend (rewards, airdrop, fees)</a></h2>
+      <p>Only governance. Voting period is 172800s. Spec and the 100% gas proposal: <a href="https://github.com/kenyahewitt/ire-blockchain/blob/main/docs/VAULT.md">docs/VAULT.md</a>.</p>
+      <figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">ired tx gov submit-proposal networks/ire-1/proposals/001-community-tax-100.json \
+  --from &lt;key&gt; \
+  --chain-id ire-1 \
+  --gas-prices 0.001uire \
+  --home "$HOME/.ire" \
+  --yes</code></pre></figure>
+    </div>
+
+    <footer class="foot">
+      <p class="micro">Source: the <code>site/</code> folder in <a href="https://github.com/kenyahewitt/ire-blockchain">kenyahewitt/ire-blockchain</a>.</p>
+      <p class="micro">Security disclosures are handled in-repo and are not published here.</p>
+    </footer>
+  </main>
+</div>
+<script src="/assets/docs.js" defer></script>
+<script src="/assets/vault.js" defer></script>
+</body>
+</html>

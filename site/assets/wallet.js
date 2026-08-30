@@ -396,8 +396,31 @@ async function lookupBalance(addr) {
 function setAddress(addr) {
   const next = addr.trim()
   state.address = next
-  $('wa-address').value = next
+  if ($('wa-address')) $('wa-address').value = next
   try { localStorage.setItem(STORE_KEY, next) } catch { /* ignore */ }
+  try {
+    const url = new URL(location.href)
+    if (next) url.searchParams.set('a', next)
+    else url.searchParams.delete('a')
+    history.replaceState(null, '', url)
+  } catch { /* ignore */ }
+}
+
+function shareUrl() {
+  const url = new URL(location.origin + '/wallet/')
+  if (state.address) url.searchParams.set('a', state.address)
+  return url.toString()
+}
+
+function copyText(btn, text) {
+  const label = btn.textContent
+  navigator.clipboard.writeText(text).then(function () {
+    btn.textContent = 'Copied'
+    setTimeout(function () { btn.textContent = label }, 1600)
+  }).catch(function () {
+    btn.textContent = 'Blocked'
+    setTimeout(function () { btn.textContent = label }, 1600)
+  })
 }
 
 async function tick() {
@@ -512,3 +535,42 @@ try {
 setPill('offline', 'CONNECTING')
 tick()
 setInterval(tick, POLL_MS)
+
+
+try {
+  const q = new URLSearchParams(location.search)
+  const fromQ = (q.get('a') || q.get('address') || '').trim()
+  if (fromQ) setAddress(fromQ)
+} catch { /* ignore */ }
+
+const shareBtn = $('wa-share')
+if (shareBtn) shareBtn.addEventListener('click', function () {
+  if (!state.address) { shareBtn.textContent = 'Enter address first'; setTimeout(function(){ shareBtn.textContent = 'Copy share link' }, 1600); return }
+  copyText(shareBtn, shareUrl())
+})
+const copyAddrBtn = $('wa-copy-addr')
+if (copyAddrBtn) copyAddrBtn.addEventListener('click', function () {
+  if (!state.address) { copyAddrBtn.textContent = 'Enter address first'; setTimeout(function(){ copyAddrBtn.textContent = 'Copy address' }, 1600); return }
+  copyText(copyAddrBtn, state.address)
+})
+const sendForm = $('wa-send')
+if (sendForm) sendForm.addEventListener('submit', function (event) {
+  event.preventDefault()
+  const from = state.address
+  const to = ($('wa-to') && $('wa-to').value.trim()) || ''
+  const ire = ($('wa-amt') && $('wa-amt').value.trim()) || ''
+  const btn = sendForm.querySelector('button')
+  const reset = function (msg) {
+    if (!btn) return
+    const old = 'Copy send'
+    btn.textContent = msg
+    setTimeout(function () { btn.textContent = old }, 1800)
+  }
+  if (!from || !/^ire1[0-9a-z]{38,90}$/.test(from)) { reset('Set your ire1 first'); return }
+  if (!/^ire1[0-9a-z]{38,90}$/.test(to)) { reset('Bad to address'); return }
+  const n = Number(ire)
+  if (!Number.isFinite(n) || n <= 0) { reset('Set amount'); return }
+  const uire = Math.round(n * 1e6)
+  const cmd = 'ired tx bank send ' + from + ' ' + to + ' ' + uire + 'uire --chain-id ire-1 --from <key> --gas-prices 0.001uire --home $HOME/.ire --yes'
+  copyText(btn, cmd)
+})

@@ -15,6 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/styles.css">
 <link rel="stylesheet" href="/assets/wallet.css">
+<link rel="stylesheet" href="/assets/vault.css">
 </head>
 <body class="wallet-page">
 <div class="grain" aria-hidden="true"></div>
@@ -25,7 +26,7 @@
 <div class="frame">
   <nav class="rail" aria-label="Documentation">
     <a class="mark" href="/">IRE<span>docs</span></a>
-    <ul class="rail-product"><li><a href="/wallet/" aria-current="page">Wallet</a></li><li><a href="/create/">Create</a></li><li><a href="/markets/">Markets</a></li><li><a href="/mempool/">Mempool</a></li></ul>
+    <ul class="rail-product"><li><a href="/wallet/" aria-current="page">Wallet</a></li><li><a href="/id/">Profile</a></li><li><a href="/create/">Create</a></li><li><a href="/markets/">Markets</a></li><li><a href="/mempool/">Mempool</a></li><li><a href="/points/">Points</a></li><li><a href="/vault/">Vault</a></li></ul>
     <p class="micro rail-group">Protocol</p>
     <ul class="rail-protocol"><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li><li><a href="/use/"><span class="idx">07</span>Use</a></li></ul>
     <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
@@ -67,6 +68,33 @@
       <p class="wa-offline-msg" id="wa-offline" hidden>OFFLINE — could not reach <code>/rpc/status</code>. This page will not invent transactions.</p>
       <p class="wa-empty" id="wa-empty">Connecting to /rpc…</p>
       <ul class="wa-list" id="wa-list"></ul>
+    </section>
+
+    
+    <section class="vt-rules reveal" aria-label="Share, receive, send">
+      <article>
+        <h2>Share</h2>
+        <p>Anyone with this link can see the address and send IRE to it.</p>
+        <p><button class="copy" type="button" id="wa-share">Copy share link</button></p>
+      </article>
+      <article>
+        <h2>Receive</h2>
+        <p>Your <code>ire1</code> is the receive address. Copy it.</p>
+        <p><button class="copy" type="button" id="wa-copy-addr">Copy address</button></p>
+      </article>
+      <article>
+        <h2>Send</h2>
+        <p>This page does not sign. Fill to and amount, copy the command, run it in <code>ired</code> or Keplr.</p>
+        <form id="wa-send" class="wa-lookup">
+          <input id="wa-to" type="text" spellcheck="false" placeholder="ire1… to" autocomplete="off">
+          <input id="wa-amt" type="text" inputmode="decimal" placeholder="amount IRE" autocomplete="off">
+          <button type="submit">Copy send</button>
+        </form>
+      </article>
+      <article>
+        <h2>Profile</h2>
+        <p>Add X, Telegram, Discord, or a site to this address on <a href="/id/">Profile</a>. Socials are an on-chain memo (256-character limit).</p>
+      </article>
     </section>
 
     <footer class="foot">

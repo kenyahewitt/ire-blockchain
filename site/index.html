@@ -4,16 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IRE blockchain — protocol documentation</title>
-<meta name="description" content="IRE is a Cosmos SDK proof-of-stake chain. Validators produce blocks by signing consensus votes; this is the appropriate equivalent of “mining” for IRE and does not use GPU/ASIC…">
+<meta name="description" content="IRE is a Cosmos chain. Send IRE, inscribe on-chain, earn usage points, share your ire1 address. Network fees go to the Volt vault.">
 <link rel="canonical" href="https://illustrious-banoffee-92cafd.netlify.app/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="IRE blockchain — protocol documentation">
-<meta property="og:description" content="IRE is a Cosmos SDK proof-of-stake chain. Validators produce blocks by signing consensus votes; this is the appropriate equivalent of “mining” for IRE and does not use GPU/ASIC…">
+<meta property="og:description" content="IRE is a Cosmos chain. Send IRE, inscribe on-chain, earn usage points, share your ire1 address. Network fees go to the Volt vault.">
 <meta property="og:url" content="https://illustrious-banoffee-92cafd.netlify.app/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/styles.css">
+<link rel="stylesheet" href="/assets/vault.css">
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -24,7 +25,7 @@
 <div class="frame">
   <nav class="rail" aria-label="Documentation">
     <a class="mark" href="/">IRE<span>docs</span></a>
-    <ul class="rail-product"><li><a href="/wallet/">Wallet</a></li><li><a href="/create/">Create</a></li><li><a href="/markets/">Markets</a></li><li><a href="/mempool/">Mempool</a></li></ul>
+    <ul class="rail-product"><li><a href="/wallet/">Wallet</a></li><li><a href="/id/">Profile</a></li><li><a href="/create/">Create</a></li><li><a href="/markets/">Markets</a></li><li><a href="/mempool/">Mempool</a></li><li><a href="/points/">Points</a></li><li><a href="/vault/">Vault</a></li></ul>
     <p class="micro rail-group">Protocol</p>
     <ul class="rail-protocol"><li><a href="/" aria-current="page"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li><li><a href="/use/"><span class="idx">07</span>Use</a></li></ul>
     <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
@@ -34,12 +35,19 @@
     <header class="hero">
         <p class="micro reveal">Cosmos SDK &middot; CometBFT &middot; fixed supply</p>
         <h1 class="reveal">IRE<em>blockchain</em></h1>
-        <p class="lead reveal">IRE is a Cosmos SDK proof-of-stake chain. Validators produce blocks by signing consensus votes; this is the appropriate equivalent of “mining” for IRE and does not use GPU/ASIC proof-of-work.</p>
+        <p class="lead reveal">IRE is a public Cosmos chain. You send IRE, inscribe tokens and posts on the chain itself (no IPFS), and bet on inscribed markets. Using the network earns <a href="/points/">points</a>. Gas fees go to the <a href="/vault/">Volt</a> (the chain vault) which can pay rewards, airdrops, and ops. Add socials on your <a href="/id/">profile</a> and share your <code>ire1</code> address to receive or send.</p>
         <dl class="facts reveal">
           <div><dt>Chain ID</dt><dd>ire-1</dd></div><div><dt>Base denom</dt><dd>uire &middot; 6 dp</dd></div><div><dt>Genesis supply</dt><dd>1,000,000,000,000 IRE</dd></div><div><dt>Annual provisions</dt><dd>0</dd></div><div><dt>Public seed</dt><dd>91.99.1.9:26656</dd></div><div><dt>Validators</dt><dd>1 (local)</dd></div><div><dt>Min gas price</dt><dd>0.001 uire</dd></div><div><dt>Consensus</dt><dd>CometBFT proof-of-stake</dd></div>
         </dl>
       </header>
-    <div class="prose reveal"><h2 id="current-status"><a class="anchor" href="#current-status">Current status</a></h2>
+    
+    <section class="vt-rules reveal" aria-label="What IRE does" style="margin:0 0 2.4rem">
+      <article><h2>Send IRE</h2><p>The token is <code>uire</code> (6 decimals). Share your address from <a href="/wallet/">Wallet</a> to receive. Copy a send command to pay someone. This host never holds a key.</p></article>
+      <article><h2>Inscribe</h2><p>Memos on ordinary sends. Tokens, art catalogs, games, and yes/no markets live in the tx, not on IPFS. Launch from <a href="/create/">Create</a>.</p></article>
+      <article><h2>Earn points</h2><p>Using the chain scores points: sends, inscriptions, markets, funding the vault. Points are a usage score, not IRE. Later airdrops can pay from the Volt. See <a href="/points/">Points</a>.</p></article>
+      <article><h2>Profile and socials</h2><p>Every account can inscribe X, Telegram, Discord, and a site onto their <code>ire1</code>, then share a receive/send link. <a href="/id/">Profile</a>.</p></article>
+    </section>
+<div class="prose reveal"><h2 id="current-status"><a class="anchor" href="#current-status">Current status</a></h2>
 <p><code>ire-1</code> is a public testnet, still a single-validator network. A non-validator public seed is up in Falkenstein. This Netlify host serves documentation and a read-only GET proxy at <code>/rpc/</code> and <code>/api/</code>. It is not a seed or P2P endpoint, and cannot serve ports 26656 or 26657.</p>
 <p>Network files, the seed string, and the genesis hash: <a href="/network/">Network</a>. Join a full node or create a validator: <a href="/join/">Join</a>. Watch live cubes: <a href="/mempool/">Mempool</a>. Send and inscribe: <a href="/use/">Use</a>. Inscribed prediction markets: <a href="/markets/">Markets</a>. Look up a balance and activity: <a href="/wallet/">Wallet</a>. Launch a tick or inscribe a catalog record: <a href="/create/">Create</a>. Source repository: <a href="https://github.com/kenyahewitt/ire-blockchain">github.com/kenyahewitt/ire-blockchain</a>.</p>
 <p>The original operator can still start the local validator from this repository:</p>

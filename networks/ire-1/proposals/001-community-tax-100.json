@@ -1,0 +1,18 @@
+{
+  "messages": [
+    {
+      "@type": "/cosmos.distribution.v1beta1.MsgUpdateParams",
+      "authority": "ire10d07y265gmmuvt4z0w9aw880jnsr700jwqysrg",
+      "params": {
+        "community_tax": "1.000000000000000000",
+        "base_proposer_reward": "0.000000000000000000",
+        "bonus_proposer_reward": "0.000000000000000000",
+        "withdraw_addr_enabled": true
+      }
+    }
+  ],
+  "metadata": "https://github.com/kenyahewitt/ire-blockchain/blob/main/docs/VAULT.md",
+  "deposit": "10000000uire",
+  "title": "Send 100% of network gas to the IRE Vault",
+  "summary": "Set distribution community_tax to 1.0 so all ire-1 gas fees stay in the community pool (IRE Vault / Volt) for governance spends: rewards, airdrops, and network fees. No new treasury address. No binary upgrade. Testnet only."
+}

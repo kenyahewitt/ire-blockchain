@@ -2,7 +2,7 @@
 
 > **Local/public testnet only (`ire-1`).** A public seed exists (Falkenstein), but this is still one validator, with no independent operator set and no external audit. Do not send real money, list a token, or treat this as mainnet.
 
-Public protocol docs: [https://illustrious-banoffee-92cafd.netlify.app](https://illustrious-banoffee-92cafd.netlify.app/). That host is documentation only. It is not a seed, RPC, or P2P endpoint.
+Public protocol docs: [https://illustrious-banoffee-92cafd.netlify.app](https://illustrious-banoffee-92cafd.netlify.app/). That host is documentation only. It is not a seed, RPC, or P2P endpoint. What the chain does, usage [points](https://illustrious-banoffee-92cafd.netlify.app/points/), [profiles](https://illustrious-banoffee-92cafd.netlify.app/id/), and the [IRE Vault](https://illustrious-banoffee-92cafd.netlify.app/vault/) (community pool fee sink) are on that site. See [docs/VAULT.md](docs/VAULT.md), [docs/POINTS.md](docs/POINTS.md), [docs/PROFILE.md](docs/PROFILE.md).
 
 IRE is a Cosmos SDK proof-of-stake chain. Validators produce blocks by signing consensus votes; this is the appropriate equivalent of “mining” for IRE and does not use GPU/ASIC proof-of-work.
 

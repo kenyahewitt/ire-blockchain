@@ -8,6 +8,9 @@
 /markets      /markets/      301
 /wallet       /wallet/       301
 /create       /create/       301
+/vault        /vault/       301
+/id           /id/           301
+/points       /points/       301
 
 /rpc/*  http://91.99.1.9/rpc/:splat  200
 /api/*  http://91.99.1.9/api/:splat  200

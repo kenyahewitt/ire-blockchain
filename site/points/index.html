@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Points — IRE blockchain</title>
+<meta name="description" content="Usage points for sending, inscribing, markets, and funding the IRE Vault. Not IRE. Testnet.">
+<link rel="canonical" href="https://illustrious-banoffee-92cafd.netlify.app/points/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Points — IRE blockchain">
+<meta property="og:description" content="Usage points for sending, inscribing, markets, and funding the IRE Vault. Not IRE. Testnet.">
+<meta property="og:url" content="https://illustrious-banoffee-92cafd.netlify.app/points/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+<link rel="stylesheet" href="/assets/vault.css">
+
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<p class="advisory">Pre-mainnet — <code>ire-1</code> is a public testnet with one validator. Do not put real value on it.</p>
+<div class="frame">
+  <nav class="rail" aria-label="Documentation">
+    <a class="mark" href="/">IRE<span>docs</span></a>
+    <ul class="rail-product"><li><a href="/wallet/">Wallet</a></li><li><a href="/id/">Profile</a></li><li><a href="/create/">Create</a></li><li><a href="/markets/">Markets</a></li><li><a href="/mempool/">Mempool</a></li><li><a href="/points/" aria-current="page">Points</a></li><li><a href="/vault/">Vault</a></li></ul>
+    <p class="micro rail-group">Protocol</p>
+    <ul class="rail-protocol"><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li><li><a href="/use/"><span class="idx">07</span>Use</a></li></ul>
+    <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
+  </nav>
+  <main id="main">
+
+    <header class="page-head reveal">
+      <p class="micro">Points</p>
+      <h1>Use the chain, <em style="font-style:italic;color:var(--ember)">earn points</em></h1>
+      <p class="lead">Points score activity on <code>ire-1</code> in the last ~80 blocks: sends, inscriptions, markets, and funding the Volt. They are a usage score, not IRE, not a listed token, and not a promise of money. Airdrops from the vault can pay IRE to point holders later, by governance.</p>
+      <div class="vt-status">
+        <span class="vt-pill" id="pt-pill" data-state="offline"><i aria-hidden="true"></i><span id="pt-pill-label">CONNECTING</span></span>
+        <span class="vt-updated" id="pt-updated">Waiting for /rpc/status</span>
+      </div>
+    </header>
+    <p class="vt-offline" id="pt-offline" hidden>OFFLINE — could not reach <code>/rpc/status</code>. This page will not invent a leaderboard.</p>
+    <dl class="facts reveal">
+      <div><dt>Height</dt><dd id="pt-height">—</dd></div>
+      <div><dt>Window</dt><dd id="pt-window">—</dd></div>
+      <div><dt>Accounts scored</dt><dd id="pt-count">—</dd></div>
+      <div><dt>Vault</dt><dd><a href="/vault/">Volt</a></dd></div>
+    </dl>
+    <section class="vt-rules reveal">
+      <article><h2>Send or receive</h2><p><strong>1 point</strong> per confirmed tx that touches your <code>ire1</code>.</p></article>
+      <article><h2>Inscribe</h2><p><strong>5 points</strong> if the memo starts with <code>IREINSCRIBE1</code> (profile, token, art, file).</p></article>
+      <article><h2>Markets</h2><p><strong>10 points</strong> for an <code>ire-bet</code> open, buy, resolve, or analyze.</p></article>
+      <article><h2>Fund the Volt</h2><p><strong>20 points</strong> for <code>fund-community-pool</code> (paying into the vault that later pays rewards and airdrops).</p></article>
+    </section>
+    <div class="prose reveal">
+      <h2 id="board"><a class="anchor" href="#board">This window</a></h2>
+      <p>Live from recent blocks. Empty means nobody used the chain in the window, not a fake zeroed table.</p>
+      <div id="pt-board" class="vt-amount-note">Connecting…</div>
+      <h2 id="redeem"><a class="anchor" href="#redeem">What you can get</a></h2>
+      <p>Today: a public score and a profile people can follow. Later: the <a href="/vault/">Volt</a> can airdrop IRE, pay usage rewards, or cover fees, by governance spend. Points do not mint IRE. Inflation stays 0. Testnet scores have no cash value.</p>
+    </div>
+
+    <footer class="foot">
+      <p class="micro">Source: the <code>site/</code> folder in <a href="https://github.com/kenyahewitt/ire-blockchain">kenyahewitt/ire-blockchain</a>.</p>
+      <p class="micro">Security disclosures are handled in-repo and are not published here.</p>
+    </footer>
+  </main>
+</div>
+<script src="/assets/docs.js" defer></script>
+<script src="/assets/points.js" defer></script>
+</body>
+</html>

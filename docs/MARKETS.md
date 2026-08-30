@@ -65,10 +65,11 @@ short enough for the 256-character memo. This is **not** a trade.
 The cheapest path is **gas only**: `--gas-prices 0.001uire`. There is no
 protocol take, no market fee, and no extra treasury address.
 
-Cosmos gas currently pays the validator. The chain “wallet” is the
-**community pool** (`x/distribution`). A later governance parameter
-`community_tax` can send 100% of gas to the community pool so fees stay
-with the chain, not a company. Do not invent a new treasury address.
+Cosmos gas feeds the **IRE Vault (Volt)**, the community pool
+(`x/distribution`, `ire1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8nanfuy`). See
+[VAULT.md](VAULT.md) and `/vault/`. Genesis `community_tax` is 2%.
+Proposal `001-community-tax-100` sets it to 100%. Do not invent a new
+treasury address.
 
 ## No escrow
 
