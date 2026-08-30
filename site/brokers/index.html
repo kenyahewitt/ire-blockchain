@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crypto Brokers — IRE</title>
-<meta name="description" content="5000 Crypto Brokers NFTs. Each token is a unique AI trading agent with a unique primary asset. Paper blotter and owner-signed live intents. Not a licensed broker. Not Robinhood Inc.">
+<title>Crypto Brokers — 5000 unique agents</title>
+<meta name="description" content="Crypto Brokers: 5000 unique agent NFTs. Each broker trades a different primary asset. Activate at boomer250.com/brokers. Owner signs live trades. Not a licensed broker.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -28,14 +28,24 @@
 
   <main id="main">
     <div id="bk-landing">
+      <p class="bk-sub" aria-label="Crypto Brokers pages">
+        <a class="bk-btn" href="/brokers/" aria-current="page">Collection</a>
+        <a class="bk-btn" href="/brokers/activate.html">Activate</a>
+        <a class="bk-btn" href="/brokers/activated.html">Activated</a>
+      </p>
       <header class="hero">
-        <p class="micro reveal">Collection · 5000 unique agents · PREVIEW</p>
+        <p class="micro reveal">boomer250.com/brokers · 5000 unique agents</p>
         <h1 class="reveal">Crypto <em>Brokers</em></h1>
-        <p class="lead reveal">Five thousand original agent NFTs. Each token is one AI trading agent with a <strong>unique primary asset</strong> — no two share the same book. The NFT is art plus a public mandate. It is not a licensed broker, does not take custody, and does not place unsupervised live trades.</p>
+        <p class="lead reveal">Five thousand original agent NFTs. Each token is one AI trading agent with a <strong>unique primary asset</strong>. No two share the same book. Connect a wallet, activate, then run paper or owner-signed live intents. Not a licensed broker. No custody.</p>
         <p class="bk-preview reveal">PREVIEW · CONTRACT <code id="bk-contract">null</code></p>
+        <div class="bk-mintbar reveal" id="bk-mintbar">
+          <span id="bk-mint-count"><strong>5000 / 5000</strong> agents in the drop</span>
+          <span>On-chain mint: CONTRACT null (PREVIEW)</span>
+        </div>
         <div class="bk-actions reveal">
           <button class="bk-btn bk-btn-ember" type="button" data-connect>Connect wallet</button>
-          <a class="bk-btn" href="activate.html">Activate an agent</a>
+          <a class="bk-btn" href="/brokers/activate.html">Activate an agent</a>
+          <a class="bk-btn" href="/brokers/activated.html">Activated desk</a>
         </div>
         <p class="bk-wallet reveal"><span class="bk-wallet-label">Wallet not connected.</span> <span class="bk-wallet-chain"></span></p>
         <dl class="facts reveal">
@@ -70,17 +80,42 @@
       </section>
 
       <div class="prose reveal">
-        <h2 id="browse">Browse #1–5000</h2>
-        <p>Deterministic SVG cards until the 3D PNGs are hosted. Open any id for the agent console, or use <a href="activate.html">activate</a>. Deep link: <code>/brokers/?id=42</code>.</p>
+        <h2 id="browse">All 5000 agents</h2>
+        <p>The full drop, ids 1–5000. Each card is a unique mandate. Open one to activate. After mint the ERC-721 still maps here: <code>https://boomer250.com/brokers/?id=N</code>.</p>
       </div>
 
       <div class="bk-browse reveal">
         <div class="bk-browse-bar">
+          <div class="bk-field">
+            <label for="bk-search">Search</label>
+            <input id="bk-search" type="search" placeholder="id, asset, strategy">
+          </div>
+          <div class="bk-field">
+            <label for="bk-universe">Universe</label>
+            <select id="bk-universe">
+              <option value="">All</option>
+              <option>Tokens</option>
+              <option>Stocks</option>
+              <option>Both</option>
+            </select>
+          </div>
+          <div class="bk-field">
+            <label for="bk-strategy">Strategy</label>
+            <select id="bk-strategy">
+              <option value="">All</option>
+              <option>DipBuy</option>
+              <option>Momentum</option>
+              <option>MeanRevert</option>
+              <option>TrendFollow</option>
+              <option>Mean Revert</option>
+              <option>Top Cap Follow</option>
+            </select>
+          </div>
           <button class="bk-btn" type="button" id="bk-prev">Prev</button>
           <button class="bk-btn" type="button" id="bk-next">Next</button>
           <p class="micro" id="bk-page-label"></p>
           <form class="bk-field" id="bk-jump-form">
-            <label for="bk-jump">Jump to id</label>
+            <label for="bk-jump">Open id</label>
             <input id="bk-jump" name="id" type="number" min="1" max="5000" placeholder="42">
           </form>
         </div>
@@ -96,7 +131,8 @@
         <div class="bk-status">
           <span class="bk-pill" id="bk-mode-pill" data-state="preview"><i></i>PREVIEW</span>
           <a class="bk-btn" href="./">Back to collection</a>
-          <a class="bk-btn" id="bk-activate-link" href="activate.html">Activate page</a>
+          <a class="bk-btn" id="bk-activate-link" href="/brokers/activate.html">Activate page</a>
+          <a class="bk-btn" href="/brokers/activated.html">Activated desk</a>
           <button class="bk-btn bk-btn-ember" type="button" data-connect>Connect wallet</button>
         </div>
         <p class="bk-wallet"><span class="bk-wallet-label"></span> <span class="bk-wallet-chain"></span></p>

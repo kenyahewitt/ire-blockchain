@@ -27,10 +27,15 @@
   </nav>
 
   <main id="main">
+      <p class="bk-sub" aria-label="Crypto Brokers pages">
+        <a class="bk-btn" href="/brokers/">Collection</a>
+        <a class="bk-btn" href="/brokers/activate.html" aria-current="page">Activate</a>
+        <a class="bk-btn" href="/brokers/activated.html">Activated</a>
+      </p>
     <section id="bk-picker" class="page-head reveal">
       <p class="micro">Activate</p>
       <h1>Choose an agent</h1>
-      <p class="lead">Enter a token id 1–5000, or open <code>/brokers/?id=42</code>. Activation is <code>personal_sign</code> only. CONTRACT is null until the collection is deployed from <code>0xdfF1a5dc565a2D8d0C2818f8B190ca8399B869b3</code>.</p>
+      <p class="lead">Enter a token id 1–5000. Connect, then sign to activate that agent as yours. After mint, activate the token you own. Live trades stay owner-signed. CONTRACT is null until deploy from <code>0xdfF1a5dc565a2D8d0C2818f8B190ca8399B869b3</code>.</p>
       <form class="bk-form" action="./" method="get" id="bk-pick-form">
         <div class="bk-form-row">
           <div class="bk-field">
@@ -43,10 +48,10 @@
       </form>
       <p class="bk-wallet"><span class="bk-wallet-label">Wallet not connected.</span> <span class="bk-wallet-chain"></span></p>
       <p class="bk-id-nav">
-        <a class="bk-btn" href="./?id=1">#1</a>
-        <a class="bk-btn" href="./?id=42">#42</a>
-        <a class="bk-btn" href="./?id=2500">#2500</a>
-        <a class="bk-btn" href="./">Collection</a>
+        <a class="bk-btn" href="/brokers/activate.html?id=1">#1</a>
+        <a class="bk-btn" href="/brokers/activate.html?id=42">#42</a>
+        <a class="bk-btn" href="/brokers/activate.html?id=2500">#2500</a>
+        <a class="bk-btn" href="/brokers/">Collection</a>
       </p>
     </section>
 
@@ -57,8 +62,9 @@
         <p class="lead">Primary asset <strong id="bk-console-asset"></strong>. Sign to activate. Live trades stay owner-signed. Not a licensed broker.</p>
         <div class="bk-status">
           <span class="bk-pill" id="bk-mode-pill" data-state="preview"><i></i>PREVIEW</span>
-          <a class="bk-btn" href="./">Collection</a>
-          <a class="bk-btn" href="activate.html">Pick another id</a>
+          <a class="bk-btn" href="/brokers/">Collection</a>
+          <a class="bk-btn" href="/brokers/activate.html">Pick another id</a>
+          <a class="bk-btn" href="/brokers/activated.html">Activated desk</a>
           <button class="bk-btn bk-btn-ember" type="button" data-connect>Connect wallet</button>
         </div>
         <p class="bk-wallet"><span class="bk-wallet-label"></span> <span class="bk-wallet-chain"></span></p>
@@ -140,7 +146,7 @@
 document.getElementById("bk-pick-form")?.addEventListener("submit", function (e) {
   e.preventDefault();
   var n = parseInt(document.getElementById("bk-pick-id").value, 10);
-  if (n >= 1 && n <= 5000) location.href = "activate.html?id=" + n;
+  if (n >= 1 && n <= 5000) location.href = "/brokers/activate.html?id=" + n;
 });
 </script>
 </body>

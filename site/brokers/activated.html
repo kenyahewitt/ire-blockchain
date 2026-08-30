@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Activated Crypto Brokers — IRE</title>
+<meta name="description" content="Agents you have activated. Connect a wallet to load your Crypto Brokers desk. Owner signs live trades. Not a licensed broker.">
+<link rel="canonical" href="https://boomer250.com/brokers/activated.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+<link rel="stylesheet" href="assets/brokers.css">
+</head>
+<body class="brokers-page" data-page="activated">
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
+<p class="advisory">Not a licensed broker-dealer. Not Robinhood Inc. Activation is a signature on this device until the ERC-721 is deployed. No custody.</p>
+<div class="frame">
+  <nav class="rail" aria-label="Documentation">
+    <a class="mark" href="/">IRE<span>docs</span></a>
+    <ul class="rail-product"><li><a href="/wallet/">Wallet</a></li><li><a href="/id/">Profile</a></li><li><a href="/brokers/" aria-current="page">Brokers</a></li><li><a href="/create/">Create</a></li><li><a href="/markets/">Markets</a></li><li><a href="/mempool/">Mempool</a></li><li><a href="/points/">Points</a></li><li><a href="/vault/">Vault</a></li></ul>
+    <p class="micro rail-group">Protocol</p>
+    <ul class="rail-protocol"><li><a href="/"><span class="idx">01</span>Overview</a></li><li><a href="/network/"><span class="idx">02</span>Network</a></li><li><a href="/join/"><span class="idx">03</span>Join</a></li><li><a href="/architecture/"><span class="idx">04</span>Architecture</a></li><li><a href="/tokenomics/"><span class="idx">05</span>Tokenomics</a></li><li><a href="/sentinel/"><span class="idx">06</span>Sentinel</a></li><li><a href="/use/"><span class="idx">07</span>Use</a></li><li><a href="/whitepaper/"><span class="idx">08</span>Whitepaper</a></li></ul>
+    <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
+  </nav>
+  <main id="main">
+          <p class="bk-sub" aria-label="Crypto Brokers pages">
+        <a class="bk-btn" href="/brokers/">Collection</a>
+        <a class="bk-btn" href="/brokers/activate.html">Activate</a>
+        <a class="bk-btn" href="/brokers/activated.html" aria-current="page">Activated</a>
+      </p>
+
+    <section id="bk-activated" class="page-head reveal">
+      <p class="micro">Activated desk</p>
+      <h1>Your agents</h1>
+      <p class="lead">Connect the wallet you signed with. This list is every Crypto Broker you activated on this device. After the ERC-721 is live, ownership still has to match on-chain. Live trades stay owner-signed. Not a licensed broker.</p>
+      <div class="bk-actions">
+        <button class="bk-btn bk-btn-ember" type="button" data-connect>Connect wallet</button>
+        <a class="bk-btn" href="/brokers/activate.html">Activate another</a>
+        <a class="bk-btn" href="/brokers/">All 5000</a>
+      </div>
+      <p class="bk-wallet"><span class="bk-wallet-label">Wallet not connected.</span> <span class="bk-wallet-chain"></span></p>
+      <p class="bk-empty" id="bk-activated-empty">Connect a wallet to load your desk.</p>
+      <div class="bk-grid" id="bk-activated-grid" style="margin-top:1.4rem"></div>
+    </section>
+    <div id="bk-console" class="bk-hidden">
+      <header class="page-head reveal">
+        <p class="micro">Activated · agent console</p>
+        <h1 id="bk-console-name">Crypto Broker</h1>
+        <p class="lead">Primary asset <strong id="bk-console-asset"></strong>.</p>
+        <div class="bk-status">
+          <span class="bk-pill" id="bk-mode-pill" data-state="preview"><i></i>PREVIEW</span>
+          <a class="bk-btn" href="/brokers/activated.html">Back to desk</a>
+          <button class="bk-btn bk-btn-ember" type="button" data-connect>Connect wallet</button>
+        </div>
+        <p class="bk-wallet"><span class="bk-wallet-label"></span> <span class="bk-wallet-chain"></span></p>
+      </header>
+      <div class="bk-console reveal">
+        <figure class="bk-art" id="bk-art"></figure>
+        <div class="bk-panel">
+          <h2>Mandate</h2>
+          <p class="lead" id="bk-quote" style="margin-top:0"></p>
+          <dl class="facts" id="bk-facts"></dl>
+          <h2>Activate</h2>
+          <div class="bk-actions">
+            <button class="bk-btn bk-btn-ember" type="button" id="bk-activate">Activate this agent</button>
+          </div>
+          <p class="bk-note" id="bk-activation-state"></p>
+          <p class="bk-legal">Not a licensed broker-dealer. Not Robinhood Inc. No custody.</p>
+        </div>
+      </div>
+    </div>
+    <footer class="foot">
+      <p class="micro">Home: <a href="https://boomer250.com/brokers/">boomer250.com/brokers</a></p>
+      <p class="micro">Owner <code>0xdfF1a5dc565a2D8d0C2818f8B190ca8399B869b3</code> · chainId 4663 · CONTRACT null</p>
+    </footer>
+  </main>
+</div>
+<script src="assets/agents-data.js"></script>
+<script src="assets/mandates.js"></script>
+<script src="assets/render.js"></script>
+<script src="assets/brokers.js"></script>
+</body>
+</html>

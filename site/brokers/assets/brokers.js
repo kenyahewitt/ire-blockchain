@@ -28,8 +28,11 @@
     address: null,
     chainId: null,
     page: 1,
-    pageSize: 24,
-    id: null
+    pageSize: 48,
+    id: null,
+    filter: "",
+    universe: "",
+    strategy: ""
   };
 
   function $(id) { return document.getElementById(id); }
@@ -149,6 +152,7 @@
     await ensureChain();
     setWalletUi();
     if (state.id) refreshActivation();
+    renderActivated();
   }
 
   async function personalSign(message) {
@@ -192,22 +196,105 @@
     );
   }
 
+  function isActivated(id) {
+    if (!state.address) return false;
+    var rec = readJSON(storageKey("activation", id));
+    return !!(rec && rec.signature);
+  }
+
+  function matchesFilter(m) {
+    if (state.universe && m.universe !== state.universe) return false;
+    if (state.strategy && String(m.strategy).toLowerCase() !== String(state.strategy).toLowerCase()) return false;
+    var q = (state.filter || "").trim().toLowerCase();
+    if (!q) return true;
+    var blob = ("#" + m.id + " " + m.name + " " + m.primaryAsset + " " + m.secondary + " " + m.strategy + " " + m.venue + " " + m.universe).toLowerCase();
+    return blob.indexOf(q) >= 0 || String(m.id) === q;
+  }
+
+  function catalogIds() {
+    var ids = [];
+    var filtered = !!(state.filter || state.universe || state.strategy);
+    var i, m;
+    for (i = 1; i <= M.COLLECTION_SIZE; i++) {
+      if (!filtered) { ids.push(i); continue; }
+      m = M.mandateFor(i);
+      if (matchesFilter(m)) ids.push(i);
+    }
+    return ids;
+  }
+
+  function cardHtml(id, href) {
+    var m = M.mandateFor(id);
+    var on = isActivated(id);
+    return '<a href="' + href + '" data-id="' + id + '" data-activated="' + (on ? "1" : "0") + '">' +
+      R.svg(id) +
+      '<p class="bk-card-meta"><strong>#' + id + (on ? ' <span class="bk-tag">activated</span>' : "") +
+      "</strong>" + m.primaryAsset + " · " + m.strategy + "</p></a>";
+  }
+
   function renderLandingGrid() {
     var grid = $("bk-grid");
     if (!grid) return;
-    var start = (state.page - 1) * state.pageSize + 1;
-    var end = Math.min(M.COLLECTION_SIZE, start + state.pageSize - 1);
+    var ids = catalogIds();
+    var maxPage = Math.max(1, Math.ceil(ids.length / state.pageSize));
+    if (state.page > maxPage) state.page = maxPage;
+    var start = (state.page - 1) * state.pageSize;
+    var slice = ids.slice(start, start + state.pageSize);
     var html = "";
-    var i, m, href;
-    for (i = start; i <= end; i++) {
-      m = M.mandateFor(i);
-      href = "./?id=" + i;
-      html += '<a href="' + href + '" data-id="' + i + '">';
-      html += R.svg(i);
-      html += '<p class="bk-card-meta"><strong>#' + i + "</strong>" + m.primaryAsset + " · " + m.strategy + "</p></a>";
+    var i;
+    for (i = 0; i < slice.length; i++) {
+      html += cardHtml(slice[i], "/brokers/?id=" + slice[i]);
     }
-    grid.innerHTML = html;
-    setText("bk-page-label", "#" + start + "–" + end + " of " + M.COLLECTION_SIZE);
+    grid.innerHTML = html || '<p class="bk-empty">No agents match that search.</p>';
+    var a = ids.length ? (start + 1) : 0;
+    var b = start + slice.length;
+    setText("bk-page-label", (ids.length === M.COLLECTION_SIZE
+      ? ("#" + (slice[0] || 0) + "–" + (slice[slice.length - 1] || 0) + " of 5000")
+      : (a + "–" + b + " of " + ids.length + " matches")));
+    var mint = $("bk-mint-count");
+    if (mint) mint.textContent = "5000 / 5000 agents in the drop";
+  }
+
+  function listActivations() {
+    var addr = (state.address || "").toLowerCase();
+    if (!addr || !window.localStorage) return [];
+    var prefix = "crypto-brokers:activation:" + addr + ":";
+    var out = [], i, k, rec;
+    for (i = 0; i < localStorage.length; i++) {
+      k = localStorage.key(i);
+      if (!k || k.indexOf(prefix) !== 0) continue;
+      rec = readJSON(k);
+      if (rec && rec.signature && rec.id) out.push(rec);
+    }
+    out.sort(function (a, b) { return String(b.ts || "").localeCompare(String(a.ts || "")); });
+    return out;
+  }
+
+  function renderActivated() {
+    var grid = $("bk-activated-grid");
+    var empty = $("bk-activated-empty");
+    if (!grid) return;
+    if (!state.address) {
+      grid.innerHTML = "";
+      if (empty) {
+        empty.classList.remove("bk-hidden");
+        empty.textContent = "Connect a wallet to see agents you have activated on this device.";
+      }
+      return;
+    }
+    var recs = listActivations();
+    if (!recs.length) {
+      grid.innerHTML = "";
+      if (empty) {
+        empty.classList.remove("bk-hidden");
+        empty.innerHTML = "No activations for <code>" + shortAddr(state.address) + "</code> yet. Open <a href=\"/brokers/activate.html\">Activate</a> and sign for a token you own.";
+      }
+      return;
+    }
+    if (empty) empty.classList.add("bk-hidden");
+    grid.innerHTML = recs.map(function (rec) {
+      return cardHtml(rec.id, "/brokers/activate.html?id=" + rec.id);
+    }).join("");
   }
 
   function refreshActivation() {
@@ -314,14 +401,21 @@
 
   function route() {
     var id = parseId(qs().get("id"));
-    var activatePage = document.body.getAttribute("data-page") === "activate";
+    var page = document.body.getAttribute("data-page") || "";
+    show("bk-activated", page === "activated" && !id);
     if (id) {
       show("bk-picker", false);
+      show("bk-landing", false);
       openConsole(id);
-    } else if (activatePage) {
+    } else if (page === "activate") {
       show("bk-landing", false);
       show("bk-console", false);
       show("bk-picker", true);
+    } else if (page === "activated") {
+      show("bk-landing", false);
+      show("bk-console", false);
+      show("bk-picker", false);
+      renderActivated();
     } else {
       show("bk-picker", false);
       openLanding();
@@ -344,6 +438,11 @@
     };
     writeJSON(storageKey("activation", state.id), rec);
     refreshActivation();
+    renderActivated();
+    var box = $("bk-activation-state");
+    if (box) {
+      box.innerHTML = "Activated #" + state.id + " for <code>" + shortAddr(state.address) + "</code>. Open your <a href=\"/brokers/activated.html\">activated desk</a>. Signature is local until CONTRACT is set.";
+    }
   }
 
   async function onPaper() {
@@ -492,8 +591,21 @@
       e.preventDefault();
       var id = parseId($("bk-jump").value);
       if (!id) return;
-      location.href = "./?id=" + id;
+      location.href = "/brokers/activate.html?id=" + id;
     });
+    function applyFilters() {
+      state.filter = ($("bk-search") && $("bk-search").value) || "";
+      state.universe = ($("bk-universe") && $("bk-universe").value) || "";
+      state.strategy = ($("bk-strategy") && $("bk-strategy").value) || "";
+      state.page = 1;
+      renderLandingGrid();
+    }
+    var search = $("bk-search");
+    if (search) search.addEventListener("input", applyFilters);
+    var uni = $("bk-universe");
+    if (uni) uni.addEventListener("change", applyFilters);
+    var strat = $("bk-strategy");
+    if (strat) strat.addEventListener("change", applyFilters);
     var act = $("bk-activate");
     if (act) act.addEventListener("click", function () { onActivate().catch(function (e) { alert(e.message || e); }); });
     var paper = $("bk-paper-mark");
@@ -511,6 +623,7 @@
         state.address = acc && acc[0] ? acc[0] : null;
         setWalletUi();
         if (state.id) refreshActivation();
+        renderActivated();
       });
       provider.on("chainChanged", function (hex) {
         state.chainId = hexToInt(hex);
@@ -533,6 +646,7 @@
         state.chainId = hexToInt(hex);
         setWalletUi();
         if (state.id) refreshActivation();
+        renderActivated();
       }).catch(function () {});
     }
   });

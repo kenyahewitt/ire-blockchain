@@ -13,6 +13,9 @@
 /points       /points/       301
 /whitepaper   /whitepaper/   301
 /brokers      /brokers/      301
+/brokers/activate   /brokers/activate.html    301
+/brokers/activated  /brokers/activated.html   301
+
 
 /rpc/*  http://91.99.1.9/rpc/:splat  200
 /api/*  http://91.99.1.9/api/:splat  200
