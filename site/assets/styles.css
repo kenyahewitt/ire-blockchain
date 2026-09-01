@@ -255,6 +255,35 @@ main {
   overflow-wrap: anywhere;
 }
 
+.validator-callout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 1px;
+  margin: 3.25rem 0 0;
+  border: 1px solid rgba(196, 98, 45, 0.5);
+  background: var(--rule-lo);
+}
+.validator-callout > div,
+.validator-callout__note,
+.validator-callout__action {
+  margin: 0;
+  padding: clamp(1.35rem, 3vw, 2.25rem);
+  background: linear-gradient(135deg, rgba(196, 98, 45, 0.11), var(--ink-lift) 66%);
+}
+.validator-callout h2 {
+  margin: 0.9rem 0 0;
+  font: 400 clamp(2rem, 4vw, 3.2rem)/1.02 var(--serif);
+  letter-spacing: -0.02em;
+}
+.validator-callout p { color: #d3cabb; }
+.validator-callout__steps { display: grid; gap: 1px; background: var(--rule-lo) !important; padding: 1px !important; }
+.validator-callout__steps p { margin: 0; padding: 1.15rem 1.25rem; background: var(--ink-lift); }
+.validator-callout__steps strong, .validator-callout__note strong { color: var(--paper); }
+.validator-callout__note { grid-column: 1 / -1; border-top: 1px solid var(--rule); font-size: 0.94rem; }
+.validator-callout__action { grid-column: 1 / -1; border-top: 1px solid var(--rule); padding-top: 1rem; padding-bottom: 1rem; font: 500 0.75rem var(--mono); letter-spacing: 0.12em; text-transform: uppercase; }
+.validator-callout__action a { color: var(--paper); text-decoration-color: var(--ember); text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.validator-callout__action a:hover { color: var(--ember); }
+
 /* ---------- prose ---------- */
 
 .prose {
@@ -503,6 +532,7 @@ main > .prose.reveal { animation-delay: 0.22s; }
   .prose h2 { margin-top: 3rem; }
   .prose h2::before { position: static; display: block; margin-bottom: 0.55rem; }
   .copy { opacity: 1; }
+  .validator-callout { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -30,13 +30,37 @@ Set the VPS IP or DNS name in `networks/ire-1/README.md` only after the P2P port
 
 ## Add a read-only explorer endpoint
 
-1. Point `rpc.example.org` at the VPS.
-2. Install Nginx and Certbot on the VPS.
-3. Copy `deploy/nginx/ire-explorer.conf` to the Nginx site directory and replace `rpc.example.org` with your hostname.
-4. Obtain a TLS certificate with Certbot, validate the Nginx configuration, and reload it.
-5. The public docs/explorer origin is already `https://illustrious-banoffee-92cafd.netlify.app`. Point `rpc.example.org` (or another hostname you control) at the VPS. Netlify cannot serve CometBFT P2P (`26656`) or RPC (`26657`).
+1. Point `rpc.boomer250.com` at the VPS.
+2. Install Nginx and Certbot on the VPS, then obtain the first certificate before installing the TLS server block:
 
-The supplied proxy permits only GET requests to selected query paths, rate-limits callers, and permits browser requests only from `https://illustrious-banoffee-92cafd.netlify.app`. It does not relay transaction broadcasts, signing, or administrative RPC calls.
+```sh
+sudo apt-get update
+sudo apt-get install -y nginx certbot
+sudo systemctl stop nginx
+sudo certbot certonly --standalone -d rpc.boomer250.com
+```
+
+3. Copy `deploy/nginx/ire-explorer.conf` to the Nginx site directory. It is deliberately pinned to `rpc.boomer250.com` and only exposes selected GET endpoints.
+
+```sh
+sudo install -m 0644 deploy/nginx/ire-explorer.conf /etc/nginx/sites-available/ire-explorer
+sudo ln -s /etc/nginx/sites-available/ire-explorer /etc/nginx/sites-enabled/ire-explorer
+sudo nginx -t
+sudo systemctl enable --now nginx
+```
+
+Switch certificate renewal to the zero-downtime webroot challenge after Nginx is running:
+
+```sh
+sudo install -d -m 0755 /var/www/certbot/.well-known/acme-challenge
+sudo certbot reconfigure --cert-name rpc.boomer250.com \
+  --webroot -w /var/www/certbot --deploy-hook "systemctl reload nginx"
+```
+
+4. Do not deploy the Netlify redirect change until `https://rpc.boomer250.com/rpc/status` returns a valid certificate and `200`.
+5. The public docs origin is `https://boomer250.com`; it proxies read-only requests to the TLS-only RPC hostname. Netlify cannot serve CometBFT P2P (`26656`) or RPC (`26657`).
+
+The supplied proxy permits only GET requests to selected query paths and rate-limits callers. It does not relay transaction broadcasts, signing, or administrative RPC calls. CORS is intentionally absent: the public site uses a same-origin proxy, and CORS is not an authorization boundary.
 
 ## Before allowing public validators
 

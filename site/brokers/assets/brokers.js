@@ -107,6 +107,15 @@
     if (el) el.innerHTML = html;
   }
 
+  function escapeHtml(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   function show(id, on) {
     var el = $(id);
     if (!el) return;
@@ -504,8 +513,8 @@
       return;
     }
     body.innerHTML = rec.orders.map(function (o) {
-      return "<tr><td>" + o.ts + "</td><td>" + o.side + "</td><td>" + o.size + "</td><td>" +
-        (o.markUsd != null ? o.markUsd : "offline") + "</td><td>" + (o.source || "") + "</td></tr>";
+      return "<tr><td>" + escapeHtml(o.ts) + "</td><td>" + escapeHtml(o.side) + "</td><td>" + escapeHtml(o.size) + "</td><td>" +
+        escapeHtml(o.markUsd != null ? o.markUsd : "offline") + "</td><td>" + escapeHtml(o.source || "") + "</td></tr>";
     }).join("");
   }
 
@@ -518,7 +527,7 @@
       return;
     }
     body.innerHTML = rec.intents.map(function (o) {
-      return "<tr><td>" + o.ts + "</td><td>" + o.side + " " + o.size + " " + o.primaryAsset + "</td><td>" + shortAddr(o.signature) + "</td></tr>";
+      return "<tr><td>" + escapeHtml(o.ts) + "</td><td>" + escapeHtml(o.side) + " " + escapeHtml(o.size) + " " + escapeHtml(o.primaryAsset) + "</td><td>" + escapeHtml(shortAddr(o.signature)) + "</td></tr>";
     }).join("");
   }
 
@@ -669,8 +678,7 @@
     show("bk-offline", false);
     try {
       var quote = await fetchMark(m.primaryAsset);
-      markEl.innerHTML = "Public mark <strong>" + m.primaryAsset + "</strong> = $" + quote.priceUsd +
-        " <span class=\"micro\">" + quote.source + "</span>";
+      markEl.textContent = "Public mark " + m.primaryAsset + " = $" + quote.priceUsd + " " + quote.source;
       var rec = readJSON(storageKey("paper", id)) || { orders: [] };
       rec.orders.unshift({
         ts: new Date().toISOString(),
@@ -712,7 +720,7 @@
       });
       writeJSON(storageKey("paper", id), rec);
       renderPaperRows(id);
-      setHtml("bk-mark", "Paper fill at public mark $" + quote.priceUsd + " — simulated, not a live trade.");
+      setText("bk-mark", "Paper fill at public mark $" + quote.priceUsd + " — simulated, not a live trade.");
       show("bk-offline", false);
     } catch (err) {
       show("bk-offline", true);

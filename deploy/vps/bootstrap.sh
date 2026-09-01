@@ -32,9 +32,13 @@ install -m 0644 /opt/ire-blockchain/deploy/systemd/ired.service /etc/systemd/sys
 systemctl daemon-reload
 systemctl enable --now ired
 
-# Keep SSH available for your provider/admin access; open only the public P2P port.
+# Keep SSH available for your provider/admin access. The web ports are for the
+# TLS-only, GET-only proxy in deploy/nginx/ire-explorer.conf; RPC, REST, and
+# gRPC themselves remain bound to localhost.
 ufw allow OpenSSH
 ufw allow 26656/tcp comment 'IRE P2P'
+ufw allow 80/tcp comment 'ACME HTTP challenge and HTTPS redirect'
+ufw allow 443/tcp comment 'IRE read-only explorer proxy'
 ufw --force enable
 
 echo 'Public node installed. Confirm with: systemctl status ired --no-pager'

@@ -46,11 +46,25 @@
       <article><h2>Inscribe</h2><p>Memos on ordinary sends. Tokens, art catalogs, games, and yes/no markets live in the tx, not on IPFS. Launch from <a href="/create/">Create</a>.</p></article>
       <article><h2>Earn points</h2><p>Using the chain scores points: sends, inscriptions, markets, funding the vault. Points are a usage score, not IRE. Later airdrops can pay from the Volt. See <a href="/points/">Points</a>.</p></article>
       <article><h2>Profile and socials</h2><p>Every account can inscribe X, Telegram, Discord, and a site onto their <code>ire1</code>, then share a receive/send link. <a href="/id/">Profile</a>.</p></article>
-          <article><h2>Crypto Brokers</h2><p>5,000 unique agent NFTs. Live ERC-721 <code>0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041</code>, owner <a href="https://x.com/FURBI50360">@FURBI50360</a>. Connect and activate on <a href="/brokers/">Brokers</a>. Owner signs live trades. Not a licensed broker.</p></article>
+          <article><h2>Crypto Brokers</h2><p>A separate ERC-721 collection on Robinhood Chain <code>4663</code>, not IRE. Activation records a local signature; it does not move funds, create an IRE NFT, or make a validator. Read the full non-custodial notice on <a href="/brokers/">Brokers</a>.</p></article>
       <article><h2>Whitepaper</h2><p>The full public spec: supply, Volt, inscriptions, points, agents, how to join. <a href="/whitepaper/">Whitepaper</a>.</p></article>
 </section>
+    <section class="validator-callout reveal" aria-labelledby="validator-callout-title">
+      <div>
+        <p class="micro">Independent operators wanted</p>
+        <h2 id="validator-callout-title">Help make IRE resilient.</h2>
+        <p>IRE needs independent validators in different locations and under different ownership before any mainnet launch. Validators run a full node, verify blocks, participate in consensus, and keep the network available without trusting the original operator.</p>
+      </div>
+      <div class="validator-callout__steps">
+        <p><strong>1. Run and sync a node.</strong> Build from the published source, use the published genesis and seed, and keep P2P <code>26656</code> reachable.</p>
+        <p><strong>2. Keep your own keys.</strong> Create the validator key only on your server, fund self-delegation, and submit your own <code>create-validator</code> transaction.</p>
+        <p><strong>3. Operate independently.</strong> Monitor uptime, upgrades, signatures, backups, and security. Never share a mnemonic, <code>priv_validator_key.json</code>, or server login with IRE.</p>
+      </div>
+      <p class="validator-callout__note"><strong>Why validate?</strong> On a future mainnet, validator economics must be approved and funded transparently: transaction fees and any pre-allocated validator-rewards pool can support operators and delegators. <code>ire-1</code> has no inflation and no guaranteed validator income—today, participation is testnet work and helps qualify the network for a safer launch.</p>
+      <p class="validator-callout__action"><a href="/join/">Read the validator guide</a> <span aria-hidden="true">→</span></p>
+    </section>
 <div class="prose reveal"><h2 id="current-status"><a class="anchor" href="#current-status">Current status</a></h2>
-<p><code>ire-1</code> is a public testnet, still a single-validator network. A non-validator public seed is up in Falkenstein. This domain, <a href="https://boomer250.com">boomer250.com</a>, is the public home for IRE: docs, Volt, whitepaper, Crypto Brokers activation, and a same-origin GET proxy at <code>/rpc/</code> and <code>/api/</code>. It is not a seed or P2P endpoint, and cannot serve ports 26656 or 26657.</p>
+<p><code>ire-1</code> is a public testnet, still a single-validator network. A non-validator public seed is up in Falkenstein. This domain, <a href="https://boomer250.com">boomer250.com</a>, is the public home for IRE: docs, Volt, whitepaper, Crypto Brokers activation, and a same-origin read-only proxy at <code>/rpc/</code> and <code>/api/</code>. It is not a seed or P2P endpoint, and cannot serve ports 26656 or 26657.</p>
 <p>Network files, the seed string, and the genesis hash: <a href="/network/">Network</a>. Join a full node or create a validator: <a href="/join/">Join</a>. Watch live cubes: <a href="/mempool/">Mempool</a>. Send and inscribe: <a href="/use/">Use</a>. Inscribed prediction markets: <a href="/markets/">Markets</a>. Look up a balance and activity: <a href="/wallet/">Wallet</a>. Launch a tick or inscribe a catalog record: <a href="/create/">Create</a>. Source repository: <a href="https://github.com/kenyahewitt/ire-blockchain">github.com/kenyahewitt/ire-blockchain</a>.</p>
 <p>The original operator can still start the local validator from this repository:</p>
 <figure class="snippet"><button class="copy" type="button" data-copy>Copy</button><pre><code class="language-sh">make build
