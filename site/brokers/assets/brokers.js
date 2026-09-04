@@ -747,14 +747,14 @@ function listActivations() {
     }
     var rec = readJSON(validatorKey(state.address));
     if (rec && rec.signature) {
-      box.innerHTML = "Validator candidate for <code>" + shortAddr(rec.address) + "</code> (broker #" + rec.id +
-        "). Waitlist only — not in the current consensus set. 25 testnet points when you broadcast the <code>IREVAL1</code> memo from an IRE key that has <code>uire</code>.";
+      box.innerHTML = "WAITLIST signed for <code>" + shortAddr(rec.address) + "</code> (broker #" + rec.id +
+        "). <strong>Not a consensus seat</strong> — live <code>ire-1</code> still has 1 bonded validator. 25 testnet points only after you broadcast <code>IREVAL1</code> from an IRE key that holds <code>uire</code>.";
       if (cli) {
         cli.hidden = false;
         cli.textContent = rec.cli || validatorCli(rec.address, rec.id);
       }
     } else {
-      box.textContent = "This wallet is not on the IRE validator waitlist yet.";
+      box.textContent = "Not on the IRE waitlist yet. This signup is waitlist + points only — it will not add you to the live 1-validator consensus set.";
       if (cli) { cli.hidden = true; cli.textContent = ""; }
     }
   }

@@ -95,15 +95,29 @@
           <p class="bk-note" id="bk-activation-state"></p>
           <p class="bk-note" id="bk-onchain-owner"></p>
 
-          <h2>IRE validator</h2>
-          <p>Every activated wallet can join the <code>ire-1</code> validator waitlist. One signup per wallet. Waitlist + <strong>25 testnet points</strong> via <code>IREVAL1</code> — not a seat in the current 1-validator set. No custody. Not money.</p>
-          <div class="bk-actions">
-            <button class="bk-btn bk-btn-ember" type="button" id="bk-validator">Join IRE validator waitlist</button>
-            <a class="bk-btn" href="/join/">Run a node</a>
-            <a class="bk-btn" href="/points/">Points</a>
+          <div class="bk-callout" id="bk-validator-callout">
+            <h2>IRE validator — read this split</h2>
+            <p><strong>Two different things.</strong> The button below is a <em>waitlist + points</em> signup from your EVM wallet. It is <strong>not</strong> a seat in the live <code>ire-1</code> consensus set (still <strong>1</strong> bonded operator: <code>ire-local-validator</code>).</p>
+            <div class="bk-callout-split">
+              <div class="bk-callout-card is-yes">
+                <strong>This button does</strong>
+                EVM <code>personal_sign</code> waitlist · local record · later <code>IREVAL1</code> memo for <strong>25 testnet points</strong> · no custody
+              </div>
+              <div class="bk-callout-card is-no">
+                <strong>This button does NOT</strong>
+                Join Tendermint consensus · mint <code>uire</code> · replace the single live validator · move funds
+              </div>
+            </div>
+            <p style="margin:0.85rem 0 0">To actually run a consensus validator you need a synced node + <code>uire</code> + <code>create-validator</code> — see <a href="/join/">Join</a>. Points rules: <a href="/points/">Points</a>.</p>
+            <div class="bk-actions">
+              <button class="bk-btn bk-btn-ember" type="button" id="bk-validator">Join IRE validator waitlist</button>
+              <a class="bk-btn" href="/join/">Run a node / create-validator</a>
+              <a class="bk-btn" href="/points/">Points (IREVAL1 = 25)</a>
+            </div>
+            <p class="bk-note" id="bk-validator-state"></p>
+            <pre class="bk-intent" id="bk-validator-cli" hidden></pre>
           </div>
-          <p class="bk-note" id="bk-validator-state"></p>
-          <pre class="bk-intent" id="bk-validator-cli" hidden></pre>
+
 
 
           <h2>Broker desk work</h2>

@@ -37,7 +37,7 @@
       <header class="hero">
         <p class="micro reveal">boomer250.com/brokers · @FURBI50360 · 5000 ERC-721 agents</p>
         <h1 class="reveal">Crypto <em>Brokers</em></h1>
-        <p class="lead reveal">A 5000-token ERC-721. Each NFT is a paid trading agent with a unique real skill (desk + role + pair + venue). After activation the broker runs a desk: live public mark → written ticket (grid / DCA / scan / funding / snapshot) → you sign the ticket. Shared 3D head styles — not 5000 unique 3D models, not unsupervised AI fills, not 5000 validators. Not a licensed broker. Not Robinhood Inc. <code>ire-1</code> is a testnet. IREVAL1 is waitlist points.</p>
+        <p class="lead reveal">A 5000-token ERC-721. Each NFT is a paid trading agent with a unique real skill (desk + role + pair + venue). After activation the broker runs a desk: live public mark → written ticket (grid / DCA / scan / funding / snapshot) → you sign the ticket. Shared 3D head styles — not 5000 unique 3D models, not unsupervised AI fills, not 5000 validators. <strong>IREVAL1 waitlist ≠ consensus seat</strong> (live set is still 1 operator). Not a licensed broker. Not Robinhood Inc. <code>ire-1</code> is a testnet.</p>
         <p class="bk-preview reveal">LIVE · CONTRACT <code id="bk-contract">0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041</code></p>
         <figure class="bk-art reveal" style="max-width:42rem;margin:1.2rem 0 0">
           <div class="bk-shot">
@@ -175,15 +175,29 @@
           <p class="bk-note" id="bk-activation-state"></p>
           <p class="bk-note" id="bk-onchain-owner"></p>
 
-          <h2>IRE validator</h2>
-          <p>Every activated wallet can join the <code>ire-1</code> validator waitlist. One signup per wallet. Waitlist + <strong>25 testnet points</strong> via <code>IREVAL1</code> — not a seat in the current 1-validator set. No custody. Not money.</p>
-          <div class="bk-actions">
-            <button class="bk-btn bk-btn-ember" type="button" id="bk-validator">Join IRE validator waitlist</button>
-            <a class="bk-btn" href="/join/">Run a node</a>
-            <a class="bk-btn" href="/points/">Points</a>
+          <div class="bk-callout" id="bk-validator-callout">
+            <h2>IRE validator — read this split</h2>
+            <p><strong>Two different things.</strong> The button below is a <em>waitlist + points</em> signup from your EVM wallet. It is <strong>not</strong> a seat in the live <code>ire-1</code> consensus set (still <strong>1</strong> bonded operator: <code>ire-local-validator</code>).</p>
+            <div class="bk-callout-split">
+              <div class="bk-callout-card is-yes">
+                <strong>This button does</strong>
+                EVM <code>personal_sign</code> waitlist · local record · later <code>IREVAL1</code> memo for <strong>25 testnet points</strong> · no custody
+              </div>
+              <div class="bk-callout-card is-no">
+                <strong>This button does NOT</strong>
+                Join Tendermint consensus · mint <code>uire</code> · replace the single live validator · move funds
+              </div>
+            </div>
+            <p style="margin:0.85rem 0 0">To actually run a consensus validator you need a synced node + <code>uire</code> + <code>create-validator</code> — see <a href="/join/">Join</a>. Points rules: <a href="/points/">Points</a>.</p>
+            <div class="bk-actions">
+              <button class="bk-btn bk-btn-ember" type="button" id="bk-validator">Join IRE validator waitlist</button>
+              <a class="bk-btn" href="/join/">Run a node / create-validator</a>
+              <a class="bk-btn" href="/points/">Points (IREVAL1 = 25)</a>
+            </div>
+            <p class="bk-note" id="bk-validator-state"></p>
+            <pre class="bk-intent" id="bk-validator-cli" hidden></pre>
           </div>
-          <p class="bk-note" id="bk-validator-state"></p>
-          <pre class="bk-intent" id="bk-validator-cli" hidden></pre>
+
 
 
 
