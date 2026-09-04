@@ -27,7 +27,7 @@
     BLOCKSCOUT_NINJA: "https://robinhoodchain.blockscout.com/api/v2/tokens/0x5Ce837Cf242e763F9b0E9A87AA7907C3F5DD083C",
     KRAKEN_TICKER: "https://api.kraken.com/0/public/Ticker?pair=",
     KRAKEN_FUT: "https://futures.kraken.com/derivatives/api/v3/tickers",
-    JUP_PRICE: "https://lite-api.jup.ag/price/v2?ids=",
+    JUP_PRICE: "https://lite-api.jup.ag/price/v3?ids=",
     CODEX_GQL: "https://graph.codex.io/graphql",
     IRE_STATUS: "/rpc/status",
     IRE_MEMPOOL: "/rpc/unconfirmed_txs",
@@ -776,9 +776,13 @@
     var mint = typeof skill.ticker === "string" ? skill.ticker : null;
     if (!mint) throw new Error("no mint");
     var data = await jsonGet(CONFIG.JUP_PRICE + encodeURIComponent(mint));
-    var row = data && data.data ? data.data[mint] : null;
-    if (!row || row.price == null || row.price === "") throw new Error("no price");
-    return { value: String(row.price), label: "$" + row.price, source: "jup-lite:" + skill.pair, kind: "usd" };
+    /* Jupiter price v3: { [mint]: { usdPrice } }. Keep a v2-shaped fallback. */
+    var row = null;
+    if (data && data[mint]) row = data[mint];
+    else if (data && data.data && data.data[mint]) row = data.data[mint];
+    var price = row && (row.usdPrice != null ? row.usdPrice : row.price);
+    if (price == null || price === "") throw new Error("no price");
+    return { value: String(price), label: "$" + price, source: "jup-lite-v3:" + skill.pair, kind: "usd" };
   }
 
   async function quoteIreRpc(skill) {
@@ -823,12 +827,50 @@
   }
 
   async function quoteBlockscout(skill, url) {
-    var data = await jsonGet(url);
+    var data;
+    try {
+      data = await jsonGet(url);
+    } catch (err) {
+      /* Blockscout sometimes 403s from locked-down edges — fall back to Dexscreener search on the pair label. */
+      var q = encodeURIComponent(skill.pair || skill.ticker || "ETH");
+      var dex = await jsonGet("https://api.dexscreener.com/latest/dex/search?q=" + q);
+      var pairs = dex && dex.pairs ? dex.pairs : [];
+      var row = null, i;
+      for (i = 0; i < pairs.length; i++) {
+        if (pairs[i] && pairs[i].priceUsd) { row = pairs[i]; break; }
+      }
+      if (!row) throw new Error((err && err.message ? err.message : "blockscout unavailable") + "; no dexscreener fallback");
+      return {
+        value: String(row.priceUsd),
+        label: "$" + row.priceUsd,
+        source: "dexscreener-fallback:" + skill.pair,
+        kind: "usd"
+      };
+    }
     var rate = data && data.exchange_rate;
     if (rate != null && rate !== "" && Number.isFinite(Number(rate)) && Number(rate) > 0) {
       return { value: String(rate), label: "$" + rate + " Blockscout exchange_rate (public quote, not a claimed NFT floor)", source: "blockscout:" + skill.pair, kind: "usd" };
     }
-    throw new Error("no exchange_rate");
+    /* NFTs / non-priced tokens: still work the desk with real public stats — never invent a USD floor. */
+    var holders = data && (data.holders_count != null ? data.holders_count : data.holders);
+    var supply = data && data.total_supply;
+    if (holders != null && holders !== "") {
+      return {
+        value: String(holders),
+        label: holders + " holders on Robinhood Chain Blockscout (public, not a USD quote)",
+        source: "blockscout-holders:" + skill.pair,
+        kind: "count"
+      };
+    }
+    if (supply != null && supply !== "") {
+      return {
+        value: String(supply),
+        label: "total_supply " + supply + " (Blockscout public)",
+        source: "blockscout-supply:" + skill.pair,
+        kind: "count"
+      };
+    }
+    throw new Error("no exchange_rate / holders / supply");
   }
 
   async function quoteVolt(skill) {
@@ -1067,7 +1109,7 @@
       "Network: Robinhood Chain (4663)\n" +
       "Activation fee: " + CONFIG.ACTIVATION_FEE_ETH + " ETH + network gas\n" +
       "Recipient: " + CONFIG.ACTIVATION_FEE_RECIPIENT + "\n\n" +
-      "This payment enables this site's agent access. It does not deploy an autonomous trading contract or give the agent custody of your wallet."
+      "This payment enables this site's agent access and funds the public data/API path that keeps this desk WORKING (quotes + upgrades). It does not deploy an autonomous trading contract, take custody, or place unsupervised fills."
     );
     if (!approved) return;
     var accounts = await eth().request({ method: "eth_accounts" });
