@@ -445,6 +445,7 @@
     refreshValidator();
     renderActivated();
     renderMyBrokers();
+    renderOwnedPicker().catch(function () {});
   }
 
   async function personalSign(message) {
@@ -1263,6 +1264,14 @@
     renderLiveRows(id);
     refreshActivation();
     refreshValidator();
+    var actHint = $("bk-activation-state");
+    if (actHint && !isActivated(id)) {
+      actHint.innerHTML = "Ready to activate #" + id + " on <strong>Robinhood Chain ETH (4663)</strong>. Click <strong>Activate · 0.001 ETH</strong> below.";
+    }
+    var actBtn = $("bk-activate");
+    if (actBtn) {
+      try { actBtn.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) { actBtn.focus(); }
+    }
     ownerOf(id).then(function (own) {
       var box = $("bk-onchain-owner");
       if (!box) return;
@@ -1301,6 +1310,63 @@
     renderLandingGrid();
   }
 
+  async function renderOwnedPicker() {
+    var status = $("bk-owned-pick-status");
+    var grid = $("bk-owned-pick-grid");
+    var actions = $("bk-owned-pick-actions");
+    if (!grid || !status) return;
+    if (!state.address) {
+      status.textContent = "Connect wallet to list Crypto Brokers you own, then activate one.";
+      grid.innerHTML = "";
+      if (actions) actions.innerHTML = "";
+      return;
+    }
+    if (!Number.isFinite(state.minted)) {
+      status.textContent = "Fetching totalSupply…";
+      return;
+    }
+    status.textContent = "Reading balanceOf + scanning ownerOf for " + shortAddr(state.address) + "…";
+    grid.innerHTML = "";
+    var bal = await balanceOf(state.address);
+    if (bal === 0) {
+      status.innerHTML = "On-chain <code>balanceOf</code> is 0 for <code>" + shortAddr(state.address) + "</code>. Buy/transfer a Crypto Broker, then refresh.";
+      return;
+    }
+    var owned = [];
+    var cap = Math.min(state.minted, M.COLLECTION_SIZE);
+    var batch = 25;
+    var i = 1, failed = 0;
+    while (i <= cap) {
+      var chunk = [];
+      var j;
+      for (j = 0; j < batch && i + j <= cap; j++) chunk.push(i + j);
+      var results = await Promise.all(chunk.map(function (tid) { return ownerOfWithRetry(tid); }));
+      for (j = 0; j < results.length; j++) {
+        if (!results[j].ok) { failed += 1; continue; }
+        if (results[j].own && sameAddr(results[j].own, state.address)) owned.push(results[j].id);
+      }
+      status.textContent = "Found " + owned.length + " / balanceOf " + bal + " · scanned " + Math.min(i + chunk.length - 1, cap) + "/" + cap +
+        (failed ? (" · rpc fails " + failed) : "");
+      if (owned.length >= bal && bal > 0) break; // early exit when all found
+      i += batch;
+      await new Promise(function (r) { setTimeout(r, 30); });
+    }
+    if (!owned.length) {
+      status.innerHTML = "balanceOf=" + bal + " but scan found 0 (rpc fails " + failed + "). Tap Scan again or open <a href=\"/brokers/my.html\">My Brokers</a>.";
+      return;
+    }
+    status.innerHTML = "You own <strong>" + owned.length + "</strong> agent(s). Tap one to open console, then <strong>Activate · 0.001 ETH</strong>.";
+    var base = location.pathname.indexOf("activate") >= 0 ? location.pathname.split("?")[0] : "/brokers/activate.html";
+    if (actions) {
+      actions.innerHTML = owned.slice(0, 8).map(function (id) {
+        return '<a class="bk-btn bk-btn-ember" href="' + base + '?id=' + id + '">Activate #' + id + '</a>';
+      }).join(" ");
+    }
+    grid.innerHTML = owned.map(function (id) {
+      return cardHtml(id, base + "?id=" + id);
+    }).join("");
+  }
+
   function route() {
     var id = parseId(qs().get("id"));
     var page = document.body.getAttribute("data-page") || "";
@@ -1315,6 +1381,7 @@
       show("bk-landing", false);
       show("bk-console", false);
       show("bk-picker", true);
+      renderOwnedPicker().catch(function () {});
     } else if (page === "activated") {
       show("bk-landing", false);
       show("bk-console", false);
@@ -1367,7 +1434,17 @@
   }
 
   async function onActivate() {
-    if (!state.id) return;
+    if (!state.id) {
+      var typed = $("bk-pick-id") && $("bk-pick-id").value;
+      var n = parseId(typed);
+      if (n) {
+        var base = location.pathname.indexOf("activate") >= 0 ? location.pathname : "/brokers/activate.html";
+        location.href = base.split("?")[0] + "?id=" + n;
+        return;
+      }
+      window.alert("Pick a token id first (1–5000), then Open console. Activation is per agent.");
+      return;
+    }
     if (!state.address) { await connectWallet(); if (!state.address) return; }
     await ensureChain();
     var activationId = state.id;
@@ -1393,7 +1470,8 @@
         from: activationAddress,
         to: CONFIG.ACTIVATION_FEE_RECIPIENT,
         value: CONFIG.ACTIVATION_FEE_WEI,
-        data: data
+        data: data,
+        chainId: CONFIG.CHAIN.chainIdHex
       }]
     });
     var rec = {

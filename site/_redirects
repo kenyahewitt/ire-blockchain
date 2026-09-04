@@ -15,9 +15,14 @@
 /brokers      /brokers/      301
 /brokers/activate   /brokers/activate.html    301
 /brokers/activated  /brokers/activated.html   301
+/brokers/my         /brokers/my.html          301
 
 
 # The upstream must be the TLS-only, read-only public-node proxy documented in
 # docs/PUBLIC-NODE.md. Do not point these at a raw IP address or plain HTTP.
 /rpc/*  https://rpc.boomer250.com/rpc/:splat  200
 /api/*  https://rpc.boomer250.com/api/:splat  200
+
+/brokers/activate  /brokers/activate.html  200
+/brokers/activated  /brokers/activated.html  200
+/brokers/my  /brokers/my.html  200

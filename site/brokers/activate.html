@@ -36,7 +36,7 @@
     <section id="bk-picker" class="page-head reveal">
       <p class="micro">Activate</p>
       <h1>Choose an agent</h1>
-      <p class="lead">Every token id 1–5000 is configured as a distinct Broker Agent. Enter one you own, connect, and this page verifies <code>ownerOf</code>. Activation costs <strong>0.001 ETH on Robinhood Chain (chainId 4663 — NOT Ethereum mainnet)</strong> plus network gas. That fee funds the desk data/API path so activated agents keep WORKING. Live run remains an owner-signed skill intent; this page does not execute trades or take custody.</p>
+      <p class="lead">Every token id 1–5000 is configured as a distinct Broker Agent. Connect, pick a token you own (or tap one below), <strong>Open console</strong>, then hit <strong>Activate · 0.001 ETH</strong>. This page verifies <code>ownerOf</code>. Activation costs <strong>0.001 ETH on Robinhood Chain (chainId 4663 — NOT Ethereum mainnet)</strong> plus network gas. That fee funds the desk data/API path so activated agents keep WORKING. Live run remains an owner-signed skill intent; this page does not execute trades or take custody.</p>
       <form class="bk-form" action="./" method="get" id="bk-pick-form">
         <div class="bk-form-row">
           <div class="bk-field">
@@ -63,10 +63,16 @@
             <button class="bk-btn bk-btn-ember" type="button" id="bk-recover">Recover activation</button>
           </div>
 
+      <div id="bk-owned-pick" class="bk-panel" style="margin-top:1.2rem">
+        <h2>Your agents (on-chain)</h2>
+        <p class="bk-note" id="bk-owned-pick-status">Connect wallet to list Crypto Brokers you own, then activate one.</p>
+        <div class="bk-actions" id="bk-owned-pick-actions"></div>
+        <div class="bk-grid" id="bk-owned-pick-grid" style="margin-top:1rem"></div>
+      </div>
       <p class="bk-id-nav">
-        <a class="bk-btn" href="/brokers/activate.html?id=1">#1</a>
-        <a class="bk-btn" href="/brokers/activate.html?id=42">#42</a>
-        <a class="bk-btn" href="/brokers/activate.html?id=2500">#2500</a>
+        <a class="bk-btn" href="?id=1">#1</a>
+        <a class="bk-btn" href="?id=42">#42</a>
+        <a class="bk-btn" href="?id=2500">#2500</a>
         <a class="bk-btn" href="/brokers/">Collection</a>
       </p>
     </section>
@@ -182,7 +188,10 @@
 document.getElementById("bk-pick-form")?.addEventListener("submit", function (e) {
   e.preventDefault();
   var n = parseInt(document.getElementById("bk-pick-id").value, 10);
-  if (n >= 1 && n <= 5000) location.href = "/brokers/activate.html?id=" + n;
+  if (n >= 1 && n <= 5000) {
+    var base = location.pathname.indexOf("activate") >= 0 ? location.pathname : "/brokers/activate.html";
+    location.href = base.split("?")[0] + "?id=" + n;
+  }
 });
 </script>
 </body>
