@@ -77,7 +77,40 @@
           </div>
           <p class="bk-note" id="bk-activation-state"></p>
           <p class="bk-note" id="bk-onchain-owner"></p>
-          <p class="bk-legal">Not a licensed broker-dealer. Not Robinhood Inc. No custody.</p>
+
+          <h2>Broker desk work</h2>
+          <p>Activated brokers pull a live public mark, write a desk ticket, and ask you to sign it. They research and ticket. You are the signer.</p>
+          <p class="bk-note" id="bk-desk-status">Desk idle — click Run broker desk.</p>
+          <div class="bk-ticket" id="bk-ticket"><p class="micro">No ticket yet.</p></div>
+          <div class="bk-actions">
+            <button class="bk-btn bk-btn-ember" type="button" id="bk-run-desk">Run broker desk</button>
+            <button class="bk-btn" type="button" id="bk-paper-mark">Refresh public quote</button>
+          </div>
+          <p id="bk-mark">Public quote not fetched.</p>
+          <p class="bk-offline bk-hidden" id="bk-offline"></p>
+          <p class="bk-note" id="bk-quote-extra"></p>
+          <div class="scroller">
+            <table class="bk-blotter">
+              <thead><tr><th>Time</th><th>Pair</th><th>Quote</th><th>Source</th></tr></thead>
+              <tbody id="bk-blotter-body"></tbody>
+            </table>
+          </div>
+
+          <h2>Live — sign this broker ticket</h2>
+          <div class="bk-actions">
+            <button class="bk-btn bk-btn-ember" type="button" id="bk-live">Sign this broker ticket</button>
+            <button class="bk-btn" type="button" id="bk-copy-intent">Copy ticket JSON</button>
+          </div>
+          <p class="bk-note" id="bk-live-explain"></p>
+          <pre class="bk-intent" id="bk-intent"></pre>
+          <div class="scroller">
+            <table class="bk-blotter">
+              <thead><tr><th>Time</th><th>Intent</th><th>Sig</th></tr></thead>
+              <tbody id="bk-live-body"></tbody>
+            </table>
+          </div>
+
+          <p class="bk-legal">Not a licensed broker-dealer. Not Robinhood Inc. No custody. No unsupervised fills.</p>
         </div>
       </div>
     </div>

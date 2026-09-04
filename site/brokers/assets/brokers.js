@@ -54,7 +54,9 @@
     strategy: "",
     minted: null,
     maxSupply: 5000,
-    mintFetched: false
+    mintFetched: false,
+    deskTimer: null,
+    lastTicket: null
   };
 
   function $(id) { return document.getElementById(id); }
@@ -523,7 +525,7 @@
     var prev = state.id;
     state.id = id;
     try {
-      await onPaper();
+      await runBrokerDesk();
       var skill = S && S.skillFor(id);
       var rec = readJSON(storageKey("paper", id));
       var last = rec && rec.quotes && rec.quotes[0];
@@ -541,9 +543,10 @@
           note: "Activated; public quote unavailable on this pass. Desk still ready for owner-signed live."
         });
       }
+      startDeskHeartbeat(id);
       return workingRecord(id);
     } finally {
-      if (prev != null) state.id = prev;
+      if (prev != null && prev !== id) state.id = prev;
     }
   }
 
@@ -952,6 +955,168 @@
     }
   }
 
+  function buildBrokerTicket(skill, quote, rec) {
+    var ticket = {
+      type: "crypto-brokers-desk-ticket",
+      tokenId: state.id,
+      skillId: skill.skillId,
+      broker: skill.name,
+      role: skill.role,
+      action: skill.action,
+      desk: skill.desk,
+      pair: skill.pair,
+      venue: skill.venue,
+      timeframe: skill.timeframe,
+      risk: skill.risk,
+      mark: {
+        value: quote.value,
+        label: quote.label || String(quote.value),
+        source: quote.source,
+        kind: quote.kind
+      },
+      job: skill.does,
+      recommendation: [],
+      nextStep: "Owner personal_sign of this ticket. Broker does not send swap tx or take custody.",
+      ts: new Date().toISOString()
+    };
+    var v = Number(quote.value);
+    var usd = quote.kind === "usd" && Number.isFinite(v) && v > 0;
+
+    if (skill.action === "grid-plan" && usd) {
+      var g = gridLevels(quote.value);
+      ticket.recommendation = [
+        "Grid plan from live public mark " + ticket.mark.label,
+        "Levels: " + (g ? g.join(" · ") : "n/a"),
+        "Owner may place these as limit ideas on their own venue — this page does not place them."
+      ];
+      ticket.grid = g;
+    } else if (skill.action === "dca-plan" && usd) {
+      ticket.recommendation = [
+        "DCA plan anchored to live mark " + ticket.mark.label,
+        "Suggested slices: 4 buys over " + skill.timeframe + " (idea only)",
+        "Size each slice yourself — broker ticket has no notional authority."
+      ];
+    } else if (skill.action === "drawdown-check") {
+      var prev = rec && rec.quotes && rec.quotes[1];
+      if (prev && usd && Number(prev.value) > 0) {
+        var pct = ((v - Number(prev.value)) / Number(prev.value)) * 100;
+        ticket.recommendation = [
+          "Mark move vs last stored public quote: " + pct.toFixed(2) + "%",
+          pct <= -3 ? "Desk flag: mark is soft vs prior quote — review risk before signing size." : "Desk flag: no hard drawdown vs prior stored quote.",
+          "This is quote-to-quote change, not realized PnL."
+        ];
+        ticket.changePct = pct;
+      } else {
+        ticket.recommendation = ["Need a second public quote in the blotter before drawdown % is available."];
+      }
+    } else if (skill.action === "funding-scan") {
+      ticket.recommendation = [
+        "Funding / stats read: " + ticket.mark.label + " from " + ticket.mark.source,
+        "Watch " + skill.pair + " on " + skill.venue + " for the next " + skill.timeframe,
+        "No invented funding rate — only what the public API returned."
+      ];
+    } else if (skill.action === "mempool-watch" || skill.action === "snapshot") {
+      ticket.recommendation = [
+        "Desk snapshot: " + ticket.mark.label,
+        "Source " + ticket.mark.source,
+        "Log this mark and re-run the desk before any owner-signed live intent."
+      ];
+    } else if (skill.action === "clock-in-helper") {
+      ticket.recommendation = [
+        "Clock-in helper mark: " + ticket.mark.label,
+        "Use this public reading when you prepare an owner-signed clock-in / intent.",
+        "Broker does not broadcast the clock-in for you."
+      ];
+    } else if (skill.action === "scan") {
+      ticket.recommendation = [
+        "Market scan mark: " + skill.pair + " = " + ticket.mark.label,
+        "Risk band: " + skill.risk + " · timeframe " + skill.timeframe,
+        "Scan complete — sign the ticket to stamp this desk run on-record."
+      ];
+    } else {
+      ticket.recommendation = [
+        skill.role + " complete for " + skill.pair + ": " + ticket.mark.label,
+        skill.does,
+        "Sign the ticket to authorize this desk run (not a swap)."
+      ];
+    }
+    return ticket;
+  }
+
+  function renderBrokerTicket(ticket) {
+    var box = $("bk-ticket");
+    var status = $("bk-desk-status");
+    state.lastTicket = ticket || null;
+    if (!box) return;
+    if (!ticket) {
+      box.innerHTML = '<p class="micro">No ticket yet.</p>';
+      if (status) status.textContent = "Desk idle — activate or click Run broker desk.";
+      return;
+    }
+    var lines = (ticket.recommendation || []).map(function (x) {
+      return "<li>" + escapeHtml(x) + "</li>";
+    }).join("");
+    box.innerHTML =
+      "<h3>" + escapeHtml(ticket.role) + " · " + escapeHtml(ticket.pair) + "</h3>" +
+      "<p><strong>Mark:</strong> " + escapeHtml(ticket.mark.label) + " <span class=\"micro\">(" + escapeHtml(ticket.mark.source) + ")</span></p>" +
+      "<p><strong>Job:</strong> " + escapeHtml(ticket.job) + "</p>" +
+      "<ul>" + lines + "</ul>" +
+      "<p class=\"micro\">" + escapeHtml(ticket.nextStep) + "</p>";
+    if (status) {
+      status.innerHTML = "Desk <strong>WORKING</strong> · last run " + escapeHtml(ticket.ts) +
+        (isActivated(state.id) ? " · activated" : " · activate to unlock live sign");
+    }
+    var intent = $("bk-intent");
+    if (intent && !intent.textContent.trim()) {
+      /* preview unsigned ticket JSON for transparency */
+    }
+  }
+
+  async function runBrokerDesk() {
+    var id = state.id;
+    if (!id) return;
+    var skill = S && S.skillFor(id);
+    var status = $("bk-desk-status");
+    if (!skill) {
+      if (status) status.textContent = "No skill for this id.";
+      return;
+    }
+    if (status) status.textContent = "Desk running — fetching live public mark…";
+    await onPaper();
+    var rec = readJSON(storageKey("paper", id)) || { quotes: [] };
+    var last = rec.quotes && rec.quotes[0];
+    if (!last) {
+      renderBrokerTicket(null);
+      if (status) status.textContent = "Desk blocked — public quote unavailable (will not invent a mark).";
+      return;
+    }
+    var quote = { value: last.value, label: last.label, source: last.source, kind: last.kind };
+    var ticket = buildBrokerTicket(skill, quote, rec);
+    writeJSON(storageKey("ticket", id), ticket);
+    renderBrokerTicket(ticket);
+    setText("bk-intent", JSON.stringify(ticket, null, 2));
+    var explain = $("bk-live-explain");
+    if (explain) {
+      explain.textContent = "Ticket ready. Click Sign this broker ticket to personal_sign it. That records the desk run. It is not a swap and does not move funds.";
+    }
+  }
+
+  function stopDeskHeartbeat() {
+    if (state.deskTimer) {
+      clearInterval(state.deskTimer);
+      state.deskTimer = null;
+    }
+  }
+
+  function startDeskHeartbeat(id) {
+    stopDeskHeartbeat();
+    if (!id || !isActivated(id)) return;
+    state.deskTimer = setInterval(function () {
+      if (state.id !== id || !isActivated(id)) { stopDeskHeartbeat(); return; }
+      runBrokerDesk().catch(function () {});
+    }, 60000);
+  }
+
   async function onPaper() {
     var id = state.id;
     if (!id) return;
@@ -988,6 +1153,11 @@
       rec.orders = [];
       writeJSON(storageKey("paper", id), rec);
       renderPaperRows(id);
+      try {
+        var ticket = buildBrokerTicket(skill, quote, rec);
+        writeJSON(storageKey("ticket", id), ticket);
+        renderBrokerTicket(ticket);
+      } catch (e) {}
 
       if (skill.action === "grid-plan" && quote.kind === "usd") {
         var g = gridLevels(quote.value);
@@ -1049,6 +1219,10 @@
     });
     setHtml("bk-mark", "Public quote not fetched.");
     show("bk-offline", false);
+    var prior = readJSON(storageKey("ticket", id));
+    if (prior) renderBrokerTicket(prior);
+    else renderBrokerTicket(null);
+    stopDeskHeartbeat();
     if (isActivated(id)) {
       startAgentDesk(id).then(function () {
         refreshActivation();
@@ -1197,6 +1371,7 @@
 
   function buildSkillIntent(skill, id) {
     var deadline = Math.floor(Date.now() / 1000) + 900;
+    var ticket = state.lastTicket || readJSON(storageKey("ticket", id));
     return {
       type: "crypto-brokers-skill",
       tokenId: id,
@@ -1214,7 +1389,8 @@
       contract: CONFIG.CONTRACT,
       chainId: CONFIG.CHAIN.chainId,
       owner: state.address,
-      note: "Owner-signed skill intent only. Not a swap. Not custody. Not a licensed broker. Not Robinhood Inc. ire-1 is a testnet. IREVAL1 is waitlist points.",
+      ticket: ticket,
+      note: "Owner-signed broker desk ticket. Not a swap. Not custody. Not a licensed broker. Not Robinhood Inc. ire-1 is a testnet. IREVAL1 is waitlist points.",
       ts: new Date().toISOString()
     };
   }
@@ -1227,6 +1403,9 @@
     if (!state.address) { await connectWallet(); if (!state.address) return; }
     await requireOwner(id);
     if (!isActivated(id)) throw new Error("Activate this Broker Agent with the 0.001 ETH fee before signing a live intent.");
+    if (!state.lastTicket) {
+      try { await runBrokerDesk(); } catch (e) {}
+    }
     var order = buildSkillIntent(skill, id);
     var pretty = JSON.stringify(order, null, 2);
     setText("bk-intent", pretty);
@@ -1395,6 +1574,8 @@
     });
     var valBtn = $("bk-validator");
     if (valBtn) valBtn.addEventListener("click", function () { onValidatorSignup().catch(function (e) { alert(e.message || e); }); });
+    var runDesk = $("bk-run-desk");
+    if (runDesk) runDesk.addEventListener("click", function () { runBrokerDesk().catch(function (e) { alert(e.message || e); }); });
     var paper = $("bk-paper-mark");
     if (paper) paper.addEventListener("click", function () { onPaper().catch(function (e) { alert(e.message || e); }); });
     var live = $("bk-live");

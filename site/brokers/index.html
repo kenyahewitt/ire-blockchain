@@ -37,7 +37,7 @@
       <header class="hero">
         <p class="micro reveal">boomer250.com/brokers · @FURBI50360 · 5000 ERC-721 agents</p>
         <h1 class="reveal">Crypto <em>Brokers</em></h1>
-        <p class="lead reveal">A 5000-token ERC-721. Each NFT is a paid trading agent with a unique real skill (desk + role + pair + venue). Shared 3D head styles — not 5000 unique 3D models, not unsupervised AI trading, not 5000 validators. Owner signs every live skill intent. Not a licensed broker. Not Robinhood Inc. <code>ire-1</code> is a testnet. IREVAL1 is waitlist points.</p>
+        <p class="lead reveal">A 5000-token ERC-721. Each NFT is a paid trading agent with a unique real skill (desk + role + pair + venue). After activation the broker runs a desk: live public mark → written ticket (grid / DCA / scan / funding / snapshot) → you sign the ticket. Shared 3D head styles — not 5000 unique 3D models, not unsupervised AI fills, not 5000 validators. Not a licensed broker. Not Robinhood Inc. <code>ire-1</code> is a testnet. IREVAL1 is waitlist points.</p>
         <p class="bk-preview reveal">LIVE · CONTRACT <code id="bk-contract">0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041</code></p>
         <figure class="bk-art reveal" style="max-width:42rem;margin:1.2rem 0 0">
           <div class="bk-shot">
@@ -173,14 +173,24 @@
           <p class="bk-note" id="bk-activation-state"></p>
           <p class="bk-note" id="bk-onchain-owner"></p>
 
-          <h2>Paper — public quote</h2>
-          <p>Live public quote for this agent's pair and venue (Kraken ticker preferred; Blockscout / ire-1 RPC / Jupiter lite / Volt LCD as the desk requires). If the fetch fails: <strong>quote unavailable</strong>. Not a fill. Not a Dexscreener tape. No invented PnL.</p>
+
+          <h2>Broker desk work</h2>
+          <p>Activated brokers <strong>do this job</strong>: pull a live public mark for their pair, write a desk ticket (levels / scan / watch), and ask you to <code>personal_sign</code> that ticket. They research and ticket. You are the signer. No key custody. No unsupervised fills. Not a licensed broker-dealer.</p>
+          <p class="bk-note" id="bk-desk-status">Desk idle — activate or click Run broker desk.</p>
+          <div class="bk-ticket" id="bk-ticket">
+            <p class="micro">No ticket yet.</p>
+          </div>
+          <div class="bk-actions">
+            <button class="bk-btn bk-btn-ember" type="button" id="bk-run-desk">Run broker desk</button>
+            <button class="bk-btn" type="button" id="bk-paper-mark">Refresh public quote</button>
+          </div>
+
+          <h2>Marks — public quote blotter</h2>
+          <p>Live public quote for this agent's pair and venue. If the fetch fails: <strong>quote unavailable</strong>. Not a fill. No invented PnL.</p>
           <p id="bk-mark">Public quote not fetched.</p>
           <p class="bk-offline bk-hidden" id="bk-offline"></p>
           <p class="bk-note" id="bk-quote-extra"></p>
-          <div class="bk-actions">
-            <button class="bk-btn" type="button" id="bk-paper-mark">Fetch public quote</button>
-          </div>
+
           <div class="scroller">
             <table class="bk-blotter">
               <thead><tr><th>Time</th><th>Pair</th><th>Quote</th><th>Source</th></tr></thead>
@@ -189,9 +199,9 @@
           </div>
 
           <h2>Live — owner signs skill intent</h2>
-          <p>Requires on-chain <code>ownerOf</code> = connected wallet, then <code>personal_sign</code> of JSON <code>{type:"crypto-brokers-skill", tokenId, skillId, desk, pair, action, nonce, deadline}</code>. No approve, no swap calldata, no <code>eth_sendTransaction</code>, no custody, no invented PnL.</p>
+          <p>Requires on-chain <code>ownerOf</code> = connected wallet, then <code>personal_sign</code> the broker ticket JSON (skill + mark + recommendation). That is the live broker action. No approve, no swap calldata, no unsupervised <code>eth_sendTransaction</code>, no custody, no invented PnL.</p>
           <div class="bk-actions">
-            <button class="bk-btn bk-btn-ember" type="button" id="bk-live">Owner signs skill intent</button>
+            <button class="bk-btn bk-btn-ember" type="button" id="bk-live">Sign this broker ticket</button>
             <button class="bk-btn" type="button" id="bk-copy-intent">Copy intent JSON</button>
           </div>
           <p class="bk-note" id="bk-live-explain"></p>
