@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crypto Brokers — 5000 unique agents</title>
-<meta name="description" content="Crypto Brokers: 5000 unique agent NFTs. Each broker trades a different primary asset. Activate at boomer250.com/brokers. Owner signs live trades. Not a licensed broker.">
+<title>Crypto Brokers — 5000 agent NFTs</title>
+<meta name="description" content="Crypto Brokers: 5000 ERC-721 paid trading agents on Robinhood Chain. Each id has a unique real skill. Owner signs live skill intents. Not a licensed broker. No custody.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -30,23 +30,24 @@
     <div id="bk-landing">
       <p class="bk-sub" aria-label="Crypto Brokers pages">
         <a class="bk-btn" href="/brokers/" aria-current="page">Collection</a>
-        <a class="bk-btn" href="/brokers/activate.html">Activate</a>
-        <a class="bk-btn" href="/brokers/activated.html">Activated</a>
+        <a class="bk-btn" href="/brokers/activate.html" >Activate</a>
+        <a class="bk-btn" href="/brokers/activated.html" >Activated</a>
+        <a class="bk-btn" href="/brokers/my.html" >My Brokers</a>
       </p>
       <header class="hero">
-        <p class="micro reveal">boomer250.com/brokers · @FURBI50360 · 5000 unique agents</p>
+        <p class="micro reveal">boomer250.com/brokers · @FURBI50360 · 5000 ERC-721 agents</p>
         <h1 class="reveal">Crypto <em>Brokers</em></h1>
-        <p class="lead reveal">Five thousand 3D trading agents. Each one is on the floor: unique book, live ticker, owner-signed fills. No two share the same primary asset. Not a licensed broker. No custody.</p>
+        <p class="lead reveal">A 5000-token ERC-721. Each NFT is a paid trading agent with a unique real skill (desk + role + pair + venue). Shared 3D head styles — not 5000 unique 3D models, not unsupervised AI trading, not 5000 validators. Owner signs every live skill intent. Not a licensed broker. Not Robinhood Inc. <code>ire-1</code> is a testnet. IREVAL1 is waitlist points.</p>
         <p class="bk-preview reveal">LIVE · CONTRACT <code id="bk-contract">0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041</code></p>
         <figure class="bk-art reveal" style="max-width:42rem;margin:1.2rem 0 0">
           <div class="bk-shot">
             <video autoplay muted loop playsinline poster="/brokers/assets/agents3d/gold-skull.jpg" src="/brokers/assets/agents3d/trade-gold-skull.mp4"></video>
-            <span class="bk-pulse"><i></i>trading</span>
+            <span class="bk-pulse"><i></i>agent</span>
           </div>
         </figure>
         <div class="bk-mintbar reveal" id="bk-mintbar">
-          <span id="bk-mint-count"><strong>20 / 5000</strong> minted on-chain</span>
-          <span id="bk-mint-live">ids 1–20 minted · unrevealed until mint-out</span>
+          <span id="bk-mint-count">Loading on-chain totalSupply…</span>
+          <span id="bk-mint-live">Fetching totalSupply (0x18160ddd)…</span>
         </div>
         <div class="bk-actions reveal">
           <button class="bk-btn bk-btn-ember" type="button" data-connect>Connect wallet</button>
@@ -61,7 +62,7 @@
           <div><dt>Owner / minter</dt><dd>0xdfF1a5dc565a2D8d0C2818f8B190ca8399B869b3</dd></div>
           <div><dt>Twitter</dt><dd><a href="https://x.com/FURBI50360">@FURBI50360</a></dd></div>
           <div><dt>OpenSea</dt><dd><a href="https://opensea.io/collection/crypto-brokers-894013111">crypto-brokers-894013111</a></dd></div>
-          <div><dt>Minted</dt><dd>20 / 5000 · unrevealed until mint-out</dd></div>
+          <div><dt>Minted</dt><dd id="bk-mint-facts">on-chain totalSupply</dd></div>
           <div><dt>Intended chain</dt><dd>Robinhood Chain · 4663</dd></div>
           <div><dt>Contract</dt><dd><a href="https://robinhoodchain.blockscout.com/token/0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041"><code>0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041</code></a></dd></div>
           <div><dt>Gas token</dt><dd>ETH</dd></div>
@@ -73,12 +74,12 @@
 
       <section class="vt-rules reveal" aria-label="What this is" style="margin:2.4rem 0">
         <article>
-          <h2>Unique agents</h2>
-          <p>Every id 1–5000 has its own traits, strategy, venue, timeframe, max notional, and a primary asset no other token holds. Secondary is a hedge pair. Min $1M mcap is a mandate filter, not a claimed floor or market cap.</p>
+          <h2>Unique skills</h2>
+          <p>Every id 1–5000 maps to one skill via a deterministic hash: unique <code>skillId</code> and unique name (desk × role × pair × timeframe × risk). Desks are real public APIs (Kraken ticker, Kraken futures, Phantom/SOL watch, ire-1 RPC, Codex Supergraph read, Robinhood Blockscout, Combat DEA via Blockscout, IRE Volt). Art uses a small set of shared 3D head styles — not 5000 unique 3D models.</p>
         </article>
         <article>
           <h2>Paper vs live</h2>
-          <p><strong>Paper</strong> records simulated marks from a public quote if one is fetchable. If the quote fails, the blotter goes offline — it will not invent prices or PnL. <strong>Live</strong> is an owner-signed intent (<code>personal_sign</code>) only. No swap-router calldata. No <code>eth_sendTransaction</code> for trades. No custody.</p>
+          <p><strong>Paper</strong> fetches a live public quote for that agent's pair and venue. Fail → quote unavailable. Not a fill tape. No invented PnL. <strong>Live</strong> is <code>personal_sign</code> of a skill intent JSON (includes <code>skillId</code>) after <code>ownerOf</code> matches the connected wallet. Button: owner signs. No approve. No swap-router calldata. No <code>eth_sendTransaction</code>. No custody.</p>
         </article>
         <article>
           <h2>Not Robinhood Inc</h2>
@@ -91,15 +92,15 @@
       </section>
 
       <div class="prose reveal">
-        <h2 id="browse">Live floor · all 5000 agents</h2>
-        <p>The full drop, ids 1–5000. Minted tokens show a mint tag. Open one to activate. tokenURI host: <code>https://boomer250.com/brokers/?id=N</code>.</p>
+        <h2 id="browse">Collection · ids 1–5000</h2>
+        <p>Browse skills for ids 1–5000. Minted tokens show a mint tag from live <code>totalSupply</code> (never an invented mint count). Open one to activate — <code>ownerOf</code> must match your wallet. Reveal metadata: <code>https://boomer250.com/brokers/metadata/{id}.json</code>. Full <code>skills/{id}.json</code> pack lands at reveal.</p>
       </div>
 
       <div class="bk-browse reveal">
         <div class="bk-browse-bar">
           <div class="bk-field">
             <label for="bk-search">Search</label>
-            <input id="bk-search" type="search" placeholder="id, asset, strategy">
+            <input id="bk-search" type="search" placeholder="id, skill, desk, pair">
           </div>
           <div class="bk-field">
             <label for="bk-universe">Universe</label>
@@ -138,9 +139,9 @@
       <header class="page-head reveal">
         <p class="micro">Agent console</p>
         <h1 id="bk-console-name">Crypto Broker</h1>
-        <p class="lead">Primary asset <strong id="bk-console-asset"></strong>. Each agent trades a different item. Paper marks if a public quote exists. Live trades require the owner’s signature every time.</p>
+        <p class="lead">This agent's job: <strong id="bk-console-asset"></strong>. Paper = public quote for that pair/venue. Live = owner signs a skill intent. Not a licensed broker.</p>
         <div class="bk-status">
-          <span class="bk-pill" id="bk-mode-pill" data-state="preview"><i></i>PREVIEW</span>
+          <span class="bk-pill" id="bk-mode-pill" data-state="live"><i></i>ON-CHAIN</span>
           <a class="bk-btn" href="./">Back to collection</a>
           <a class="bk-btn" id="bk-activate-link" href="/brokers/activate.html">Activate page</a>
           <a class="bk-btn" href="/brokers/activated.html">Activated desk</a>
@@ -152,51 +153,46 @@
       <div class="bk-console reveal">
         <figure class="bk-art" id="bk-art"></figure>
         <div class="bk-panel">
+          <h2>This agent's job</h2>
+          <div class="bk-skill" id="bk-skill">
+            <p class="bk-skill-name" id="bk-skill-name">Loading skill…</p>
+            <p class="bk-skill-chips" id="bk-skill-chips"></p>
+            <dl class="facts" id="bk-skill-facts"></dl>
+            <p class="bk-skill-job" id="bk-skill-job"></p>
+          </div>
+
           <h2>Mandate</h2>
           <p class="lead" id="bk-quote" style="margin-top:0"></p>
           <dl class="facts" id="bk-facts"></dl>
 
           <h2>Activate</h2>
-          <p>Signs <code>Activate Crypto Broker #{id} as my agent. Owner signs every live trade. Not a licensed broker.</code> Stored in localStorage keyed by address+id. Does not move funds.</p>
+          <p>First this page <code>eth_call</code>s <code>ownerOf(tokenId)</code> and requires it to equal the connected wallet. Then your wallet sends exactly <strong>0.001 ETH</strong> (plus gas) to <code>0xdfF1a5dc565a2D8d0C2818f8B190ca8399B869b3</code>. Activation is marked local only after that payment confirms. Live skill runs remain owner-signed intents. Not a licensed broker.</p>
           <div class="bk-actions">
             <button class="bk-btn bk-btn-ember" type="button" id="bk-activate">Activate this agent</button>
           </div>
           <p class="bk-note" id="bk-activation-state"></p>
           <p class="bk-note" id="bk-onchain-owner"></p>
 
-          <h2>Paper blotter</h2>
-          <p>Fetches a public Dexscreener search for the unique primary asset. If that fails, the blotter is offline. No invented marks. No invented PnL.</p>
-          <p id="bk-mark">Public mark not fetched.</p>
+          <h2>Paper — public quote</h2>
+          <p>Live public quote for this agent's pair and venue (Kraken ticker preferred; Blockscout / ire-1 RPC / Jupiter lite / Volt LCD as the desk requires). If the fetch fails: <strong>quote unavailable</strong>. Not a fill. Not a Dexscreener tape. No invented PnL.</p>
+          <p id="bk-mark">Public quote not fetched.</p>
           <p class="bk-offline bk-hidden" id="bk-offline"></p>
-          <div class="bk-form">
-            <div class="bk-form-row">
-              <div class="bk-field">
-                <label for="bk-side">Side</label>
-                <select id="bk-side">
-                  <option value="buy">buy</option>
-                  <option value="sell">sell</option>
-                </select>
-              </div>
-              <div class="bk-field">
-                <label for="bk-size">Size (USD notional)</label>
-                <input id="bk-size" type="number" min="1" step="1">
-              </div>
-              <button class="bk-btn" type="button" id="bk-paper-mark">Fetch public mark</button>
-              <button class="bk-btn" type="button" id="bk-paper-fill">Paper fill</button>
-            </div>
+          <p class="bk-note" id="bk-quote-extra"></p>
+          <div class="bk-actions">
+            <button class="bk-btn" type="button" id="bk-paper-mark">Fetch public quote</button>
           </div>
           <div class="scroller">
             <table class="bk-blotter">
-              <thead><tr><th>Time</th><th>Side</th><th>Size</th><th>Mark USD</th><th>Source</th></tr></thead>
+              <thead><tr><th>Time</th><th>Pair</th><th>Quote</th><th>Source</th></tr></thead>
               <tbody id="bk-blotter-body"></tbody>
             </table>
           </div>
 
-          <h2>Live — owner-signed intent</h2>
-          <p>Builds a human-readable order for the unique primary asset, size under the cap. Signs the JSON with <code>personal_sign</code>. If CONTRACT is null, copies the order and explains that ERC-20 / swap must be signed by the owner after deploy. This page does not send unsupervised swaps and does not take custody.</p>
+          <h2>Live — owner signs skill intent</h2>
+          <p>Requires on-chain <code>ownerOf</code> = connected wallet, then <code>personal_sign</code> of JSON <code>{type:"crypto-brokers-skill", tokenId, skillId, desk, pair, action, nonce, deadline}</code>. No approve, no swap calldata, no <code>eth_sendTransaction</code>, no custody, no invented PnL.</p>
           <div class="bk-actions">
-            <button class="bk-btn bk-btn-ember" type="button" id="bk-live">Sign live trade</button>
-            <button class="bk-btn" type="button" id="bk-copy-intent">Copy order JSON</button>
+            <button class="bk-btn bk-btn-ember" type="button" id="bk-live">Owner signs skill intent</button>
+            <button class="bk-btn" type="button" id="bk-copy-intent">Copy intent JSON</button>
           </div>
           <p class="bk-note" id="bk-live-explain"></p>
           <pre class="bk-intent" id="bk-intent"></pre>
@@ -220,6 +216,7 @@
 </div>
 <script src="assets/agents-data.js"></script>
 <script src="assets/mandates.js"></script>
+<script src="assets/skills.js"></script>
 <script src="assets/render.js"></script>
 <script src="assets/brokers.js"></script>
 </body>

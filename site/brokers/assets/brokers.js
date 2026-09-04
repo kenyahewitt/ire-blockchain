@@ -1,22 +1,38 @@
 /**
  * Crypto Brokers activation site.
- * CONTRACT is null until a real ERC-721 is deployed from OWNER on Robinhood Chain.
- * Live path is owner-signed intent only — no swap calldata, no custody, no unsupervised send.
+ * Live ERC-721 on Robinhood Chain 4663: 0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041.
+ * ownerOf (0x6352211e) must match the connected wallet before activate or live intent.
+ * Activation verifies ownerOf, then sends the disclosed 0.001 ETH activation fee.
+ * Live trading is not executed by this site; its live path remains an owner-signed intent.
+ * Paper = live public quotes for that token's skill pair/venue. Never a fake fill tape.
  */
 (function () {
   "use strict";
 
   var M = window.BrokersMandates;
   var R = window.BrokersRender;
+  var S = window.BrokersSkills;
 
   var CONFIG = {
     CONTRACT: "0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041",
-    PREVIEW: false,
+    ACTIVATION_FEE_RECIPIENT: "0xdfF1a5dc565a2D8d0C2818f8B190ca8399B869b3",
+    ACTIVATION_FEE_ETH: "0.001",
+    ACTIVATION_FEE_WEI: "0x38d7ea4c68000",
+    METADATA_BASE: "https://boomer250.com/brokers/metadata/",
     OWNER: M.OWNER,
     TWITTER: "FURBI50360",
     OPENSEA: "https://opensea.io/collection/crypto-brokers-894013111",
     EXPLORER: "https://robinhoodchain.blockscout.com/token/0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041",
     BLOCKSCOUT_TOKEN: "https://robinhoodchain.blockscout.com/api/v2/tokens/0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041",
+    BLOCKSCOUT_NINJA: "https://robinhoodchain.blockscout.com/api/v2/tokens/0x5Ce837Cf242e763F9b0E9A87AA7907C3F5DD083C",
+    KRAKEN_TICKER: "https://api.kraken.com/0/public/Ticker?pair=",
+    KRAKEN_FUT: "https://futures.kraken.com/derivatives/api/v3/tickers",
+    JUP_PRICE: "https://lite-api.jup.ag/price/v2?ids=",
+    CODEX_GQL: "https://graph.codex.io/graphql",
+    IRE_STATUS: "/rpc/status",
+    IRE_MEMPOOL: "/rpc/unconfirmed_txs",
+    VOLT_BANK: "/api/cosmos/bank/v1beta1/balances/ire1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8nanfuy",
+    VOLT_DIST: "/api/cosmos/distribution/v1beta1/params",
     CHAIN: {
       chainId: 4663,
       chainIdHex: "0x1237",
@@ -24,8 +40,7 @@
       rpcUrls: ["https://rpc.mainnet.chain.robinhood.com"],
       explorer: "https://robinhoodchain.blockscout.com",
       nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 }
-    },
-    DEXSCREENER: "https://api.dexscreener.com/latest/dex/search?q="
+    }
   };
 
   var state = {
@@ -37,8 +52,9 @@
     filter: "",
     universe: "",
     strategy: "",
-    minted: 20,
-    maxSupply: 5000
+    minted: null,
+    maxSupply: 5000,
+    mintFetched: false
   };
 
   function $(id) { return document.getElementById(id); }
@@ -60,16 +76,16 @@
     return "crypto-brokers:" + kind + ":" + addr + ":" + id;
   }
 
+  function activationStorageKey(address, id) {
+    return "crypto-brokers:activation:" + String(address || "unsigned").toLowerCase() + ":" + id;
+  }
+
   function readJSON(key) {
     try { return JSON.parse(localStorage.getItem(key) || "null"); } catch (e) { return null; }
   }
 
   function writeJSON(key, val) {
     localStorage.setItem(key, JSON.stringify(val));
-  }
-
-  function activateMessage(id) {
-    return "Activate Crypto Broker #" + id + " as my agent. Owner signs every live trade. Not a licensed broker.";
   }
 
   function validatorMessage(addr, id) {
@@ -166,8 +182,39 @@
     return null;
   }
 
+  function updateMintUi() {
+    var el = $("bk-mint-count");
+    var live = $("bk-mint-live");
+    var facts = $("bk-mint-facts");
+    var label, liveText, factsText;
+    if (Number.isFinite(state.minted) && state.minted >= 0) {
+      label = "<strong>" + state.minted + " / " + state.maxSupply + "</strong> minted on-chain";
+      if (state.minted >= state.maxSupply) {
+        liveText = "ids 1–" + state.minted + " minted · sold out · revealed";
+        factsText = state.minted + " / " + state.maxSupply + " · sold out · revealed";
+      } else {
+        liveText = "ids 1–" + state.minted + " minted · reveal metadata live on IPFS";
+        factsText = state.minted + " / " + state.maxSupply + " · reveal live";
+      }
+    } else if (!state.mintFetched) {
+      label = "Loading on-chain totalSupply…";
+      liveText = "Fetching totalSupply (0x18160ddd)…";
+      factsText = "on-chain totalSupply";
+    } else {
+      label = "On-chain totalSupply unavailable";
+      liveText = "Could not read totalSupply (0x18160ddd). Collection size " + state.maxSupply + ".";
+      factsText = "on-chain totalSupply unavailable / " + state.maxSupply + " max";
+    }
+    if (el) el.innerHTML = label;
+    if (live) live.textContent = liveText;
+    if (facts) facts.textContent = factsText;
+    var contractEl = $("bk-contract");
+    if (contractEl) contractEl.textContent = CONFIG.CONTRACT;
+    document.querySelectorAll("[data-contract]").forEach(function (n) { n.textContent = CONFIG.CONTRACT; });
+  }
+
   async function refreshMinted() {
-    var n = state.minted;
+    var n = null;
     try {
       var hex = await ethCall("0x18160ddd");
       if (hex) n = decodeUint(hex);
@@ -178,15 +225,11 @@
         if (j && j.total_supply) n = parseInt(j.total_supply, 10);
       } catch (e2) {}
     }
+    state.mintFetched = true;
     if (Number.isFinite(n) && n >= 0) state.minted = n;
-    var el = $("bk-mint-count");
-    if (el) el.innerHTML = "<strong>" + state.minted + " / " + state.maxSupply + "</strong> minted on-chain";
-    var live = $("bk-mint-live");
-    if (live) live.textContent = "ids 1–" + state.minted + " minted · unrevealed until mint-out";
-    var contractEl = $("bk-contract");
-    if (contractEl) contractEl.textContent = CONFIG.CONTRACT;
-    document.querySelectorAll("[data-contract]").forEach(function (n) { n.textContent = CONFIG.CONTRACT; });
+    updateMintUi();
     renderLandingGrid();
+    if (document.body.getAttribute("data-page") === "my") renderMyBrokers();
   }
 
   async function ownerOf(id) {
@@ -200,6 +243,73 @@
     } catch (e) {
       return null;
     }
+  }
+
+  function sameAddr(a, b) {
+    return !!(a && b && String(a).toLowerCase() === String(b).toLowerCase());
+  }
+
+  function activationExplorer(txHash) {
+    return CONFIG.CHAIN.explorer + "/tx/" + encodeURIComponent(txHash);
+  }
+
+  function activationData(id) {
+    return "0x4342524b" + CONFIG.CONTRACT.slice(2).toLowerCase() + BigInt(id).toString(16).padStart(64, "0");
+  }
+
+  function activationRecordIsConfirmed(rec) {
+    return !!(rec && rec.id && rec.txHash && rec.confirmed === true &&
+      sameAddr(rec.feeRecipient, CONFIG.ACTIVATION_FEE_RECIPIENT) &&
+      String(rec.feeWei || "").toLowerCase() === CONFIG.ACTIVATION_FEE_WEI);
+  }
+
+  async function waitForReceipt(txHash) {
+    var provider = eth();
+    var deadline = Date.now() + 120000;
+    while (Date.now() < deadline) {
+      var receipt = await provider.request({ method: "eth_getTransactionReceipt", params: [txHash] });
+      if (receipt) return receipt;
+      await new Promise(function (resolve) { setTimeout(resolve, 2500); });
+    }
+    throw new Error("The payment was submitted but is still pending. Reopen this agent after it confirms. Transaction: " + txHash);
+  }
+
+  async function verifyActivationPayment(txHash, expectedFrom, expectedId) {
+    var provider = eth();
+    var results = await Promise.all([
+      provider.request({ method: "eth_getTransactionReceipt", params: [txHash] }),
+      provider.request({ method: "eth_getTransactionByHash", params: [txHash] })
+    ]);
+    var receipt = results[0], tx = results[1];
+    if (!receipt || !tx) return false;
+    if (String(receipt.status).toLowerCase() !== "0x1") throw new Error("The activation payment reverted. The agent was not activated.");
+    if (!sameAddr(tx.from, expectedFrom) || !sameAddr(tx.to, CONFIG.ACTIVATION_FEE_RECIPIENT) ||
+        String(tx.value || "").toLowerCase() !== CONFIG.ACTIVATION_FEE_WEI ||
+        String(tx.input || tx.data || "").toLowerCase() !== activationData(expectedId)) {
+      throw new Error("The confirmed transaction does not match the required activation payment.");
+    }
+    return true;
+  }
+
+  async function requireOwner(id) {
+    if (!CONFIG.CONTRACT) {
+      throw new Error("No ERC-721 contract configured. Activation and live intents are blocked.");
+    }
+    if (!state.address) {
+      throw new Error("Connect a wallet first.");
+    }
+    var own = await ownerOf(id);
+    if (!own) {
+      var supply = Number.isFinite(state.minted) ? (" On-chain totalSupply is " + state.minted + ".") : "";
+      throw new Error("Cannot verify on-chain owner for Crypto Broker #" + id + "." + supply +
+        " The connected wallet must own this token (ownerOf). No local activation was saved.");
+    }
+    if (!sameAddr(own, state.address)) {
+      throw new Error("Connected wallet " + shortAddr(state.address) +
+        " does not own Crypto Broker #" + id + " (on-chain owner " + shortAddr(own) +
+        "). Only the owner can activate or sign a live intent. No local activation was saved.");
+    }
+    return own;
   }
 
 
@@ -271,6 +381,7 @@
     setWalletUi();
     if (state.id) refreshActivation();
     renderActivated();
+    renderMyBrokers();
   }
 
   async function personalSign(message) {
@@ -344,18 +455,20 @@
   }
 
   function tapeText(m) {
-    var side = (m.id % 2 === 0) ? "BUY" : "SELL";
-    var px = ((m.id % 97) / 10).toFixed(2);
-    return "LIVE  ·  #" + m.id + "  ·  " + m.primaryAsset + "  " + side + "  " + px +
-      "%  ·  " + m.strategy + "  ·  " + m.venue + "  ·  MAX $" + m.maxNotionalUsd +
-      "  ·  CRYPTO BROKERS FLOOR  ·  ";
+    var skill = S && S.skillFor(m.id);
+    if (skill) {
+      return "CRYPTO BROKER #" + m.id + "  ·  " + skill.name +
+        "  ·  " + skill.desk + "  ·  " + skill.pair + "  ·  OWNER SIGNS LIVE  ·  PAPER = PUBLIC QUOTE ONLY  ·  ";
+    }
+    return "CRYPTO BROKER #" + m.id + "  ·  " + m.primaryAsset + "  ·  " + m.strategy +
+      "  ·  OWNER SIGNS LIVE  ·  PAPER = PUBLIC QUOTE ONLY  ·  ";
   }
 
   function shotHtml(m) {
     var t = tapeText(m);
     return '<div class="bk-shot">' +
       '<video autoplay muted loop playsinline poster="' + shotUrl(m) + '" src="' + tradeUrl(m) + '"></video>' +
-      '<span class="bk-pulse"><i></i>trading</span>' +
+      '<span class="bk-pulse"><i></i>agent</span>' +
       '<div class="bk-tape"><span>' + t + t + '</span></div>' +
       '</div>';
   }
@@ -363,7 +476,7 @@
   function isActivated(id) {
     if (!state.address) return false;
     var rec = readJSON(storageKey("activation", id));
-    return !!(rec && rec.signature);
+    return activationRecordIsConfirmed(rec);
   }
 
   function matchesFilter(m) {
@@ -371,7 +484,9 @@
     if (state.strategy && String(m.strategy).toLowerCase() !== String(state.strategy).toLowerCase()) return false;
     var q = (state.filter || "").trim().toLowerCase();
     if (!q) return true;
-    var blob = ("#" + m.id + " " + m.name + " " + m.primaryAsset + " " + m.secondary + " " + m.strategy + " " + m.venue + " " + m.universe).toLowerCase();
+    var skill = S && S.skillFor(m.id);
+    var skillBlob = skill ? (" " + skill.name + " " + skill.desk + " " + skill.role + " " + skill.pair + " " + skill.venue + " " + skill.skillId) : "";
+    var blob = ("#" + m.id + " " + m.name + " " + m.primaryAsset + " " + m.secondary + " " + m.strategy + " " + m.venue + " " + m.universe + skillBlob).toLowerCase();
     return blob.indexOf(q) >= 0 || String(m.id) === q;
   }
 
@@ -392,12 +507,14 @@
     var on = isActivated(id);
     var minted = id <= state.minted;
     var tags = "";
-    if (minted) tags += ' <span class="bk-tag">minted · hidden</span>';
+    if (minted) tags += ' <span class="bk-tag">minted</span>';
     if (on) tags += ' <span class="bk-tag">activated</span>';
+    var skill = S && S.skillFor(id);
+    var job = skill ? (escapeHtml(skill.role) + " · " + escapeHtml(skill.pair)) : (escapeHtml(m.primaryAsset) + " · " + escapeHtml(m.strategy));
     return '<a href="' + href + '" data-id="' + id + '" data-activated="' + (on ? "1" : "0") + '" data-minted="' + (minted ? "1" : "0") + '">' +
       shotHtml(m) +
       '<p class="bk-card-meta"><strong>#' + id + tags +
-      "</strong>" + m.primaryAsset + " · " + m.strategy + " · live tape</p></a>";
+      "</strong>" + job + "</p></a>";
   }
 
   function renderLandingGrid() {
@@ -419,8 +536,6 @@
     setText("bk-page-label", (ids.length === M.COLLECTION_SIZE
       ? ("#" + (slice[0] || 0) + "–" + (slice[slice.length - 1] || 0) + " of 5000")
       : (a + "–" + b + " of " + ids.length + " matches")));
-    var mint = $("bk-mint-count");
-    if (mint) mint.textContent = "5000 / 5000 agents in the drop";
   }
 
   function listActivations() {
@@ -432,7 +547,7 @@
       k = localStorage.key(i);
       if (!k || k.indexOf(prefix) !== 0) continue;
       rec = readJSON(k);
-      if (rec && rec.signature && rec.id) out.push(rec);
+      if (activationRecordIsConfirmed(rec)) out.push(rec);
     }
     out.sort(function (a, b) { return String(b.ts || "").localeCompare(String(a.ts || "")); });
     return out;
@@ -455,7 +570,7 @@
       grid.innerHTML = "";
       if (empty) {
         empty.classList.remove("bk-hidden");
-        empty.innerHTML = "No activations for <code>" + shortAddr(state.address) + "</code> yet. Open <a href=\"/brokers/activate.html\">Activate</a> and sign for a token you own.";
+        empty.innerHTML = "No confirmed activations for <code>" + shortAddr(state.address) + "</code> yet. Open <a href=\"/brokers/activate.html\">Activate</a>, verify ownership, and confirm the 0.001 ETH fee.";
       }
       return;
     }
@@ -493,28 +608,42 @@
     var box = $("bk-activation-state");
     if (!box || !id) return;
     if (!state.address) {
-      box.textContent = "Connect a wallet to activate. Activation is a personal_sign only — this page never takes custody.";
+      box.textContent = "Connect a wallet to verify ownership and pay the 0.001 ETH activation fee.";
       return;
     }
     var rec = readJSON(storageKey("activation", id));
-    if (rec && rec.signature) {
-      box.innerHTML = "Activated for <code>" + shortAddr(rec.address) + "</code> at " + rec.ts + ". Signature stored locally (address+id). Not on-chain until CONTRACT is set.";
+    if (activationRecordIsConfirmed(rec)) {
+      box.innerHTML = "Agent access activated for <code>" + shortAddr(rec.address) + "</code> at " + rec.ts +
+        " after a confirmed 0.001 ETH payment. <a href=\"" + activationExplorer(rec.txHash) + "\" target=\"_blank\" rel=\"noopener noreferrer\">View transaction</a>.";
+    } else if (rec && rec.txHash) {
+      box.innerHTML = "Activation payment submitted and awaiting confirmation. <a href=\"" + activationExplorer(rec.txHash) + "\" target=\"_blank\" rel=\"noopener noreferrer\">View transaction</a>.";
+      verifyActivationPayment(rec.txHash, rec.address, rec.id).then(function (confirmed) {
+        if (!confirmed) return;
+        rec.confirmed = true;
+        rec.confirmedAt = new Date().toISOString();
+        writeJSON(storageKey("activation", id), rec);
+        refreshActivation();
+        renderActivated();
+      }).catch(function (error) {
+        box.textContent = error.message || "The activation payment could not be verified.";
+      });
     } else {
-      box.textContent = "Not activated for this address + id.";
+      box.textContent = "Not activated for this wallet and token. You must own the NFT and confirm the 0.001 ETH fee transaction.";
     }
   }
 
   function renderPaperRows(id) {
     var body = $("bk-blotter-body");
     if (!body) return;
-    var rec = readJSON(storageKey("paper", id)) || { orders: [] };
-    if (!rec.orders.length) {
-      body.innerHTML = '<tr><td colspan="5">No paper fills. Fetch a public mark first. This table will not invent PnL.</td></tr>';
+    var rec = readJSON(storageKey("paper", id)) || { quotes: [] };
+    var rows = rec.quotes || rec.orders || [];
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="4">No public quotes yet. Fetch the live feed for this skill\'s pair. This table is not a fill tape and will not invent PnL.</td></tr>';
       return;
     }
-    body.innerHTML = rec.orders.map(function (o) {
-      return "<tr><td>" + escapeHtml(o.ts) + "</td><td>" + escapeHtml(o.side) + "</td><td>" + escapeHtml(o.size) + "</td><td>" +
-        escapeHtml(o.markUsd != null ? o.markUsd : "offline") + "</td><td>" + escapeHtml(o.source || "") + "</td></tr>";
+    body.innerHTML = rows.map(function (o) {
+      return "<tr><td>" + escapeHtml(o.ts) + "</td><td>" + escapeHtml(o.pair || "") + "</td><td>" +
+        escapeHtml(o.label || o.value || "quote unavailable") + "</td><td>" + escapeHtml(o.source || "") + "</td></tr>";
     }).join("");
   }
 
@@ -523,54 +652,249 @@
     if (!body) return;
     var rec = readJSON(storageKey("live", id)) || { intents: [] };
     if (!rec.intents.length) {
-      body.innerHTML = "<tr><td colspan=\"3\">No signed live intents.</td></tr>";
+      body.innerHTML = "<tr><td colspan=\"3\">No owner-signed skill intents.</td></tr>";
       return;
     }
     body.innerHTML = rec.intents.map(function (o) {
-      return "<tr><td>" + escapeHtml(o.ts) + "</td><td>" + escapeHtml(o.side) + " " + escapeHtml(o.size) + " " + escapeHtml(o.primaryAsset) + "</td><td>" + escapeHtml(shortAddr(o.signature)) + "</td></tr>";
+      var label = (o.action || "skill") + " " + (o.pair || "") + " " + (o.skillId || "");
+      return "<tr><td>" + escapeHtml(o.ts) + "</td><td>" + escapeHtml(label) + "</td><td>" + escapeHtml(shortAddr(o.signature)) + "</td></tr>";
     }).join("");
   }
 
-  async function fetchMark(symbol) {
-    var url = CONFIG.DEXSCREENER + encodeURIComponent(symbol);
-    var res = await fetch(url, { headers: { accept: "application/json" } });
+  function jsonGet(url) {
+    return fetch(url, { headers: { accept: "application/json" } }).then(function (res) {
+      if (!res.ok) throw new Error("quote HTTP " + res.status);
+      return res.json();
+    });
+  }
+
+  async function quoteKrakenSpot(skill) {
+    var data = await jsonGet(CONFIG.KRAKEN_TICKER + encodeURIComponent(skill.pair));
+    if (data && data.error && data.error.length) throw new Error(String(data.error.join(", ")));
+    var result = data && data.result ? data.result : {};
+    var keys = Object.keys(result);
+    if (!keys.length) throw new Error("no ticker");
+    var row = result[keys[0]] || {};
+    var last = row.c && row.c[0];
+    if (last == null || last === "") throw new Error("no last");
+    return { value: String(last), label: "$" + last, source: "kraken-public-ticker:" + keys[0], kind: "usd" };
+  }
+
+  async function quoteKrakenFut(skill) {
+    var data = await jsonGet(CONFIG.KRAKEN_FUT);
+    var tickers = data && data.tickers ? data.tickers : [];
+    var i, row = null;
+    for (i = 0; i < tickers.length; i++) {
+      if (tickers[i] && tickers[i].symbol === skill.pair) { row = tickers[i]; break; }
+    }
+    if (!row) throw new Error("no futures ticker");
+    var last = row.last != null ? row.last : row.markPrice;
+    if (last == null || last === "") throw new Error("no last");
+    return { value: String(last), label: "$" + last, source: "kraken-futures:" + skill.pair, kind: "usd" };
+  }
+
+  async function quoteJupiter(skill) {
+    var mint = typeof skill.ticker === "string" ? skill.ticker : null;
+    if (!mint) throw new Error("no mint");
+    var data = await jsonGet(CONFIG.JUP_PRICE + encodeURIComponent(mint));
+    var row = data && data.data ? data.data[mint] : null;
+    if (!row || row.price == null || row.price === "") throw new Error("no price");
+    return { value: String(row.price), label: "$" + row.price, source: "jup-lite:" + skill.pair, kind: "usd" };
+  }
+
+  async function quoteIreRpc(skill) {
+    if (skill.action === "mempool-watch" || skill.pair === "unconfirmed-txs" || skill.pair === "ire-1-mempool") {
+      var mem = await jsonGet(CONFIG.IRE_MEMPOOL);
+      var n = mem && mem.result && mem.result.n_txs != null ? mem.result.n_txs : (mem && mem.result && mem.result.txs ? mem.result.txs.length : null);
+      if (n == null) throw new Error("no mempool");
+      return { value: String(n), label: n + " unconfirmed txs (ire-1 testnet)", source: "ire-rpc/unconfirmed_txs", kind: "count" };
+    }
+    var data = await jsonGet(CONFIG.IRE_STATUS);
+    var height = data && data.result && data.result.sync_info && data.result.sync_info.latest_block_height;
+    if (height == null || height === "") throw new Error("no height");
+    return { value: String(height), label: "ire-1 height " + height + " (testnet)", source: "ire-rpc/status", kind: "height" };
+  }
+
+  async function quoteCodex(skill) {
+    var t = skill.ticker;
+    if (!t || !t.address) throw new Error("no token");
+    var q = "query($addr:String!,$nid:Int!){token(input:{address:$addr,networkId:$nid}){symbol}}";
+    var res = await fetch(CONFIG.CODEX_GQL, {
+      method: "POST",
+      headers: { accept: "application/json", "content-type": "application/json" },
+      body: JSON.stringify({ query: q, variables: { addr: t.address, networkId: t.networkId } })
+    });
     if (!res.ok) throw new Error("quote HTTP " + res.status);
     var data = await res.json();
-    var pairs = data && data.pairs ? data.pairs : [];
-    var i, p, best = null, liq = -1, n;
-    for (i = 0; i < pairs.length; i++) {
-      p = pairs[i];
-      if (!p || p.priceUsd == null) continue;
-      n = p.liquidity && p.liquidity.usd != null ? Number(p.liquidity.usd) : 0;
-      if (n > liq) { liq = n; best = p; }
+    if (!data || data.errors || !(data.data && data.data.token)) {
+      throw new Error("codex read unavailable");
     }
-    if (!best || best.priceUsd == null) throw new Error("no public priceUsd");
-    return {
-      priceUsd: String(best.priceUsd),
-      source: "dexscreener:" + (best.chainId || "?") + ":" + (best.dexId || "?"),
-      pair: (best.baseToken && best.baseToken.symbol) || symbol
-    };
+    throw new Error("codex has no public price without a key");
+  }
+
+  async function quoteBlockscout(skill, url) {
+    var data = await jsonGet(url);
+    var rate = data && data.exchange_rate;
+    if (rate != null && rate !== "" && Number.isFinite(Number(rate)) && Number(rate) > 0) {
+      return { value: String(rate), label: "$" + rate + " Blockscout exchange_rate (public quote, not a claimed NFT floor)", source: "blockscout:" + skill.pair, kind: "usd" };
+    }
+    throw new Error("no exchange_rate");
+  }
+
+  async function quoteVolt(skill) {
+    if (skill.pair === "community_tax" || skill.pair === "fee-split" || skill.pair === "genesis-tax") {
+      var dist = await jsonGet(CONFIG.VOLT_DIST);
+      var tax = dist && (dist.params || dist).community_tax;
+      if (tax == null || tax === "") throw new Error("no community_tax");
+      return { value: String(tax), label: "community_tax " + tax + " (ire-1 testnet)", source: "ire-lcd/distribution/params", kind: "ratio" };
+    }
+    var bank = await jsonGet(CONFIG.VOLT_BANK);
+    var coins = bank && bank.balances ? bank.balances : [];
+    var i, uire = null;
+    for (i = 0; i < coins.length; i++) {
+      if (coins[i] && coins[i].denom === "uire") { uire = coins[i].amount; break; }
+    }
+    if (uire == null) throw new Error("no uire");
+    return { value: String(uire), label: uire + " uire at Volt (ire-1 testnet, not USD)", source: "ire-lcd/bank/volt", kind: "balance" };
+  }
+
+  async function fetchSkillQuote(skill) {
+    if (!skill) throw new Error("no skill");
+    if (skill.deskId === "kraken-spot") return await quoteKrakenSpot(skill);
+    if (skill.deskId === "kraken-fut") return await quoteKrakenFut(skill);
+    if (skill.deskId === "phantom-sol") return await quoteJupiter(skill);
+    if (skill.deskId === "ire-rpc") return await quoteIreRpc(skill);
+    if (skill.deskId === "codex-read") return await quoteCodex(skill);
+    if (skill.deskId === "rh-blockscout") return await quoteBlockscout(skill, CONFIG.BLOCKSCOUT_TOKEN);
+    if (skill.deskId === "combat-dea") return await quoteBlockscout(skill, CONFIG.BLOCKSCOUT_NINJA);
+    if (skill.deskId === "ire-volt") return await quoteVolt(skill);
+    throw new Error("unknown desk");
+  }
+
+  function gridLevels(price) {
+    var p = Number(price);
+    if (!Number.isFinite(p) || p <= 0) return null;
+    function f(x) { return (Math.round(x * 1e8) / 1e8).toString(); }
+    return [f(p * 0.98), f(p * 0.99), f(p), f(p * 1.01), f(p * 1.02)];
+  }
+
+  function renderSkill(id) {
+    var box = $("bk-skill");
+    var nameEl = $("bk-skill-name");
+    var chips = $("bk-skill-chips");
+    var facts = $("bk-skill-facts");
+    var job = $("bk-skill-job");
+    var skill = S && S.skillFor(id);
+    if (!skill) {
+      if (nameEl) nameEl.textContent = "Skill unavailable";
+      return;
+    }
+    if (box) box.classList.remove("bk-hidden");
+    if (nameEl) nameEl.textContent = skill.name;
+    if (chips) {
+      chips.innerHTML =
+        '<span class="bk-skill-chip">' + escapeHtml(skill.role) + "</span>" +
+        '<span class="bk-skill-chip">' + escapeHtml(skill.desk) + "</span>" +
+        '<span class="bk-skill-chip">' + escapeHtml(skill.pair) + "</span>" +
+        '<span class="bk-skill-chip">' + escapeHtml(skill.timeframe) + "</span>" +
+        '<span class="bk-skill-chip">' + escapeHtml(skill.risk) + "</span>" +
+        '<span class="bk-skill-chip">owner-signed</span>';
+    }
+    if (facts) {
+      facts.innerHTML =
+        "<div><dt>Skill</dt><dd>" + escapeHtml(skill.name) + "</dd></div>" +
+        "<div><dt>skillId</dt><dd><code>" + escapeHtml(skill.skillId) + "</code></dd></div>" +
+        "<div><dt>Desk</dt><dd>" + escapeHtml(skill.desk) + "</dd></div>" +
+        "<div><dt>Role</dt><dd>" + escapeHtml(skill.role) + "</dd></div>" +
+        "<div><dt>Pair</dt><dd>" + escapeHtml(skill.pair) + "</dd></div>" +
+        "<div><dt>Venue</dt><dd>" + escapeHtml(skill.venue) + "</dd></div>" +
+        "<div><dt>Timeframe</dt><dd>" + escapeHtml(skill.timeframe) + "</dd></div>" +
+        "<div><dt>Risk</dt><dd>" + escapeHtml(skill.risk) + "</dd></div>" +
+        "<div><dt>Execution</dt><dd>owner-signed</dd></div>" +
+        "<div><dt>Data source</dt><dd><code>" + escapeHtml(skill.dataSource) + "</code></dd></div>";
+    }
+    if (job) {
+      job.textContent = "This is the agent's job. " + skill.does +
+        " Paper: " + skill.paperBehavior +
+        " Live: owner signs a personal_sign intent JSON that includes skillId. Not a licensed broker.";
+    }
+  }
+
+  async function onPaper() {
+    var id = state.id;
+    if (!id) return;
+    var skill = S && S.skillFor(id);
+    var off = $("bk-offline");
+    var markEl = $("bk-mark");
+    var extra = $("bk-quote-extra");
+    show("bk-offline", false);
+    if (extra) extra.textContent = "";
+    if (!skill) {
+      if (markEl) markEl.textContent = "quote unavailable";
+      show("bk-offline", true);
+      setText("bk-offline", "quote unavailable — no skill for this id.");
+      return;
+    }
+    try {
+      var quote = await fetchSkillQuote(skill);
+      var label = quote.label || String(quote.value);
+      if (markEl) {
+        markEl.textContent = "Public quote " + skill.pair + " @ " + skill.venue + " = " + label + " · " + quote.source + " · not a fill";
+      }
+      var rec = readJSON(storageKey("paper", id)) || { quotes: [] };
+      if (!rec.quotes) rec.quotes = [];
+      rec.quotes.unshift({
+        ts: new Date().toISOString(),
+        pair: skill.pair,
+        value: quote.value,
+        label: label,
+        source: quote.source,
+        kind: quote.kind,
+        skillId: skill.skillId
+      });
+      rec.quotes = rec.quotes.slice(0, 40);
+      rec.orders = [];
+      writeJSON(storageKey("paper", id), rec);
+      renderPaperRows(id);
+
+      if (skill.action === "grid-plan" && quote.kind === "usd") {
+        var g = gridLevels(quote.value);
+        if (extra && g) extra.textContent = "Grid from live public quote (not orders): " + g.join(" · ");
+      } else if (skill.action === "drawdown-check") {
+        var prev = rec.quotes[1];
+        if (extra) {
+          if (!prev || prev.value == null) extra.textContent = "No prior public quote stored — no drawdown number.";
+          else if (quote.kind === "usd" && Number(prev.value) > 0 && Number.isFinite(Number(quote.value))) {
+            var pct = ((Number(quote.value) - Number(prev.value)) / Number(prev.value)) * 100;
+            extra.textContent = "Change vs last stored public quote: " + pct.toFixed(2) + "% (from published quotes, not PnL).";
+          } else extra.textContent = "Prior quote is not a USD mark — no drawdown %.";
+        }
+      } else if (skill.action === "dca-plan" && extra) {
+        extra.textContent = "DCA plan uses this public quote as the mark. This page does not buy and does not invent fills.";
+      }
+    } catch (err) {
+      if (markEl) markEl.textContent = "quote unavailable";
+      show("bk-offline", true);
+      setText("bk-offline", "quote unavailable for " + skill.pair + " @ " + skill.venue + ". This page will not invent a number. " + (err && err.message ? err.message : ""));
+    }
   }
 
   function openConsole(id) {
     state.id = id;
     var m = M.mandateFor(id);
+    var skill = S && S.skillFor(id);
     show("bk-landing", false);
     show("bk-console", true);
-    setText("bk-console-name", m.name);
-    setText("bk-console-asset", m.primaryAsset);
+    setText("bk-console-name", skill ? skill.name : m.name);
+    setText("bk-console-asset", skill ? (skill.pair + " · " + skill.desk) : m.primaryAsset);
     setHtml("bk-art", shotHtml(m));
     setHtml("bk-facts", factsHtml(m));
     setText("bk-quote", m.quote);
+    renderSkill(id);
     var pill = $("bk-mode-pill");
     if (pill) {
       pill.dataset.state = "live";
-      pill.innerHTML = "<i></i>ON-CHAIN · " + state.minted + " minted";
-    }
-    var cap = $("bk-size");
-    if (cap) {
-      cap.max = String(m.maxNotionalUsd);
-      cap.placeholder = "size ≤ " + m.maxNotionalUsd;
+      pill.innerHTML = "<i></i>ON-CHAIN" + (Number.isFinite(state.minted) ? (" · " + state.minted + " minted") : "");
     }
     renderPaperRows(id);
     renderLiveRows(id);
@@ -579,12 +903,19 @@
     ownerOf(id).then(function (own) {
       var box = $("bk-onchain-owner");
       if (!box) return;
-      if (!own) { box.textContent = id <= state.minted ? "Minted; owner lookup failed." : "Not minted yet (supply " + state.minted + " / " + state.maxSupply + ")."; return; }
+      if (!own) {
+        box.textContent = (Number.isFinite(state.minted) && id <= state.minted)
+          ? "Minted; owner lookup failed."
+          : "Not minted yet" + (Number.isFinite(state.minted) ? (" (supply " + state.minted + " / " + state.maxSupply + ").") : ".");
+        return;
+      }
       var mine = state.address && own.toLowerCase() === state.address.toLowerCase();
-      box.innerHTML = (mine ? "You own this token on-chain. " : "On-chain owner <code>" + shortAddr(own) + "</code>. ") +
+      box.innerHTML = (mine
+        ? "You own this token on-chain. This is the agent's job. "
+        : "On-chain owner <code>" + shortAddr(own) + "</code>. Skill is public; live run requires ownerOf. ") +
         "<a href=\"https://opensea.io/item/robinhood/0x9f7a3adbf611cbeec95ce40e0259bbf96b8df041/" + id + "\">OpenSea</a>";
     });
-    setHtml("bk-mark", "Public mark not fetched.");
+    setHtml("bk-mark", "Public quote not fetched.");
     show("bk-offline", false);
     var link = $("bk-activate-link");
     if (link) link.setAttribute("href", "activate.html?id=" + id);
@@ -601,9 +932,11 @@
     var id = parseId(qs().get("id"));
     var page = document.body.getAttribute("data-page") || "";
     show("bk-activated", page === "activated" && !id);
+    show("bk-my", page === "my" && !id);
     if (id) {
       show("bk-picker", false);
       show("bk-landing", false);
+      show("bk-my", false);
       openConsole(id);
     } else if (page === "activate") {
       show("bk-landing", false);
@@ -614,6 +947,11 @@
       show("bk-console", false);
       show("bk-picker", false);
       renderActivated();
+    } else if (page === "my") {
+      show("bk-landing", false);
+      show("bk-console", false);
+      show("bk-picker", false);
+      renderMyBrokers();
     } else {
       show("bk-picker", false);
       openLanding();
@@ -623,23 +961,59 @@
   async function onActivate() {
     if (!state.id) return;
     if (!state.address) { await connectWallet(); if (!state.address) return; }
-    var msg = activateMessage(state.id);
-    var sig = await personalSign(msg);
+    await ensureChain();
+    var activationId = state.id;
+    var activationAddress = state.address;
+    await requireOwner(activationId);
+    if (isActivated(activationId)) { refreshActivation(); return; }
+    var approved = window.confirm(
+      "Activate Crypto Broker #" + activationId + "?\n\n" +
+      "Network: Robinhood Chain (4663)\n" +
+      "Activation fee: " + CONFIG.ACTIVATION_FEE_ETH + " ETH + network gas\n" +
+      "Recipient: " + CONFIG.ACTIVATION_FEE_RECIPIENT + "\n\n" +
+      "This payment enables this site's agent access. It does not deploy an autonomous trading contract or give the agent custody of your wallet."
+    );
+    if (!approved) return;
+    var accounts = await eth().request({ method: "eth_accounts" });
+    if (!accounts || !sameAddr(accounts[0], activationAddress)) {
+      throw new Error("The connected wallet changed. Verify ownership again before paying.");
+    }
+    var data = activationData(activationId);
+    var txHash = await eth().request({
+      method: "eth_sendTransaction",
+      params: [{
+        from: activationAddress,
+        to: CONFIG.ACTIVATION_FEE_RECIPIENT,
+        value: CONFIG.ACTIVATION_FEE_WEI,
+        data: data
+      }]
+    });
     var rec = {
-      address: state.address,
-      id: state.id,
-      message: msg,
-      signature: sig,
+      address: activationAddress,
+      id: activationId,
+      txHash: txHash,
+      confirmed: false,
+      feeEth: CONFIG.ACTIVATION_FEE_ETH,
+      feeWei: CONFIG.ACTIVATION_FEE_WEI,
+      feeRecipient: CONFIG.ACTIVATION_FEE_RECIPIENT,
+      data: data,
       chainId: state.chainId,
       contract: CONFIG.CONTRACT,
+      ownerVerified: true,
       ts: new Date().toISOString()
     };
-    writeJSON(storageKey("activation", state.id), rec);
+    writeJSON(activationStorageKey(activationAddress, activationId), rec);
     refreshActivation();
+    await waitForReceipt(txHash);
+    await verifyActivationPayment(txHash, activationAddress, activationId);
+    rec.confirmed = true;
+    rec.confirmedAt = new Date().toISOString();
+    writeJSON(activationStorageKey(activationAddress, activationId), rec);
     renderActivated();
     var box = $("bk-activation-state");
-    if (box) {
-      box.innerHTML = "Activated #" + state.id + " for <code>" + shortAddr(state.address) + "</code>. Open your <a href=\"/brokers/activated.html\">activated desk</a>. Next: sign up this wallet as an IRE validator.";
+    if (box && state.id === activationId && sameAddr(state.address, activationAddress)) {
+      box.innerHTML = "Agent access activated for #" + activationId + " and <code>" + shortAddr(activationAddress) +
+        "</code> after ownerOf matched and the 0.001 ETH payment confirmed. <a href=\"" + activationExplorer(txHash) + "\" target=\"_blank\" rel=\"noopener noreferrer\">View transaction</a>. Open your <a href=\"/brokers/my.html\">My Brokers</a> desk.";
     }
     refreshValidator();
   }
@@ -669,84 +1043,36 @@
     refreshValidator();
   }
 
-  async function onPaper() {
-    var id = state.id;
-    if (!id) return;
-    var m = M.mandateFor(id);
-    var off = $("bk-offline");
-    var markEl = $("bk-mark");
-    show("bk-offline", false);
-    try {
-      var quote = await fetchMark(m.primaryAsset);
-      markEl.textContent = "Public mark " + m.primaryAsset + " = $" + quote.priceUsd + " " + quote.source;
-      var rec = readJSON(storageKey("paper", id)) || { orders: [] };
-      rec.orders.unshift({
-        ts: new Date().toISOString(),
-        side: "mark",
-        size: 0,
-        markUsd: quote.priceUsd,
-        source: quote.source,
-        asset: m.primaryAsset
-      });
-      rec.orders = rec.orders.slice(0, 40);
-      writeJSON(storageKey("paper", id), rec);
-      renderPaperRows(id);
-    } catch (err) {
-      markEl.textContent = "";
-      show("bk-offline", true);
-      setText("bk-offline", "OFFLINE — public quote failed for " + m.primaryAsset + ". This page will not invent prices or PnL. " + (err && err.message ? err.message : ""));
+  function makeNonce() {
+    var bytes = new Uint8Array(16);
+    if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(bytes);
+    else {
+      var i;
+      for (i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
     }
+    return Array.from(bytes).map(function (b) { return b.toString(16).padStart(2, "0"); }).join("");
   }
 
-  async function onPaperFill() {
-    var id = state.id;
-    if (!id) return;
-    var m = M.mandateFor(id);
-    var side = ($("bk-side") && $("bk-side").value) || "buy";
-    var size = Number($("bk-size") && $("bk-size").value);
-    if (!Number.isFinite(size) || size <= 0) { alert("Enter a size under the notional cap."); return; }
-    if (size > m.maxNotionalUsd) { alert("Size exceeds max notional $" + m.maxNotionalUsd); return; }
-    try {
-      var quote = await fetchMark(m.primaryAsset);
-      var rec = readJSON(storageKey("paper", id)) || { orders: [] };
-      rec.orders.unshift({
-        ts: new Date().toISOString(),
-        side: side,
-        size: size,
-        markUsd: quote.priceUsd,
-        source: quote.source,
-        asset: m.primaryAsset,
-        paper: true
-      });
-      writeJSON(storageKey("paper", id), rec);
-      renderPaperRows(id);
-      setText("bk-mark", "Paper fill at public mark $" + quote.priceUsd + " — simulated, not a live trade.");
-      show("bk-offline", false);
-    } catch (err) {
-      show("bk-offline", true);
-      setText("bk-offline", "OFFLINE — no public mark, so no paper fill and no invented PnL.");
-    }
-  }
-
-  function buildOrder(m, side, size) {
+  function buildSkillIntent(skill, id) {
+    var deadline = Math.floor(Date.now() / 1000) + 900;
     return {
-      type: "crypto-brokers-live-intent",
-      version: 1,
-      tokenId: m.id,
-      primaryAsset: m.primaryAsset,
-      secondary: m.secondary,
-      side: side,
-      size: size,
-      sizeUnit: "usd-notional",
-      maxNotionalUsd: m.maxNotionalUsd,
-      minMcapUsd: m.minMcapUsd,
-      timeframe: m.timeframe,
-      venue: m.venue,
-      strategy: m.strategy,
+      type: "crypto-brokers-skill",
+      tokenId: id,
+      skillId: skill.skillId,
+      desk: skill.desk,
+      pair: skill.pair,
+      action: skill.action,
+      nonce: makeNonce(),
+      deadline: deadline,
+      role: skill.role,
+      venue: skill.venue,
+      timeframe: skill.timeframe,
+      risk: skill.risk,
+      execution: "owner-signed",
       contract: CONFIG.CONTRACT,
       chainId: CONFIG.CHAIN.chainId,
       owner: state.address,
-      note: "Owner-signed intent only. Not a swap. Not custody. Not a licensed broker. Not Robinhood Inc.",
+      note: "Owner-signed skill intent only. Not a swap. Not custody. Not a licensed broker. Not Robinhood Inc. ire-1 is a testnet. IREVAL1 is waitlist points.",
       ts: new Date().toISOString()
     };
   }
@@ -754,38 +1080,124 @@
   async function onLive() {
     var id = state.id;
     if (!id) return;
-    var m = M.mandateFor(id);
-    var side = ($("bk-side") && $("bk-side").value) || "buy";
-    var size = Number($("bk-size") && $("bk-size").value);
-    if (!Number.isFinite(size) || size <= 0) { alert("Enter a size under the notional cap."); return; }
-    if (size > m.maxNotionalUsd) { alert("Size exceeds max notional $" + m.maxNotionalUsd); return; }
+    var skill = S && S.skillFor(id);
+    if (!skill) { alert("Skill unavailable for this id."); return; }
     if (!state.address) { await connectWallet(); if (!state.address) return; }
-    var order = buildOrder(m, side, size);
+    await requireOwner(id);
+    if (!isActivated(id)) throw new Error("Activate this Broker Agent with the 0.001 ETH fee before signing a live intent.");
+    var order = buildSkillIntent(skill, id);
     var pretty = JSON.stringify(order, null, 2);
     setText("bk-intent", pretty);
-
-    if (CONFIG.CONTRACT == null) {
-      try { await navigator.clipboard.writeText(pretty); } catch (e) { /* ignore */ }
-      var explain = $("bk-live-explain");
-      if (explain) {
-        explain.textContent = "CONTRACT is null (PREVIEW). Order JSON copied when the clipboard allows. After a real ERC-721 is deployed from " +
-          CONFIG.OWNER + " on Robinhood Chain, the owner still signs each live trade. This page will not craft swap-router calldata or call eth_sendTransaction. You sign ERC-20 / swap yourself in your wallet once a collection address exists.";
-      }
+    var explain = $("bk-live-explain");
+    if (explain) {
+      explain.textContent = "Live path is personal_sign of this JSON skill intent only. Owner signs. This page does not call approve, eth_sendTransaction, or swap calldata, and it does not take custody or invent PnL.";
     }
-
     var sig = await personalSign(pretty);
     order.signature = sig;
     var rec = readJSON(storageKey("live", id)) || { intents: [] };
     rec.intents.unshift({
       ts: order.ts,
-      side: side,
-      size: size,
-      primaryAsset: m.primaryAsset,
+      action: skill.action,
+      pair: skill.pair,
+      skillId: skill.skillId,
       signature: sig,
       order: order
     });
     writeJSON(storageKey("live", id), rec);
     renderLiveRows(id);
+  }
+
+  async function scanOwned() {
+    var grid = $("bk-my-grid");
+    var empty = $("bk-my-empty");
+    var prog = $("bk-my-progress");
+    if (!grid) return [];
+    if (!state.address) {
+      grid.innerHTML = "";
+      if (empty) {
+        empty.classList.remove("bk-hidden");
+        empty.textContent = "Connect a wallet. This page then ownerOf-scans 1..totalSupply (batched) and shows skills for tokens you own.";
+      }
+      if (prog) prog.textContent = "";
+      return [];
+    }
+    if (!Number.isFinite(state.minted)) {
+      if (empty) {
+        empty.classList.remove("bk-hidden");
+        empty.textContent = state.mintFetched
+          ? "On-chain totalSupply unavailable. Will not invent a mint count or owned set."
+          : "Fetching totalSupply (0x18160ddd)…";
+      }
+      grid.innerHTML = "";
+      return [];
+    }
+    var cap = Math.min(state.minted, M.COLLECTION_SIZE);
+    if (cap <= 0) {
+      if (empty) {
+        empty.classList.remove("bk-hidden");
+        empty.textContent = "On-chain totalSupply is 0. No tokens to scan.";
+      }
+      grid.innerHTML = "";
+      return [];
+    }
+    if (empty) empty.classList.remove("bk-hidden");
+    var owned = [];
+    var batch = 12;
+    var i = 1;
+    while (i <= cap) {
+      var chunk = [];
+      var j;
+      for (j = 0; j < batch && i + j <= cap; j++) chunk.push(i + j);
+      var results = await Promise.all(chunk.map(function (tid) {
+        return ownerOf(tid).then(function (own) { return { id: tid, own: own }; }).catch(function () { return { id: tid, own: null }; });
+      }));
+      for (j = 0; j < results.length; j++) {
+        if (results[j].own && sameAddr(results[j].own, state.address)) owned.push(results[j].id);
+      }
+      if (prog) prog.textContent = "ownerOf scan " + Math.min(i + chunk.length - 1, cap) + " / " + cap + " · owned " + owned.length;
+      if (empty) empty.textContent = "Scanning on-chain ownerOf 1–" + cap + " (batch " + batch + "). Live totalSupply, not an invented mint count.";
+      i += batch;
+    }
+    return owned;
+  }
+
+  async function renderMyBrokers() {
+    var grid = $("bk-my-grid");
+    var empty = $("bk-my-empty");
+    var prog = $("bk-my-progress");
+    if (!grid) return;
+    if (!state.address) {
+      grid.innerHTML = "";
+      if (empty) {
+        empty.classList.remove("bk-hidden");
+        empty.textContent = "Connect a wallet to list Crypto Brokers you own on-chain (ownerOf) and their skills.";
+      }
+      if (prog) prog.textContent = "";
+      return;
+    }
+    if (!state.mintFetched) {
+      if (empty) {
+        empty.classList.remove("bk-hidden");
+        empty.textContent = "Fetching totalSupply (0x18160ddd)…";
+      }
+      return;
+    }
+    var owned = await scanOwned();
+    if (!owned.length) {
+      grid.innerHTML = "";
+      if (empty) {
+        empty.classList.remove("bk-hidden");
+        empty.innerHTML = "No tokens in 1–totalSupply currently ownerOf-match <code>" + shortAddr(state.address) + "</code>.";
+      }
+      return;
+    }
+    if (empty) empty.classList.add("bk-hidden");
+    grid.innerHTML = owned.map(function (id) {
+      var skill = S && S.skillFor(id);
+      var card = cardHtml(id, "/brokers/activate.html?id=" + id);
+      if (!skill) return card;
+      return card.replace("</p></a>", "</p><p class=\"bk-card-skill\">" + escapeHtml(skill.name) + "</p></a>");
+    }).join("");
   }
 
   function copyIntent() {
@@ -830,17 +1242,27 @@
     var strat = $("bk-strategy");
     if (strat) strat.addEventListener("change", applyFilters);
     var act = $("bk-activate");
-    if (act) act.addEventListener("click", function () { onActivate().catch(function (e) { alert(e.message || e); }); });
+    if (act) act.addEventListener("click", function () {
+      var original = act.textContent;
+      act.disabled = true;
+      act.textContent = "Processing activation…";
+      onActivate().catch(function (e) { alert(e.message || e); }).finally(function () {
+        act.disabled = false;
+        act.textContent = original;
+      });
+    });
     var valBtn = $("bk-validator");
     if (valBtn) valBtn.addEventListener("click", function () { onValidatorSignup().catch(function (e) { alert(e.message || e); }); });
     var paper = $("bk-paper-mark");
     if (paper) paper.addEventListener("click", function () { onPaper().catch(function (e) { alert(e.message || e); }); });
-    var fill = $("bk-paper-fill");
-    if (fill) fill.addEventListener("click", function () { onPaperFill().catch(function (e) { alert(e.message || e); }); });
     var live = $("bk-live");
     if (live) live.addEventListener("click", function () { onLive().catch(function (e) { alert(e.message || e); }); });
     var copy = $("bk-copy-intent");
     if (copy) copy.addEventListener("click", copyIntent);
+    var myScan = $("bk-my-scan");
+    if (myScan) myScan.addEventListener("click", function () {
+      renderMyBrokers().catch(function (e) { alert(e.message || e); });
+    });
     window.addEventListener("popstate", route);
     var provider = eth();
     if (provider && provider.on) {
@@ -849,6 +1271,7 @@
         setWalletUi();
         if (state.id) { refreshActivation(); refreshValidator(); }
         renderActivated();
+        renderMyBrokers();
       });
       provider.on("chainChanged", function (hex) {
         state.chainId = hexToInt(hex);
@@ -873,9 +1296,10 @@
         setWalletUi();
         if (state.id) { refreshActivation(); refreshValidator(); }
         renderActivated();
+        renderMyBrokers();
       }).catch(function () {});
     }
   });
 
-  window.BrokersSite = { CONFIG: CONFIG, parseId: parseId };
+  window.BrokersSite = { CONFIG: CONFIG, parseId: parseId, skillFor: function (id) { return S && S.skillFor(id); } };
 })();

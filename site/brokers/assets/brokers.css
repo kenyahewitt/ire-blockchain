@@ -433,3 +433,37 @@
 .bk-art .bk-shot { min-height: 16rem; }
 .bk-grid a .bk-shot { margin: -0.7rem -0.7rem 0; }
 .bk-floor-lead { color: var(--muted); }
+
+.bk-skill {
+  margin: 0 0 1.4rem;
+  padding: 1.1rem 1.2rem 1.25rem;
+  border: 1px solid var(--rule);
+  background: var(--ink-lift);
+}
+.bk-skill-name {
+  margin: 0 0 0.7rem;
+  font: 400 1.35rem/1.25 var(--serif);
+  color: var(--paper);
+}
+.bk-skill-chips { margin: 0 0 0.85rem; }
+.bk-skill-chip {
+  display: inline-block;
+  margin: 0 0.35rem 0.35rem 0;
+  padding: 0.12rem 0.45rem;
+  border: 1px solid rgba(196,98,45,0.4);
+  font: 500 0.58rem var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #e4b998;
+}
+.bk-skill-job {
+  margin: 0.85rem 0 0;
+  color: var(--muted);
+  font: 400 0.9rem/1.55 var(--sans);
+}
+.bk-card-skill {
+  margin: 0.35rem 0 0;
+  font: 400 0.62rem/1.4 var(--mono);
+  letter-spacing: 0.04em;
+  color: #e4b998;
+}

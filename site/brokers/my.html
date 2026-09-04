@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Activated Crypto Brokers — IRE</title>
-<meta name="description" content="Agents you have activated. Each has a unique real skill. Owner signs skill intents. Not a licensed broker.">
-<link rel="canonical" href="https://boomer250.com/brokers/activated.html">
+<title>My Crypto Brokers — IRE</title>
+<meta name="description" content="On-chain ownerOf scan of Crypto Brokers you own. Each token shows its unique real skill. Owner signs live intents. Not a licensed broker.">
+<link rel="canonical" href="https://boomer250.com/brokers/my.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/styles.css">
 <link rel="stylesheet" href="assets/brokers.css">
 </head>
-<body class="brokers-page" data-page="activated">
+<body class="brokers-page" data-page="my">
 <div class="grain" aria-hidden="true"></div>
 <a class="skip" href="#main">Skip to content</a>
-<p class="advisory">Not a licensed broker-dealer. Not Robinhood Inc. Live ERC-721 <code>0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041</code>. Owner <a href="https://x.com/FURBI50360">@FURBI50360</a>. No custody.</p>
+<p class="advisory">Not a licensed broker-dealer. Not Robinhood Inc. Live ERC-721 <code>0x9F7A3ADbF611cBeeC95Ce40e0259bbF96b8Df041</code>. Owner <a href="https://x.com/FURBI50360">@FURBI50360</a>. <code>ire-1</code> is a testnet. IREVAL1 is waitlist points. No custody.</p>
 <div class="frame">
   <nav class="rail" aria-label="Documentation">
     <a class="mark" href="/">IRE<span>docs</span></a>
@@ -25,35 +25,37 @@
     <p class="micro rail-foot">Fixed supply<br>No protocol inflation</p>
   </nav>
   <main id="main">
-      <p class="bk-sub" aria-label="Crypto Brokers pages">
-        <a class="bk-btn" href="/brokers/">Collection</a>
-        <a class="bk-btn" href="/brokers/activate.html">Activate</a>
-        <a class="bk-btn" href="/brokers/activated.html" aria-current="page">Activated</a>
-        <a class="bk-btn" href="/brokers/my.html">My Brokers</a>
-      </p>
+    <p class="bk-sub" aria-label="Crypto Brokers pages">
+      <a class="bk-btn" href="/brokers/">Collection</a>
+      <a class="bk-btn" href="/brokers/activate.html">Activate</a>
+      <a class="bk-btn" href="/brokers/activated.html">Activated</a>
+      <a class="bk-btn" href="/brokers/my.html" aria-current="page">My Brokers</a>
+    </p>
 
-    <section id="bk-activated" class="page-head reveal">
-      <p class="micro">Activated desk</p>
-      <h1>Your agents</h1>
-      <p class="lead">Connect the wallet used for activation. This list contains Broker Agents whose on-chain <code>ownerOf</code> check passed and whose 0.001 ETH activation payment was confirmed from this device. Each card shows that token's unique skill. For an ownership scan, use <a href="/brokers/my.html">My Brokers</a>. Live run remains an owner-signed skill intent.</p>
+    <section id="bk-my" class="page-head reveal">
+      <p class="micro">My Brokers</p>
+      <h1>Owned agents</h1>
+      <p class="lead">Connect a wallet. This page fetches live <code>totalSupply</code> (<code>0x18160ddd</code>) and <code>ownerOf</code>-scans ids 1..supply in batches of 12. Tokens you own show their unique skill. Live run still requires the owner to <code>personal_sign</code> a skill intent. Not a licensed broker. Not Robinhood Inc. Not 5000 validators. IREVAL1 is waitlist points.</p>
       <div class="bk-actions">
         <button class="bk-btn bk-btn-ember" type="button" data-connect>Connect wallet</button>
-        <a class="bk-btn" href="/brokers/activate.html">Activate another</a>
-        <a class="bk-btn" href="/brokers/my.html">My Brokers (ownerOf)</a>
-        <a class="bk-btn" href="/brokers/">All 5000</a>
+        <button class="bk-btn" type="button" id="bk-my-scan">Scan ownerOf</button>
+        <a class="bk-btn" href="/brokers/activate.html">Activate</a>
+        <a class="bk-btn" href="/brokers/">Collection</a>
       </div>
       <p class="bk-wallet"><span class="bk-wallet-label">Wallet not connected.</span> <span class="bk-wallet-chain"></span></p>
-      <p class="bk-empty" id="bk-activated-empty">Connect a wallet to load your desk.</p>
-      <div class="bk-grid" id="bk-activated-grid" style="margin-top:1.4rem"></div>
+      <p class="bk-note" id="bk-my-progress"></p>
+      <p class="bk-empty" id="bk-my-empty">Connect a wallet to scan on-chain ownership.</p>
+      <div class="bk-grid" id="bk-my-grid" style="margin-top:1.4rem"></div>
     </section>
+
     <div id="bk-console" class="bk-hidden">
       <header class="page-head reveal">
-        <p class="micro">Activated · agent console</p>
+        <p class="micro">My Brokers · agent console</p>
         <h1 id="bk-console-name">Crypto Broker</h1>
-        <p class="lead">Primary asset <strong id="bk-console-asset"></strong>.</p>
+        <p class="lead">This agent's job: <strong id="bk-console-asset"></strong>.</p>
         <div class="bk-status">
           <span class="bk-pill" id="bk-mode-pill" data-state="live"><i></i>ON-CHAIN</span>
-          <a class="bk-btn" href="/brokers/activated.html">Back to desk</a>
+          <a class="bk-btn" href="/brokers/my.html">Back to My Brokers</a>
           <button class="bk-btn bk-btn-ember" type="button" data-connect>Connect wallet</button>
         </div>
         <p class="bk-wallet"><span class="bk-wallet-label"></span> <span class="bk-wallet-chain"></span></p>
@@ -71,13 +73,8 @@
           <h2>Mandate</h2>
           <p class="lead" id="bk-quote" style="margin-top:0"></p>
           <dl class="facts" id="bk-facts"></dl>
-          <h2>Activate</h2>
-          <div class="bk-actions">
-            <button class="bk-btn bk-btn-ember" type="button" id="bk-activate">Activate · 0.001 ETH</button>
-          </div>
-          <p class="bk-note" id="bk-activation-state"></p>
           <p class="bk-note" id="bk-onchain-owner"></p>
-          <p class="bk-legal">Not a licensed broker-dealer. Not Robinhood Inc. No custody.</p>
+          <p class="bk-legal">Not a licensed broker-dealer. Not Robinhood Inc. No custody. ire-1 is a testnet. Not 5000 unique 3D models. Not 5000 validators. IREVAL1 is waitlist points.</p>
         </div>
       </div>
     </div>
