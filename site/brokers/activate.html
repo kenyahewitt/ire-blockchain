@@ -109,7 +109,7 @@
           <dl class="facts" id="bk-facts"></dl>
 
           <h2>Activate</h2>
-          <p>Requires on-chain <code>ownerOf(tokenId)</code> = connected wallet. Your wallet will be asked to send exactly <strong>0.001 ETH</strong>, plus gas, to <code>0xdfF1a5dc565a2D8d0C2818f8B190ca8399B869b3</code>. The agent is marked active only after the transaction succeeds.</p>
+          <p>Requires on-chain <code>ownerOf(tokenId)</code> = connected wallet. Your wallet will be asked to send a <strong>plain 0.001 ETH</strong> transfer (no calldata — required on Robinhood), plus gas, to <code>0xdfF1a5dc565a2D8d0C2818f8B190ca8399B869b3</code>. The agent is marked active only after the transaction succeeds.</p>
           <div class="bk-actions">
             <button class="bk-btn bk-btn-ember" type="button" id="bk-activate">Activate · 0.001 ETH</button>
           </div>

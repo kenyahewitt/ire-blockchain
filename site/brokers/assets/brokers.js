@@ -336,8 +336,12 @@
     if (normalizeWei(tx.value) !== normalizeWei(CONFIG.ACTIVATION_FEE_WEI)) {
       throw new Error("Activation tx value mismatch. Need exactly 0.001 ETH on Robinhood Chain, got " + String(tx.value) + ".");
     }
-    if (!activationDataMatches(tx.input || tx.data, expectedId)) {
-      throw new Error("Activation tx calldata mismatch for token #" + expectedId + ". Re-run Activate from this page so the memo is included.");
+    /* Calldata optional: Robinhood rejects data on transfers to some accounts.
+       Plain 0.001 ETH from owner → fee recipient is enough; token id is local+ownerOf-bound. */
+    var input = String(tx.input || tx.data || "0x").toLowerCase();
+    if (input !== "0x" && input !== "" && !activationDataMatches(input, expectedId)) {
+      /* Older activations may still carry the CB memo — accept those too. */
+      throw new Error("Activation tx has unexpected calldata. Send a plain 0.001 ETH transfer (no data) on Robinhood Chain.");
     }
     return true;
   }
@@ -674,7 +678,23 @@
       : (a + "–" + b + " of " + ids.length + " matches")));
   }
 
-  function listActivations() {
+    function txHashAlreadyUsed(txHash, exceptId) {
+    var want = String(txHash || "").toLowerCase();
+    if (!want) return false;
+    var keys = Object.keys(localStorage);
+    var i, rec;
+    for (i = 0; i < keys.length; i++) {
+      if (keys[i].indexOf("crypto-brokers:activation:") !== 0) continue;
+      try { rec = JSON.parse(localStorage.getItem(keys[i])); } catch (e) { continue; }
+      if (!rec || !rec.txHash || !rec.confirmed) continue;
+      if (String(rec.txHash).toLowerCase() !== want) continue;
+      if (exceptId != null && Number(rec.id) === Number(exceptId)) continue;
+      return true;
+    }
+    return false;
+  }
+
+function listActivations() {
     var addr = (state.address || "").toLowerCase();
     if (!addr || !window.localStorage) return [];
     var prefix = "crypto-brokers:activation:" + addr + ":";
@@ -1408,6 +1428,9 @@
     await requireOwner(id);
     var ok = await verifyActivationPayment(txHash, state.address, id);
     if (!ok) throw new Error("Tx not found or not confirmed yet on Robinhood Chain. Wait and retry.");
+    if (txHashAlreadyUsed(txHash, id)) {
+      throw new Error("This tx hash was already used for another token id. Each activation needs its own 0.001 ETH payment.");
+    }
     var rec = {
       address: state.address,
       id: id,
@@ -1454,7 +1477,7 @@
     var approved = window.confirm(
       "Activate Crypto Broker #" + activationId + "?\n\n" +
       "Network: Robinhood Chain ETH — chainId 4663 (NOT Ethereum mainnet)\n" +
-      "Activation fee: " + CONFIG.ACTIVATION_FEE_ETH + " ETH + network gas\n" +
+      "Activation fee: " + CONFIG.ACTIVATION_FEE_ETH + " ETH plain transfer (no calldata) + network gas\n" +
       "Recipient: " + CONFIG.ACTIVATION_FEE_RECIPIENT + "\n\n" +
       "This payment enables this site's agent access and funds the public data/API path that keeps this desk WORKING (quotes + upgrades). It does not deploy an autonomous trading contract, take custody, or place unsupervised fills."
     );
@@ -1463,14 +1486,15 @@
     if (!accounts || !sameAddr(accounts[0], activationAddress)) {
       throw new Error("The connected wallet changed. Verify ownership again before paying.");
     }
-    var data = activationData(activationId);
+    /* Robinhood/MetaMask: "External transactions to internal accounts cannot include data"
+       → plain 0.001 ETH transfer only. Token id is bound in localStorage + ownerOf. */
+    var data = "0x";
     var txHash = await eth().request({
       method: "eth_sendTransaction",
       params: [{
         from: activationAddress,
         to: CONFIG.ACTIVATION_FEE_RECIPIENT,
         value: CONFIG.ACTIVATION_FEE_WEI,
-        data: data,
         chainId: CONFIG.CHAIN.chainIdHex
       }]
     });
@@ -1482,7 +1506,7 @@
       feeEth: CONFIG.ACTIVATION_FEE_ETH,
       feeWei: CONFIG.ACTIVATION_FEE_WEI,
       feeRecipient: CONFIG.ACTIVATION_FEE_RECIPIENT,
-      data: data,
+      data: "0x",
       chainId: state.chainId,
       contract: CONFIG.CONTRACT,
       ownerVerified: true,
@@ -1496,6 +1520,9 @@
     }
     await waitForReceipt(txHash);
     await verifyActivationPayment(txHash, activationAddress, activationId);
+    if (txHashAlreadyUsed(txHash, activationId)) {
+      throw new Error("This tx hash was already used to activate another agent. Pay a fresh 0.001 ETH for this token.");
+    }
     rec.confirmed = true;
     rec.confirmedAt = new Date().toISOString();
     writeJSON(activationStorageKey(activationAddress, activationId), rec);
