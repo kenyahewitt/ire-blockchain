@@ -473,3 +473,12 @@
   color: #2ecc71;
   border: 1px solid rgba(46, 204, 113, 0.45);
 }
+
+.bk-shot .bk-reveal-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: #39ff14;
+}

@@ -405,24 +405,30 @@
   }
 
   function factsHtml(m) {
-    return (
-      "<div><dt>Primary asset</dt><dd>" + m.primaryAsset + " · " + m.primaryKind + "</dd></div>" +
-      "<div><dt>Secondary</dt><dd>" + m.secondary + "</dd></div>" +
-      "<div><dt>Strategy</dt><dd>" + m.strategy + "</dd></div>" +
-      "<div><dt>Universe</dt><dd>" + m.universe + "</dd></div>" +
-      "<div><dt>Venue</dt><dd>" + m.venue + "</dd></div>" +
-      "<div><dt>Timeframe</dt><dd>" + m.timeframe + "</dd></div>" +
+    var R = window.BrokersReveal;
+    var reveal = R && typeof R.forId === "function" ? R.forId(m.id) : null;
+    var html = "";
+    if (reveal) {
+      html += "<div><dt>Reveal name</dt><dd>" + escapeHtml(reveal.name) + "</dd></div>";
+      html += "<div><dt>tokenURI</dt><dd><code>" + escapeHtml(reveal.tokenURI) + "</code></dd></div>";
+      html += "<div><dt>file_name</dt><dd><code>" + escapeHtml(reveal.file_name) + "</code></dd></div>";
+      Object.keys(reveal.attributes).forEach(function (k) {
+        html += "<div><dt>" + escapeHtml(k) + "</dt><dd>" + escapeHtml(reveal.attributes[k]) + "</dd></div>";
+      });
+    }
+    html += (
+      "<div><dt>Primary asset</dt><dd>" + escapeHtml(String(m.primaryAsset)) + " · " + escapeHtml(String(m.primaryKind)) + "</dd></div>" +
+      "<div><dt>Secondary</dt><dd>" + escapeHtml(String(m.secondary)) + "</dd></div>" +
+      "<div><dt>Strategy</dt><dd>" + escapeHtml(String(m.strategy)) + "</dd></div>" +
+      "<div><dt>Universe</dt><dd>" + escapeHtml(String(m.universe)) + "</dd></div>" +
+      "<div><dt>Venue</dt><dd>" + escapeHtml(String(m.venue)) + "</dd></div>" +
+      "<div><dt>Timeframe</dt><dd>" + escapeHtml(String(m.timeframe)) + "</dd></div>" +
       "<div><dt>Max notional</dt><dd>$" + m.maxNotionalUsd.toLocaleString("en-US") + "</dd></div>" +
       "<div><dt>Min mcap filter</dt><dd>$" + m.minMcapUsd.toLocaleString("en-US") + " (mandate, not a floor)</dd></div>" +
-      "<div><dt>Head</dt><dd>" + m.head + "</dd></div>" +
-      "<div><dt>Coat</dt><dd>" + m.coat + "</dd></div>" +
-      "<div><dt>Suit</dt><dd>" + m.suit + "</dd></div>" +
-      "<div><dt>Accent</dt><dd>" + m.accent + "</dd></div>" +
-      "<div><dt>HUD</dt><dd>" + m.hud + "</dd></div>" +
-      "<div><dt>Hand</dt><dd>" + m.hand + "</dd></div>" +
-      "<div><dt>Base</dt><dd>" + m.base + "</dd></div>" +
-      "<div><dt>Rarity</dt><dd>" + m.rarity + "</dd></div>"
+      "<div><dt>Mode</dt><dd>" + escapeHtml(String(m.mode)) + "</dd></div>" +
+      "<div><dt>Inscription</dt><dd><code>" + escapeHtml(String(m.inscription)) + "</code></dd></div>"
     );
+    return html;
   }
 
 
@@ -445,6 +451,11 @@
   };
 
   function shotUrl(m) {
+    var R = window.BrokersReveal;
+    if (R && typeof R.imageUrlFor === "function") {
+      var u = R.imageUrlFor(m.id);
+      if (u) return u;
+    }
     var f = HEAD_SHOT[m.head] || "gold-skull.jpg";
     return "/brokers/assets/agents3d/" + f;
   }
@@ -466,6 +477,15 @@
 
   function shotHtml(m) {
     var t = tapeText(m);
+    var R = window.BrokersReveal;
+    var revealImg = R && typeof R.imageUrlFor === "function" ? R.imageUrlFor(m.id) : null;
+    if (revealImg) {
+      return '<div class="bk-shot">' +
+        '<img class="bk-reveal-img" src="' + revealImg + '" alt="' + escapeHtml(m.name || ("Crypto Broker #" + m.id)) + '" loading="lazy" width="768" height="768">' +
+        '<span class="bk-pulse"><i></i>agent</span>' +
+        '<div class="bk-tape"><span>' + t + t + '</span></div>' +
+        '</div>';
+    }
     return '<div class="bk-shot">' +
       '<video autoplay muted loop playsinline poster="' + shotUrl(m) + '" src="' + tradeUrl(m) + '"></video>' +
       '<span class="bk-pulse"><i></i>agent</span>' +
@@ -955,7 +975,7 @@
     var skill = S && S.skillFor(id);
     show("bk-landing", false);
     show("bk-console", true);
-    setText("bk-console-name", skill ? skill.name : m.name);
+    setText("bk-console-name", m.name + (skill ? (" · " + skill.role) : ""));
     setText("bk-console-asset", skill ? (skill.pair + " · " + skill.desk) : m.primaryAsset);
     setHtml("bk-art", shotHtml(m));
     setHtml("bk-facts", factsHtml(m));

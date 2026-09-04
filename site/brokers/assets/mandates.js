@@ -294,9 +294,11 @@
       secondary = SECONDARY_POOL[(rngMod(tokenId, "sec", SECONDARY_POOL.length) + 1) % SECONDARY_POOL.length];
     }
     var padded = String(tokenId).padStart(4, "0");
+    var revealName = (root.BrokersReveal && typeof root.BrokersReveal.nameFor === "function")
+      ? root.BrokersReveal.nameFor(tokenId) : null;
     var m = {
       id: tokenId,
-      name: "Crypto Broker #" + tokenId,
+      name: revealName || ("Crypto Broker #" + tokenId),
       inscription: "broker-" + padded,
       owner: OWNER,
       ireVault: IRE_VAULT,
