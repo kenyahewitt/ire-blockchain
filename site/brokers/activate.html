@@ -48,6 +48,21 @@
         </div>
       </form>
       <p class="bk-wallet"><span class="bk-wallet-label">Wallet not connected.</span> <span class="bk-wallet-chain"></span></p>
+
+          <h2>Already paid? Recover activation</h2>
+          <p>If you already sent <strong>0.001 ETH on Robinhood Chain</strong> but this list is empty, paste the Blockscout tx hash and token id. Same wallet must still <code>ownerOf</code> the token.</p>
+          <div class="bk-form-row">
+            <div class="bk-field">
+              <label for="bk-recover-id">Token id</label>
+              <input id="bk-recover-id" type="number" min="1" max="5000" placeholder="1">
+            </div>
+            <div class="bk-field" style="flex:1">
+              <label for="bk-recover-tx">Tx hash</label>
+              <input id="bk-recover-tx" type="text" placeholder="0x…" spellcheck="false" autocomplete="off">
+            </div>
+            <button class="bk-btn bk-btn-ember" type="button" id="bk-recover">Recover activation</button>
+          </div>
+
       <p class="bk-id-nav">
         <a class="bk-btn" href="/brokers/activate.html?id=1">#1</a>
         <a class="bk-btn" href="/brokers/activate.html?id=42">#42</a>

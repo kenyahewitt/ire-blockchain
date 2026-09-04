@@ -1301,6 +1301,41 @@
     }
   }
 
+  async function recoverActivationFromTx(rawHash, rawId) {
+    if (!state.address) { await connectWallet(); if (!state.address) return; }
+    await ensureChain();
+    var txHash = String(rawHash || "").trim();
+    if (!/^0x[0-9a-fA-F]{64}$/.test(txHash)) throw new Error("Paste a full tx hash (0x… 66 chars) from Robinhood Chain Blockscout.");
+    var id = parseId(rawId != null ? rawId : (state.id || ($("bk-recover-id") && $("bk-recover-id").value)));
+    if (!id) throw new Error("Enter the token id this payment was for (1–5000).");
+    await requireOwner(id);
+    var ok = await verifyActivationPayment(txHash, state.address, id);
+    if (!ok) throw new Error("Tx not found or not confirmed yet on Robinhood Chain. Wait and retry.");
+    var rec = {
+      address: state.address,
+      id: id,
+      txHash: txHash,
+      confirmed: true,
+      confirmedAt: new Date().toISOString(),
+      feeEth: CONFIG.ACTIVATION_FEE_ETH,
+      feeWei: CONFIG.ACTIVATION_FEE_WEI,
+      feeRecipient: CONFIG.ACTIVATION_FEE_RECIPIENT,
+      data: activationData(id),
+      chainId: state.chainId,
+      contract: CONFIG.CONTRACT,
+      ownerVerified: true,
+      recovered: true,
+      ts: new Date().toISOString()
+    };
+    writeJSON(activationStorageKey(state.address, id), rec);
+    state.id = id;
+    try { await startAgentDesk(id); } catch (e) {}
+    refreshActivation();
+    renderActivated();
+    window.alert("Activation RECOVERED for #" + id + " on Robinhood Chain ETH.\nTx: " + txHash);
+    renderBrokerTicket(readJSON(storageKey("ticket", id)));
+  }
+
   async function onActivate() {
     if (!state.id) return;
     if (!state.address) { await connectWallet(); if (!state.address) return; }
@@ -1616,6 +1651,12 @@
     });
     var valBtn = $("bk-validator");
     if (valBtn) valBtn.addEventListener("click", function () { onValidatorSignup().catch(function (e) { alert(e.message || e); }); });
+    var recoverBtn = $("bk-recover");
+    if (recoverBtn) recoverBtn.addEventListener("click", function () {
+      var hashEl = $("bk-recover-tx");
+      var idEl = $("bk-recover-id");
+      recoverActivationFromTx(hashEl && hashEl.value, idEl && idEl.value).catch(function (e) { alert(e.message || e); });
+    });
     var runDesk = $("bk-run-desk");
     if (runDesk) runDesk.addEventListener("click", function () { runBrokerDesk().catch(function (e) { alert(e.message || e); }); });
     var paper = $("bk-paper-mark");
