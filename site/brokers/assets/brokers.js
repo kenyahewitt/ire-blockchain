@@ -442,6 +442,7 @@
     await ensureChain();
     setWalletUi();
     if (state.id) refreshActivation();
+    refreshValidator();
     renderActivated();
     renderMyBrokers();
   }
@@ -1432,7 +1433,12 @@
     }
     refreshActivation();
     refreshValidator();
-    window.alert("Activation CONFIRMED on Robinhood Chain (ETH / 4663).\n\nBroker #" + activationId + " is " + statusWord + ".\nTx: " + txHash + "\n\nOpen Activated desk to see it.");
+    window.alert("Activation CONFIRMED on Robinhood Chain (ETH / 4663).\n\nBroker #" + activationId + " is " + statusWord + ".\nTx: " + txHash + "\n\nNext: Join the IRE (ire-1) validator waitlist on this page for 25 testnet points (IREVAL1).");
+    refreshValidator();
+    var joinVal = window.confirm("Join the IRE validator waitlist now from this wallet?\n\nWaitlist only — not a consensus seat. 25 testnet points when you broadcast IREVAL1.");
+    if (joinVal) {
+      try { await onValidatorSignup(); } catch (e) { alert(e.message || e); }
+    }
   }
 
   async function onValidatorSignup() {
@@ -1735,7 +1741,8 @@
       provider.on("accountsChanged", function (acc) {
         state.address = acc && acc[0] ? acc[0] : null;
         setWalletUi();
-        if (state.id) { refreshActivation(); refreshValidator(); }
+        if (state.id) refreshActivation();
+        refreshValidator();
         renderActivated();
         renderMyBrokers();
       });
@@ -1760,7 +1767,8 @@
       }).then(function (hex) {
         state.chainId = hexToInt(hex);
         setWalletUi();
-        if (state.id) { refreshActivation(); refreshValidator(); }
+        if (state.id) refreshActivation();
+        refreshValidator();
         renderActivated();
         renderMyBrokers();
       }).catch(function () {});
