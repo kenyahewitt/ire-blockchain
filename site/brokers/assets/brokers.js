@@ -176,28 +176,31 @@
   }
 
   async function ethCall(data) {
-    var provider = eth();
     var params = [{ to: CONFIG.CONTRACT, data: data }, "latest"];
-    if (provider) {
-      return await provider.request({ method: "eth_call", params: params });
-    }
+    var body = JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: params });
     var rpcs = CONFIG.CHAIN.rpcUrls || [];
-    var i, res, j;
+    var i, res, j, lastErr = null;
+    /* Public Robinhood RPC first — injected wallets often rate-limit mass ownerOf scans. */
     for (i = 0; i < rpcs.length; i++) {
       try {
         res = await fetch(rpcs[i], {
           method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: params })
+          headers: { "content-type": "application/json", accept: "application/json" },
+          body: body
         });
+        if (!res.ok) { lastErr = new Error("rpc HTTP " + res.status); continue; }
         j = await res.json();
-        if (j && j.result) return j.result;
-      } catch (e) {}
+        if (j && j.error) { lastErr = new Error(j.error.message || "rpc error"); continue; }
+        if (j && j.result != null) return j.result;
+      } catch (e) { lastErr = e; }
     }
-    res = await fetch(CONFIG.BLOCKSCOUT_TOKEN);
-    j = await res.json();
-    if (j && j.total_supply) return null;
-    return null;
+    var provider = eth();
+    if (provider) {
+      try {
+        return await provider.request({ method: "eth_call", params: params });
+      } catch (e) { lastErr = e; }
+    }
+    throw lastErr || new Error("eth_call failed");
   }
 
   function updateMintUi() {
@@ -250,6 +253,18 @@
     if (document.body.getAttribute("data-page") === "my") renderMyBrokers();
   }
 
+  async function balanceOf(addr) {
+    if (!CONFIG.CONTRACT || !addr) return null;
+    var data = "0x70a08231" + String(addr).replace(/^0x/i, "").toLowerCase().padStart(64, "0");
+    try {
+      var hex = await ethCall(data);
+      var n = decodeUint(hex);
+      return Number.isFinite(n) ? n : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   async function ownerOf(id) {
     if (!CONFIG.CONTRACT) return null;
     var data = "0x6352211e" + pad32(id);
@@ -261,6 +276,20 @@
     } catch (e) {
       return null;
     }
+  }
+
+  async function ownerOfWithRetry(id) {
+    var n, own, lastErr = null;
+    for (n = 0; n < 3; n++) {
+      try {
+        own = await ownerOf(id);
+        return { id: id, own: own, ok: true };
+      } catch (e) {
+        lastErr = e;
+        await new Promise(function (r) { setTimeout(r, 250 * (n + 1)); });
+      }
+    }
+    return { id: id, own: null, ok: false, error: String((lastErr && lastErr.message) || "ownerOf fail") };
   }
 
   function sameAddr(a, b) {
@@ -1534,22 +1563,44 @@
       return [];
     }
     if (empty) empty.classList.remove("bk-hidden");
+
+    var bal = await balanceOf(state.address);
+    if (prog) {
+      prog.textContent = "balanceOf " + (bal == null ? "?" : bal) + " · scanning ownerOf 1–" + cap + " via Robinhood public RPC…";
+    }
+
     var owned = [];
-    var batch = 12;
+    var failed = 0;
+    var batch = 20;
     var i = 1;
     while (i <= cap) {
       var chunk = [];
       var j;
       for (j = 0; j < batch && i + j <= cap; j++) chunk.push(i + j);
-      var results = await Promise.all(chunk.map(function (tid) {
-        return ownerOf(tid).then(function (own) { return { id: tid, own: own }; }).catch(function () { return { id: tid, own: null }; });
-      }));
+      var results = await Promise.all(chunk.map(function (tid) { return ownerOfWithRetry(tid); }));
       for (j = 0; j < results.length; j++) {
+        if (!results[j].ok) { failed += 1; continue; }
         if (results[j].own && sameAddr(results[j].own, state.address)) owned.push(results[j].id);
       }
-      if (prog) prog.textContent = "ownerOf scan " + Math.min(i + chunk.length - 1, cap) + " / " + cap + " · owned " + owned.length;
-      if (empty) empty.textContent = "Scanning on-chain ownerOf 1–" + cap + " (batch " + batch + "). Live totalSupply, not an invented mint count.";
+      if (prog) {
+        prog.textContent = "ownerOf scan " + Math.min(i + chunk.length - 1, cap) + " / " + cap +
+          " · owned " + owned.length +
+          (bal != null ? (" · balanceOf " + bal) : "") +
+          (failed ? (" · rpc fails " + failed) : "");
+      }
+      if (empty) {
+        empty.textContent = "Scanning ownerOf via public Robinhood RPC (batch " + batch + "). balanceOf=" +
+          (bal == null ? "?" : bal) + ".";
+      }
       i += batch;
+      await new Promise(function (r) { setTimeout(r, 40); });
+    }
+
+    state._lastScan = { owned: owned.slice(), bal: bal, failed: failed, cap: cap, ts: new Date().toISOString() };
+    if (failed > 0 && owned.length === 0 && bal > 0 && empty) {
+      empty.innerHTML = "Scan hit <strong>" + failed + " RPC failures</strong> and found 0 ids, but on-chain <code>balanceOf</code> is <strong>" +
+        bal + "</strong> for <code>" + shortAddr(state.address) +
+        "</code>. Hit <strong>Scan ownerOf</strong> again.";
     }
     return owned;
   }
@@ -1580,7 +1631,16 @@
       grid.innerHTML = "";
       if (empty) {
         empty.classList.remove("bk-hidden");
-        empty.innerHTML = "No tokens in 1–totalSupply currently ownerOf-match <code>" + shortAddr(state.address) + "</code>.";
+        var scan = state._lastScan || {};
+        if (scan.bal > 0) {
+          empty.innerHTML = "Scan returned 0 ids but <code>balanceOf</code> is <strong>" + scan.bal +
+            "</strong> for <code>" + shortAddr(state.address) +
+            "</code>" + (scan.failed ? (" (" + scan.failed + " RPC fails)") : "") +
+            ". Hit <strong>Scan ownerOf</strong> again — reads use the public Robinhood RPC.";
+        } else {
+          empty.innerHTML = "No tokens in 1–totalSupply currently ownerOf-match <code>" + shortAddr(state.address) +
+            "</code>" + (scan.bal === 0 ? " (balanceOf 0)." : ".");
+        }
       }
       return;
     }
