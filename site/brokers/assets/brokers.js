@@ -78,6 +78,22 @@
     return "crypto-brokers:" + kind + ":" + addr + ":" + id;
   }
 
+  function normalizeWei(v) {
+    if (v == null || v === "") return "";
+    var s = String(v).toLowerCase();
+    if (s.indexOf("0x") === 0) s = s.slice(2);
+    s = s.replace(/^0+/, "");
+    return "0x" + (s || "0");
+  }
+
+  function activationDataMatches(input, expectedId) {
+    var got = String(input || "").toLowerCase();
+    var need = String(activationData(expectedId)).toLowerCase();
+    if (got === need) return true;
+    if (!got || got === "0x") return false;
+    return got.replace(/^0x/, "") === need.replace(/^0x/, "");
+  }
+
   function activationStorageKey(address, id) {
     return "crypto-brokers:activation:" + String(address || "unsigned").toLowerCase() + ":" + id;
   }
@@ -262,7 +278,7 @@
   function activationRecordIsConfirmed(rec) {
     return !!(rec && rec.id && rec.txHash && rec.confirmed === true &&
       sameAddr(rec.feeRecipient, CONFIG.ACTIVATION_FEE_RECIPIENT) &&
-      String(rec.feeWei || "").toLowerCase() === CONFIG.ACTIVATION_FEE_WEI);
+      normalizeWei(rec.feeWei) === normalizeWei(CONFIG.ACTIVATION_FEE_WEI));
   }
 
   async function waitForReceipt(txHash) {
@@ -285,10 +301,14 @@
     var receipt = results[0], tx = results[1];
     if (!receipt || !tx) return false;
     if (String(receipt.status).toLowerCase() !== "0x1") throw new Error("The activation payment reverted. The agent was not activated.");
-    if (!sameAddr(tx.from, expectedFrom) || !sameAddr(tx.to, CONFIG.ACTIVATION_FEE_RECIPIENT) ||
-        String(tx.value || "").toLowerCase() !== CONFIG.ACTIVATION_FEE_WEI ||
-        String(tx.input || tx.data || "").toLowerCase() !== activationData(expectedId)) {
-      throw new Error("The confirmed transaction does not match the required activation payment.");
+    if (!sameAddr(tx.from, expectedFrom) || !sameAddr(tx.to, CONFIG.ACTIVATION_FEE_RECIPIENT)) {
+      throw new Error("Activation tx from/to mismatch. Must pay from the owning wallet to " + CONFIG.ACTIVATION_FEE_RECIPIENT + " on Robinhood Chain.");
+    }
+    if (normalizeWei(tx.value) !== normalizeWei(CONFIG.ACTIVATION_FEE_WEI)) {
+      throw new Error("Activation tx value mismatch. Need exactly 0.001 ETH on Robinhood Chain, got " + String(tx.value) + ".");
+    }
+    if (!activationDataMatches(tx.input || tx.data, expectedId)) {
+      throw new Error("Activation tx calldata mismatch for token #" + expectedId + ". Re-run Activate from this page so the memo is included.");
     }
     return true;
   }
@@ -333,9 +353,11 @@
       labelHtml = "Connected <strong>" + shortAddr(state.address) + "</strong>";
     }
     if (eth() && state.chainId === CONFIG.CHAIN.chainId) {
-      chainText = "Robinhood Chain · " + CONFIG.CHAIN.chainId;
+      chainText = "Robinhood Chain · ETH · chainId " + CONFIG.CHAIN.chainId;
     } else if (eth() && state.chainId) {
-      chainText = "Wrong chain " + state.chainId + " — switch to " + CONFIG.CHAIN.chainId;
+      chainText = "Wrong chain " + state.chainId + " — switch to Robinhood Chain ETH (" + CONFIG.CHAIN.chainId + ")";
+    } else if (eth()) {
+      chainText = "Chain unknown — switch to Robinhood Chain ETH (" + CONFIG.CHAIN.chainId + ")";
     }
     labels.forEach(function (el) { el.innerHTML = labelHtml; });
     chains.forEach(function (el) { el.textContent = chainText; });
@@ -346,30 +368,39 @@
     if (!provider) throw new Error("No injected wallet");
     var current = hexToInt(await provider.request({ method: "eth_chainId" }));
     state.chainId = current;
-    if (current === CONFIG.CHAIN.chainId) return;
+    if (current === CONFIG.CHAIN.chainId) {
+      setWalletUi();
+      return;
+    }
     try {
       await provider.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: CONFIG.CHAIN.chainIdHex }]
       });
     } catch (err) {
-      if (err && (err.code === 4902 || err.code === -32603)) {
+      var msg = String((err && err.message) || "");
+      if (err && (err.code === 4902 || err.code === -32603 || msg.toLowerCase().indexOf("unrecognized chain") >= 0)) {
         await provider.request({
           method: "wallet_addEthereumChain",
           params: [{
             chainId: CONFIG.CHAIN.chainIdHex,
-            chainName: CONFIG.CHAIN.name,
-            nativeCurrency: CONFIG.CHAIN.nativeCurrency,
+            chainName: "Robinhood Chain",
+            nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
             rpcUrls: CONFIG.CHAIN.rpcUrls,
             blockExplorerUrls: [CONFIG.CHAIN.explorer]
           }]
         });
       } else {
-        throw err;
+        throw new Error("Switch wallet network to Robinhood Chain (ETH, chainId 4663). " + msg);
       }
     }
     state.chainId = hexToInt(await provider.request({ method: "eth_chainId" }));
+    setWalletUi();
+    if (state.chainId !== CONFIG.CHAIN.chainId) {
+      throw new Error("Still not on Robinhood Chain. In MetaMask/Rabby choose Robinhood Chain (4663) with native ETH, then retry Activate.");
+    }
   }
+
 
   async function connectWallet() {
     var provider = eth();
@@ -1280,7 +1311,7 @@
     if (isActivated(activationId)) { refreshActivation(); return; }
     var approved = window.confirm(
       "Activate Crypto Broker #" + activationId + "?\n\n" +
-      "Network: Robinhood Chain (4663)\n" +
+      "Network: Robinhood Chain ETH — chainId 4663 (NOT Ethereum mainnet)\n" +
       "Activation fee: " + CONFIG.ACTIVATION_FEE_ETH + " ETH + network gas\n" +
       "Recipient: " + CONFIG.ACTIVATION_FEE_RECIPIENT + "\n\n" +
       "This payment enables this site's agent access and funds the public data/API path that keeps this desk WORKING (quotes + upgrades). It does not deploy an autonomous trading contract, take custody, or place unsupervised fills."
@@ -1316,6 +1347,10 @@
     };
     writeJSON(activationStorageKey(activationAddress, activationId), rec);
     refreshActivation();
+    var boxPend = $("bk-activation-state");
+    if (boxPend) {
+      boxPend.innerHTML = "Submitted on <strong>Robinhood Chain ETH (4663)</strong>. Waiting for confirmation… <a href=\"" + activationExplorer(txHash) + "\" target=\"_blank\" rel=\"noopener noreferrer\">View tx " + shortAddr(txHash) + "</a>";
+    }
     await waitForReceipt(txHash);
     await verifyActivationPayment(txHash, activationAddress, activationId);
     rec.confirmed = true;
@@ -1325,13 +1360,15 @@
     renderActivated();
     var box = $("bk-activation-state");
     var work = workingRecord(activationId);
+    var statusWord = (work && work.status === "WORKING") ? "WORKING" : "READY";
     if (box && state.id === activationId && sameAddr(state.address, activationAddress)) {
-      box.innerHTML = "Agent #" + activationId + " is <strong>" + (work && work.status === "WORKING" ? "WORKING" : "READY") +
+      box.innerHTML = "ACTIVATED on Robinhood Chain ETH. Agent #" + activationId + " is <strong>" + statusWord +
         "</strong> for <code>" + shortAddr(activationAddress) +
-        "</code> after ownerOf matched and the 0.001 ETH payment confirmed. <a href=\"" + activationExplorer(txHash) + "\" target=\"_blank\" rel=\"noopener noreferrer\">View transaction</a>. Open <a href=\"/brokers/activated.html\">Activated</a> or <a href=\"/brokers/my.html\">My Brokers</a>.";
+        "</code>. <a href=\"" + activationExplorer(txHash) + "\" target=\"_blank\" rel=\"noopener noreferrer\">View transaction</a>. Open <a href=\"/brokers/activated.html\">Activated</a>.";
     }
     refreshActivation();
     refreshValidator();
+    window.alert("Activation CONFIRMED on Robinhood Chain (ETH / 4663).\n\nBroker #" + activationId + " is " + statusWord + ".\nTx: " + txHash + "\n\nOpen Activated desk to see it.");
   }
 
   async function onValidatorSignup() {
@@ -1528,6 +1565,11 @@
   }
 
   function bind() {
+        document.querySelectorAll("[data-switch-chain]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        ensureChain().catch(function (e) { alert(e.message || e); });
+      });
+    });
     document.querySelectorAll("[data-connect]").forEach(function (b) {
       b.addEventListener("click", function () { connectWallet().catch(function (e) { alert(e.message || e); }); });
     });

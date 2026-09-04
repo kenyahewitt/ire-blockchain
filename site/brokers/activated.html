@@ -35,9 +35,10 @@
     <section id="bk-activated" class="page-head reveal">
       <p class="micro">Activated desk</p>
       <h1>Your agents</h1>
-      <p class="lead">Connect the wallet used for activation. This list contains Broker Agents whose on-chain <code>ownerOf</code> check passed and whose 0.001 ETH activation payment was confirmed from this device. Each card shows that token's unique skill. For an ownership scan, use <a href="/brokers/my.html">My Brokers</a>. Live run remains an owner-signed skill intent.</p>
+      <p class="lead">Activation is on <strong>Robinhood Chain · ETH · chainId 4663</strong> (not Ethereum mainnet). Connect the <em>same wallet + same browser</em> you paid from. This list only shows agents whose <code>ownerOf</code> matched and whose <strong>0.001 ETH</strong> fee confirmed in this browser. After a successful activate you get an alert: “Activation CONFIRMED”. If the list is empty: wrong wallet, wrong chain, or the tx is still pending — check Blockscout and use <a href="/brokers/my.html">My Brokers</a> for an ownership scan.</p>
       <div class="bk-actions">
         <button class="bk-btn bk-btn-ember" type="button" data-connect>Connect wallet</button>
+          <button class="bk-btn" type="button" data-switch-chain>Robinhood Chain · ETH</button>
         <a class="bk-btn" href="/brokers/activate.html">Activate another</a>
         <a class="bk-btn" href="/brokers/my.html">My Brokers (ownerOf)</a>
         <a class="bk-btn" href="/brokers/">All 5000</a>
@@ -55,6 +56,7 @@
           <span class="bk-pill" id="bk-mode-pill" data-state="live"><i></i>ON-CHAIN</span>
           <a class="bk-btn" href="/brokers/activated.html">Back to desk</a>
           <button class="bk-btn bk-btn-ember" type="button" data-connect>Connect wallet</button>
+          <button class="bk-btn" type="button" data-switch-chain>Robinhood Chain · ETH</button>
         </div>
         <p class="bk-wallet"><span class="bk-wallet-label"></span> <span class="bk-wallet-chain"></span></p>
       </header>
