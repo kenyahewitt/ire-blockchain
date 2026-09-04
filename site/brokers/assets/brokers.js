@@ -479,6 +479,54 @@
     return activationRecordIsConfirmed(rec);
   }
 
+  function workingRecord(id) {
+    return readJSON(storageKey("working", id));
+  }
+
+  function markAgentWorking(id, quote, skill) {
+    writeJSON(storageKey("working", id), {
+      status: "WORKING",
+      id: id,
+      skillId: skill && skill.skillId,
+      desk: skill && skill.desk,
+      pair: skill && skill.pair,
+      role: skill && skill.role,
+      lastLabel: quote && (quote.label || String(quote.value)),
+      lastSource: quote && quote.source,
+      ts: new Date().toISOString()
+    });
+  }
+
+  /** After activation, run the agent's desk: fetch a real public quote and mark WORKING. No custody, no unsupervised fills. */
+  async function startAgentDesk(id) {
+    if (!id || !isActivated(id)) return null;
+    var prev = state.id;
+    state.id = id;
+    try {
+      await onPaper();
+      var skill = S && S.skillFor(id);
+      var rec = readJSON(storageKey("paper", id));
+      var last = rec && rec.quotes && rec.quotes[0];
+      if (last) {
+        markAgentWorking(id, { label: last.label || last.value, value: last.value, source: last.source }, skill);
+      } else if (skill) {
+        writeJSON(storageKey("working", id), {
+          status: "READY",
+          id: id,
+          skillId: skill.skillId,
+          desk: skill.desk,
+          pair: skill.pair,
+          role: skill.role,
+          ts: new Date().toISOString(),
+          note: "Activated; public quote unavailable on this pass. Desk still ready for owner-signed live."
+        });
+      }
+      return workingRecord(id);
+    } finally {
+      if (prev != null) state.id = prev;
+    }
+  }
+
   function matchesFilter(m) {
     if (state.universe && m.universe !== state.universe) return false;
     if (state.strategy && String(m.strategy).toLowerCase() !== String(state.strategy).toLowerCase()) return false;
@@ -506,9 +554,12 @@
     var m = M.mandateFor(id);
     var on = isActivated(id);
     var minted = id <= state.minted;
+    var work = workingRecord(id);
     var tags = "";
     if (minted) tags += ' <span class="bk-tag">minted</span>';
     if (on) tags += ' <span class="bk-tag">activated</span>';
+    if (on && work && work.status === "WORKING") tags += ' <span class="bk-tag bk-tag-live">working</span>';
+    else if (on) tags += ' <span class="bk-tag">ready</span>';
     var skill = S && S.skillFor(id);
     var job = skill ? (escapeHtml(skill.role) + " · " + escapeHtml(skill.pair)) : (escapeHtml(m.primaryAsset) + " · " + escapeHtml(m.strategy));
     return '<a href="' + href + '" data-id="' + id + '" data-activated="' + (on ? "1" : "0") + '" data-minted="' + (minted ? "1" : "0") + '">' +
@@ -613,8 +664,16 @@
     }
     var rec = readJSON(storageKey("activation", id));
     if (activationRecordIsConfirmed(rec)) {
+      var work = workingRecord(id);
+      var workLine = (work && work.status === "WORKING")
+        ? (" Desk status: <strong>WORKING</strong> · " + escapeHtml(work.pair || "") + " @ " + escapeHtml(work.desk || "") +
+           (work.lastLabel ? (" · last public quote " + escapeHtml(work.lastLabel)) : "") + ".")
+        : " Desk status: <strong>READY</strong> — fetching public quote so this agent can work.";
       box.innerHTML = "Agent access activated for <code>" + shortAddr(rec.address) + "</code> at " + rec.ts +
-        " after a confirmed 0.001 ETH payment. <a href=\"" + activationExplorer(rec.txHash) + "\" target=\"_blank\" rel=\"noopener noreferrer\">View transaction</a>.";
+        " after a confirmed 0.001 ETH payment. <a href=\"" + activationExplorer(rec.txHash) + "\" target=\"_blank\" rel=\"noopener noreferrer\">View transaction</a>." + workLine;
+      if (!work || work.status !== "WORKING") {
+        startAgentDesk(id).then(function () { refreshActivation(); renderActivated(); }).catch(function () {});
+      }
     } else if (rec && rec.txHash) {
       box.innerHTML = "Activation payment submitted and awaiting confirmation. <a href=\"" + activationExplorer(rec.txHash) + "\" target=\"_blank\" rel=\"noopener noreferrer\">View transaction</a>.";
       verifyActivationPayment(rec.txHash, rec.address, rec.id).then(function (confirmed) {
@@ -716,20 +775,31 @@
   }
 
   async function quoteCodex(skill) {
-    var t = skill.ticker;
-    if (!t || !t.address) throw new Error("no token");
-    var q = "query($addr:String!,$nid:Int!){token(input:{address:$addr,networkId:$nid}){symbol}}";
-    var res = await fetch(CONFIG.CODEX_GQL, {
-      method: "POST",
-      headers: { accept: "application/json", "content-type": "application/json" },
-      body: JSON.stringify({ query: q, variables: { addr: t.address, networkId: t.networkId } })
-    });
-    if (!res.ok) throw new Error("quote HTTP " + res.status);
-    var data = await res.json();
-    if (!data || data.errors || !(data.data && data.data.token)) {
-      throw new Error("codex read unavailable");
+    /* Codex GraphQL price needs a key. Fall back to public Kraken / Dexscreener marks so every activated desk can work. */
+    var map = {
+      ETH: "ETHUSD", BTC: "XBTUSD", SOL: "SOLUSD", UNI: "UNIUSD", LINK: "LINKUSD",
+      AAVE: "AAVEUSD", ARB: "ARBUSD", OP: "OPUSD", SUI: "SUIUSD", APT: "APTUSD",
+      AVAX: "AVAXUSD", DOT: "DOTUSD", ATOM: "ATOMUSD", NEAR: "NEARUSD", FIL: "FILUSD"
+    };
+    var k = map[String(skill.pair || "").toUpperCase()];
+    if (k) {
+      var qk = await quoteKrakenSpot({ pair: k });
+      qk.source = "kraken-public-fallback:" + skill.pair + " (codex desk)";
+      return qk;
     }
-    throw new Error("codex has no public price without a key");
+    var data = await jsonGet("https://api.dexscreener.com/latest/dex/search?q=" + encodeURIComponent(skill.pair || ""));
+    var pairs = data && data.pairs ? data.pairs : [];
+    var i, row = null;
+    for (i = 0; i < pairs.length; i++) {
+      if (pairs[i] && pairs[i].priceUsd) { row = pairs[i]; break; }
+    }
+    if (!row) throw new Error("no public mark for codex desk pair");
+    return {
+      value: String(row.priceUsd),
+      label: "$" + row.priceUsd,
+      source: "dexscreener-fallback:" + (row.baseToken && row.baseToken.symbol ? row.baseToken.symbol : skill.pair),
+      kind: "usd"
+    };
   }
 
   async function quoteBlockscout(skill, url) {
@@ -917,6 +987,12 @@
     });
     setHtml("bk-mark", "Public quote not fetched.");
     show("bk-offline", false);
+    if (isActivated(id)) {
+      startAgentDesk(id).then(function () {
+        refreshActivation();
+        renderPaperRows(id);
+      }).catch(function () {});
+    }
     var link = $("bk-activate-link");
     if (link) link.setAttribute("href", "activate.html?id=" + id);
   }
@@ -1009,12 +1085,16 @@
     rec.confirmed = true;
     rec.confirmedAt = new Date().toISOString();
     writeJSON(activationStorageKey(activationAddress, activationId), rec);
+    try { await startAgentDesk(activationId); } catch (e) { /* quote miss still leaves agent READY */ }
     renderActivated();
     var box = $("bk-activation-state");
+    var work = workingRecord(activationId);
     if (box && state.id === activationId && sameAddr(state.address, activationAddress)) {
-      box.innerHTML = "Agent access activated for #" + activationId + " and <code>" + shortAddr(activationAddress) +
-        "</code> after ownerOf matched and the 0.001 ETH payment confirmed. <a href=\"" + activationExplorer(txHash) + "\" target=\"_blank\" rel=\"noopener noreferrer\">View transaction</a>. Open your <a href=\"/brokers/my.html\">My Brokers</a> desk.";
+      box.innerHTML = "Agent #" + activationId + " is <strong>" + (work && work.status === "WORKING" ? "WORKING" : "READY") +
+        "</strong> for <code>" + shortAddr(activationAddress) +
+        "</code> after ownerOf matched and the 0.001 ETH payment confirmed. <a href=\"" + activationExplorer(txHash) + "\" target=\"_blank\" rel=\"noopener noreferrer\">View transaction</a>. Open <a href=\"/brokers/activated.html\">Activated</a> or <a href=\"/brokers/my.html\">My Brokers</a>.";
     }
+    refreshActivation();
     refreshValidator();
   }
 

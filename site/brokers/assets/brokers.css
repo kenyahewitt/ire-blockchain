@@ -467,3 +467,9 @@
   letter-spacing: 0.04em;
   color: #e4b998;
 }
+
+.bk-tag-live {
+  background: rgba(46, 204, 113, 0.18);
+  color: #2ecc71;
+  border: 1px solid rgba(46, 204, 113, 0.45);
+}
