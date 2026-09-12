@@ -48,6 +48,9 @@ Deploy immutable contracts with `--no-admin`. The CW20 wrapper removes any confi
 
 ## Join as a node or validator
 
+**Calling operators now:** [Issue #8 — CALLING ALL VALIDATORS](https://github.com/kenyahewitt/ire-blockchain/issues/8) · public docs [boomer250.com/join](https://boomer250.com/join/). Sync a full node today; comment your `ire1` on #8 for a join drip when treasury is live.
+
+
 A non-validator public seed is published:
 
 ```
