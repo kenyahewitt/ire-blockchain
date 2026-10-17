@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>IRE First Light · Testnet launch preparation</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="icon" href="./ire-logo.png">
+</head>
+<body>
+<header><img src="./ire-logo.png" width="48" height="48" alt="IRE"><span>IRE / FIRST LIGHT</span><span class="badge">TESTNET · NOT LIVE</span></header>
+<main>
+  <p class="eyebrow">500 EDITIONS · ART INSCRIBED ON IRE</p>
+  <h1>The first chapter.<br>Recorded on our chain.</h1>
+  <p class="intro">First Light is a collection of 500 artworks prepared for native IRE inscriptions. This fallback page shares the approved artwork while the launch is being completed. It does not accept payments or distribute rewards.</p>
+  <section class="layout">
+    <figure><img src="./art/1.svg" width="256" height="256" alt="Approved IRE First Light edition 1"><figcaption>Edition 1 · exact artwork from the pinned inscription set</figcaption></figure>
+    <section class="panel">
+      <h2>Launch gates still apply</h2>
+      <p>At the recovery checkpoint on October 17, 2026, block production resumed and the Mac and public seed matched at height 831,111. The native inscription upgrade is applied, but collection uploads, activation and public mint verification are not certified complete. This is a dated checkpoint, not a live status feed.</p>
+      <p>The collection opens only after all 500 artwork transactions finalize, activation succeeds, and wallet payment and ownership checks pass.</p>
+      <p><strong>Planned mint price: 10 testnet IRE.</strong> Testnet tokens are not a promise of cash value, conversion, or future mainnet rewards.</p>
+      <button disabled>Mint unavailable — verification pending</button>
+      <a href="./manifest.json">Inspect all 500 artwork hashes →</a>
+    </section>
+  </section>
+  <section class="panel">
+    <h2>Participant rewards</h2>
+    <p>The planned program grants 100 testnet IRE to each approved eligible participant, up to 500 participants and 50,000 IRE total. Eligibility rules, the approved address list, duplicate checks and finalized payout receipts must be verified before availability is announced. No rewards can be claimed on this page.</p>
+    <h2>Keep your wallet private</h2>
+    <p>This page never requests a recovery phrase, private key, wallet signature or payment. It does not expose the Mac wallet or validator. A local wallet address beginning with <code>http://127.0.0.1</code> works only on the computer running it.</p>
+    <p><a href="https://github.com/kenyahewitt/ire-blockchain">IRE source repository</a> · <a href="https://rpc.boomer250.com/rpc/status">Public node status JSON</a></p>
+    <p class="muted">Matching node heights and <code>catching_up=false</code> do not prove health. Check that block timestamps are recent and heights keep increasing. These are new-block inscriptions, not Bitcoin ordinals or modifications to old blocks.</p>
+  </section>
+</main>
+</body>
+</html>
