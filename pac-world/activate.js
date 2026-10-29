@@ -16,7 +16,7 @@
     $('world-wallet').textContent = registryReady ? A.addressFrom(await A.call(config.registry, SELECTORS.wallet + A.word(token))) : 'Awaiting activation contract';
     existingWallet = registryReady && A.configuredAddress($('world-wallet').textContent);
     if (existingWallet) { status('This world wallet is active. Its current NFT owner controls it.'); return; }
-    if (!session) { status('NFT owner verified. Connect that wallet to prepare activation.'); return; }
+    if (!session) { status(registryReady && config.walletConnectEnabled === true ? 'NFT owner verified. Connect that wallet to prepare activation.' : 'NFT owner verified. Wallet connection remains off until activation is live.'); return; }
     if (owner.toLowerCase() !== session.account.toLowerCase()) { status('The connected wallet does not own this NFT.', 'warn'); return; }
     if (!registryReady) { status('Ownership verified. Activation awaits the reviewed, deployed Genesis registry.', 'warn'); return; }
     $('activate').disabled = false;
@@ -41,13 +41,16 @@
       config = await response.json();
       if (config.chainId !== 4663 || config.collection.toLowerCase() !== '0xd5035b128f7afb26fd0d54d55c612f00196be049') throw new Error('Unexpected Genesis collection configuration.');
       registryReady = await A.verifiedRegistry(config.registry, [[SELECTORS.collection, config.collection]]);
-      status(registryReady ? 'Connect your wallet and verify a token.' : 'Activation contract pending. Ownership checks are available.');
+      const walletConnectReady = registryReady && config.walletConnectEnabled === true;
+      $('connect').disabled = !walletConnectReady;
+      $('connect').textContent = walletConnectReady ? 'Connect wallet' : 'Wallet connection unavailable';
+      status(walletConnectReady ? 'Connect your wallet and verify a token.' : 'Check NFT ownership without connecting a wallet. World-wallet activation is pending.');
     } catch (error) { status(error.message, 'error'); }
   }
   $('token-id').addEventListener('change', () => inspect().catch(error => { disable(); status(error.message, 'error'); }));
   $('verify').addEventListener('click', () => inspect().catch(error => { disable(); status(error.message, 'error'); }));
   $('connect').addEventListener('click', async () => {
-    try { session = await A.connect(); $('account').textContent = session.account; $('connect').textContent = A.short(session.account); session.wallet.on?.('accountsChanged', () => { session = null; disable(); $('account').textContent = 'Reconnect wallet'; status('Wallet account changed. Reconnect and verify ownership again.', 'warn'); }); await inspect(); }
+    try { if (!registryReady || config?.walletConnectEnabled !== true) throw new Error('Wallet connection is unavailable until activation is live.'); session = await A.connect(); $('account').textContent = session.account; $('connect').textContent = A.short(session.account); session.wallet.on?.('accountsChanged', () => { session = null; disable(); $('account').textContent = 'Reconnect wallet'; status('Wallet account changed. Reconnect and verify ownership again.', 'warn'); }); await inspect(); }
     catch (error) { disable(); status(error.message, 'error'); }
   });
   $('activate').addEventListener('click', activate);

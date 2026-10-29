@@ -2,6 +2,7 @@
   "chainId": 4663,
   "collection": "0xd5035b128f7afb26fd0d54d55c612f00196be049",
   "registry": "0x0000000000000000000000000000000000000000",
-  "maxTokenId": 10000,
-  "revealEnabled": false
+  "maxTokenId": 2360,
+  "revealEnabled": true,
+  "walletConnectEnabled": false
 }
