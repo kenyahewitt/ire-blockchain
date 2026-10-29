@@ -44,7 +44,17 @@
       config = await response.json();
       if (config.chainId !== 4663 || config.collection.toLowerCase() !== '0xd5035b128f7afb26fd0d54d55c612f00196be049') throw new Error('Unexpected collection configuration.');
       revealed = config.revealEnabled === true;
-      if (revealed) { $('reveal-notice').hidden = true; $('load').disabled = false; status('Enter a minted world ID to play.'); }
+      if (revealed) {
+        $('reveal-notice').hidden = true;
+        $('load').disabled = false;
+        status('Enter a minted world ID to play.');
+        const requested = new URLSearchParams(location.search).get('token');
+        if (requested !== null) {
+          const id = A.tokenId(requested, config.maxTokenId);
+          $('token-id').value = String(id);
+          await load();
+        }
+      }
     } catch (error) { status(error.message, 'error'); }
   }
   $('load').addEventListener('click', load);
