@@ -11,6 +11,7 @@
 
   async function inspect() {
     $('play').hidden = true;
+    $('play').style.display = 'none';
     $('owner').textContent = '—';
     if (!config) throw new Error('World configuration unavailable.');
     const tokenId = A.tokenId($('token-id').value, config.maxTokenId);
@@ -18,6 +19,7 @@
     $('owner').textContent = owner;
     $('play').href = `play.html?token=${tokenId}`;
     $('play').hidden = false;
+    $('play').style.display = 'inline-flex';
     status(`World #${tokenId} is ready. Open its game for free; no wallet connection or payment is needed.`);
   }
 
