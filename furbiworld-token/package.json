@@ -1,0 +1,8 @@
+{
+  "name": "token-launch",
+  "private": true,
+  "description": "1% auto-liquidity token for Robinhood Chain",
+  "dependencies": {
+    "@openzeppelin/contracts": "5.1.0"
+  }
+}

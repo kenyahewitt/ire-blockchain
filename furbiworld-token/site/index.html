@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FURBI — the token that refills its own pool</title>
+<meta name="description" content="FurbiWorld (FURBI) on Robinhood Chain. View the live pool and trade through Uniswap V2 with a fixed 1% buy and sell fee.">
+<meta property="og:title" content="FurbiWorld (FURBI)">
+<meta property="og:description" content="The FurbiWorld token and live Uniswap V2 pool on Robinhood Chain.">
+<meta property="og:image" content="https://furbiworld-token.netlify.app/assets/furbiworld-banner.jpg">
+<link rel="icon" type="image/jpeg" href="/assets/furbiworld-profile.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#07080c; --panel:#0f1118; --line:#1d2130; --ink:#eef0f6; --mute:#8a90a6;
+    --acc:#c6ff3d; --acc2:#ff4fd8; --bad:#ff6b6b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:"Space Grotesk",system-ui,sans-serif;line-height:1.5;
+    background-image:radial-gradient(1200px 600px at 85% -10%,rgba(255,79,216,.13),transparent 60%),
+                     radial-gradient(900px 500px at -10% 20%,rgba(198,255,61,.08),transparent 60%);min-height:100vh}
+  .mono{font-family:"JetBrains Mono",monospace}
+  .wrap{max-width:1080px;margin:0 auto;padding:24px 20px 80px}
+  nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+  .logo{font-weight:700;font-size:20px;letter-spacing:.02em;display:flex;align-items:center;gap:10px}
+  .brand-icon{width:36px;height:36px;object-fit:cover;border-radius:50%;border:1px solid rgba(198,255,61,.45)}
+  .brand-banner{height:220px;margin-bottom:42px;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:#071018}
+  .brand-banner img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+  button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 18px;font-weight:600}
+  .btn{background:var(--acc);color:#0a0b0f}
+  .btn:hover{filter:brightness(1.08)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .ghost:hover{border-color:var(--mute)}
+  .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:start}
+  h1{font-size:clamp(40px,6vw,72px);line-height:1;letter-spacing:-.03em;margin-bottom:20px}
+  h1 em{font-style:normal;color:var(--acc)}
+  .lede{color:var(--mute);font-size:18px;max-width:520px;margin-bottom:28px}
+  .loop{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px}
+  .chip{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--mute)}
+  .chip b{color:var(--ink)}
+  .ca{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;max-width:520px}
+  .ca span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+  .ca button{padding:6px 10px;font-size:12px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px}
+  .tabs{display:grid;grid-template-columns:1fr 1fr;background:#0a0c12;border-radius:12px;padding:4px;margin-bottom:16px}
+  .tabs button{background:transparent;color:var(--mute);padding:10px}
+  .tabs button.on{background:var(--line);color:var(--ink)}
+  label{font-size:12px;color:var(--mute);display:block;margin-bottom:6px}
+  .field{display:flex;align-items:center;background:#0a0c12;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+  .field input{flex:1;background:transparent;border:0;color:var(--ink);font:600 22px "JetBrains Mono",monospace;outline:none;min-width:0}
+  .field .unit{color:var(--mute);font-weight:600}
+  .row{display:flex;justify-content:space-between;font-size:13px;color:var(--mute);margin:6px 2px}
+  .row b{color:var(--ink);font-weight:500}
+  .slip{display:flex;gap:6px}
+  .slip button{padding:4px 10px;font-size:12px;background:#0a0c12;color:var(--mute);border:1px solid var(--line);border-radius:8px}
+  .slip button.on{color:var(--acc);border-color:var(--acc)}
+  #swapBtn{width:100%;margin-top:14px;padding:16px;font-size:16px}
+  .msg{font-size:13px;margin-top:10px;min-height:20px;color:var(--mute);word-break:break-word}
+  .msg.bad{color:var(--bad)} .msg.good{color:var(--acc)}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:56px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+  .stat .k{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
+  .stat .v{font:600 22px "JetBrains Mono",monospace;margin-top:6px}
+  .stat .s{font-size:12px;color:var(--mute)}
+  .how{margin-top:56px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .how .step{border-top:2px solid var(--acc);padding-top:14px}
+  .how .step:nth-child(2){border-color:var(--acc2)}
+  .how .step:nth-child(3){border-color:var(--ink)}
+  .how h3{font-size:16px;margin-bottom:6px}
+  .how p{color:var(--mute);font-size:14px}
+  footer{margin-top:64px;color:var(--mute);font-size:12px;display:flex;gap:16px;flex-wrap:wrap}
+  footer a{color:var(--mute)}
+  .warn{background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.3);color:#ffb3b3;border-radius:12px;padding:12px 14px;font-size:13px;margin-bottom:20px;display:none}
+  .hero>*{min-width:0}
+  .max{padding:4px 8px;font-size:11px;margin-right:8px;background:var(--line);color:var(--ink);border-radius:8px}
+  @media (max-width:820px){.hero{grid-template-columns:minmax(0,1fr)}.ca{max-width:100%}.stats{grid-template-columns:1fr 1fr}.how{grid-template-columns:1fr}.brand-banner{height:160px;margin-bottom:30px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <div class="logo"><img class="brand-icon" src="/assets/furbiworld-profile.jpg" alt="FurbiWorld planet icon"><span id="navName">FURBI</span></div>
+    <button class="ghost" id="connectBtn">Connect wallet</button>
+  </nav>
+
+  <div class="brand-banner"><img src="/assets/furbiworld-banner.jpg" alt="Emerald FurbiWorld planet with a luminous orbit"></div>
+  <div class="warn" id="cfgWarn">The configured token address is invalid.</div>
+
+  <section class="hero">
+    <div>
+      <h1>Every trade <em>refills</em> the pool.</h1>
+      <p class="lede"><span class="tName">FURBI</span> takes 1% of every buy and sell and puts it straight back into its own liquidity, locked forever. More trading, deeper pool.</p>
+      <div class="loop">
+        <div class="chip"><b>1%</b> fee, hard-coded</div>
+        <div class="chip">LP <b>burned</b></div>
+        <div class="chip">Owner <b>renounced</b></div>
+        <div class="chip">Robinhood Chain</div>
+      </div>
+      <div class="ca mono"><span id="caText">—</span><button class="ghost" id="copyCa">Copy</button><button class="ghost" id="watchBtn">+ Wallet</button></div>
+    </div>
+
+    <div class="panel">
+      <div class="tabs"><button class="on" data-side="buy">Buy</button><button data-side="sell">Sell</button></div>
+      <label id="inLabel">You pay</label>
+      <div class="field"><input id="amtIn" inputmode="decimal" placeholder="0.0" autocomplete="off"><button class="max" id="maxBtn">MAX</button><span class="unit" id="unitIn">ETH</span></div>
+      <div class="row"><span>Balance</span><b class="mono" id="balIn">—</b></div>
+      <label style="margin-top:12px">You get (est.)</label>
+      <div class="field"><input id="amtOut" placeholder="0.0" readonly><span class="unit" id="unitOut">FURBI</span></div>
+      <div class="row"><span>Pool fee</span><b>1% → liquidity</b></div>
+      <div class="row"><span>Slippage</span>
+        <div class="slip"><button data-s="2">2%</button><button data-s="3" class="on">3%</button><button data-s="5">5%</button></div></div>
+      <button class="btn" id="swapBtn">Connect wallet</button>
+      <div class="msg" id="msg"></div>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat"><div class="k">Price</div><div class="v" id="sPrice">—</div><div class="s" id="sPriceS">ETH per token</div></div>
+    <div class="stat"><div class="k">Pool liquidity</div><div class="v" id="sLiq">—</div><div class="s">ETH side of pool</div></div>
+    <div class="stat"><div class="k">Recycled to pool</div><div class="v" id="sRec">—</div><div class="s" id="sRecS">ETH from fees</div></div>
+    <div class="stat"><div class="k">LP locked</div><div class="v" id="sLock">—</div><div class="s">held by dead address</div></div>
+  </section>
+
+  <section class="how">
+    <div class="step"><h3>1 · You trade</h3><p>Buy or sell on the pool. 1% of the amount is set aside in the token contract.</p></div>
+    <div class="step"><h3>2 · Fees pile up</h3><p>Once 0.05% of supply has built up, the next sell triggers a refill. Half is swapped to ETH.</p></div>
+    <div class="step"><h3>3 · Pool grows</h3><p>Both halves are added to the pool, and the LP tokens are sent to the dead address. Nobody can pull them out.</p></div>
+  </section>
+
+  <footer>
+    <a id="lnkExplorer" href="#" target="_blank" rel="noopener">Contract</a>
+    <a id="lnkPair" href="#" target="_blank" rel="noopener">Pool</a>
+    <a id="lnkDex" href="#" target="_blank" rel="noopener">DexScreener</a>
+    <span>Not investment advice. Crypto is risky; only use what you can lose.</span>
+  </footer>
+</div>
+
+<script>
+// ======== CONFIG — edit after launch ========
+const CONFIG = {
+  token:   "0xdc39395c2284ccbf5186391d185fd5dea2be0474",
+  router:  "0x89e5db8b5aa49aa85ac63f691524311aeb649eba",  // Uniswap V2 Router02 (same as .env ROUTER)
+  rpc:     "https://rpc.mainnet.chain.robinhood.com",
+  chainId: 4663,
+  explorer:"https://robinhoodchain.blockscout.com",
+  dex:     "https://dexscreener.com/robinhood/",
+};
+
+const TOKEN_ABI = [
+  "function name() view returns (string)","function symbol() view returns (string)","function decimals() view returns (uint8)",
+  "function totalSupply() view returns (uint256)","function balanceOf(address) view returns (uint256)",
+  "function allowance(address,address) view returns (uint256)","function approve(address,uint256) returns (bool)",
+  "function pair() view returns (address)","function weth() view returns (address)",
+  "function totalEthToLiquidity() view returns (uint256)","function totalFeesCollected() view returns (uint256)"
+];
+const PAIR_ABI = ["function getReserves() view returns (uint112,uint112,uint32)","function token0() view returns (address)",
+  "function totalSupply() view returns (uint256)","function balanceOf(address) view returns (uint256)"];
+const ROUTER_ABI = [
+  "function getAmountsOut(uint256,address[]) view returns (uint256[])",
+  "function swapExactETHForTokensSupportingFeeOnTransferTokens(uint256,address[],address,uint256) payable",
+  "function swapExactTokensForETHSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256)"
+];
+const DEAD = "0x000000000000000000000000000000000000dEaD";
+const $ = id => document.getElementById(id);
+const E = window.ethers;
+
+const ro = new E.JsonRpcProvider(CONFIG.rpc, CONFIG.chainId, { staticNetwork: true });
+let tokenR, pairR, routerR, meta = { sym:"FURBI", dec:18, weth:null, pair:null };
+let signer = null, me = null, side = "buy", slip = 3;
+
+const fmt = (v, d=4) => { const n = Number(v); if (!isFinite(n)) return "—";
+  if (n === 0) return "0"; if (n < 1e-6) return n.toExponential(2);
+  return n.toLocaleString(undefined,{maximumFractionDigits:d}); };
+const msg = (t, cls="") => { const m=$("msg"); m.textContent=t; m.className="msg "+cls; };
+
+async function init() {
+  if (!E.isAddress(CONFIG.token)) { $("cfgWarn").style.display="block"; $("swapBtn").disabled=true; return; }
+  tokenR = new E.Contract(CONFIG.token, TOKEN_ABI, ro);
+  routerR = new E.Contract(CONFIG.router, ROUTER_ABI, ro);
+  const [sym, name, dec, pair, weth] = await Promise.all([tokenR.symbol(), tokenR.name(), tokenR.decimals(), tokenR.pair(), tokenR.weth()]);
+  meta = { sym, name, dec:Number(dec), pair, weth };
+  pairR = new E.Contract(pair, PAIR_ABI, ro);
+  document.title = `${sym} — the token that refills its own pool`;
+  $("navName").textContent = sym;
+  document.querySelectorAll(".tName").forEach(e=>e.textContent=sym);
+  $("caText").textContent = CONFIG.token;
+  $("lnkExplorer").href = `${CONFIG.explorer}/address/${CONFIG.token}`;
+  $("lnkPair").href = `${CONFIG.explorer}/address/${pair}`;
+  $("lnkDex").href = `${CONFIG.dex}${pair}`;
+  setSide("buy");
+  await refreshStats();
+  setInterval(refreshStats, 15000);
+}
+
+async function refreshStats() {
+  try {
+    const [[r0,r1], t0, lpTot, lpDead, rec] = await Promise.all([
+      pairR.getReserves(), pairR.token0(), pairR.totalSupply(), pairR.balanceOf(DEAD), tokenR.totalEthToLiquidity()]);
+    const wethIs0 = t0.toLowerCase() === meta.weth.toLowerCase();
+    const ethR = wethIs0 ? r0 : r1, tokR = wethIs0 ? r1 : r0;
+    const ethF = Number(E.formatEther(ethR)), tokF = Number(E.formatUnits(tokR, meta.dec));
+    $("sPrice").textContent = tokF ? fmt(ethF / tokF, 12) : "—";
+    $("sPriceS").textContent = `ETH per ${meta.sym}`;
+    $("sLiq").textContent = fmt(ethF, 4) + " ETH";
+    $("sRec").textContent = fmt(E.formatEther(rec), 6) + " ETH";
+    $("sLock").textContent = lpTot > 0n ? fmt(Number(lpDead * 10000n / lpTot) / 100, 2) + "%" : "—";
+  } catch (e) { console.warn("stats", e); }
+}
+
+function setSide(s) {
+  side = s;
+  document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on", b.dataset.side===s));
+  $("unitIn").textContent = s==="buy" ? "ETH" : meta.sym;
+  $("unitOut").textContent = s==="buy" ? meta.sym : "ETH";
+  $("inLabel").textContent = s==="buy" ? "You pay" : "You sell";
+  $("amtIn").value = ""; $("amtOut").value = "";
+  updateBtn(); refreshBal();
+}
+
+function path() { return side==="buy" ? [meta.weth, CONFIG.token] : [CONFIG.token, meta.weth]; }
+function parsedIn() {
+  const v = $("amtIn").value.trim(); if (!v || isNaN(v) || Number(v) <= 0) return null;
+  try { return side==="buy" ? E.parseEther(v) : E.parseUnits(v, meta.dec); } catch { return null; }
+}
+
+// Router quote ignores the token's 1% fee, so take it off ourselves.
+async function quote() {
+  const amt = parsedIn(); if (!amt) { $("amtOut").value=""; return null; }
+  try {
+    const inAfterFee = side==="sell" ? amt * 99n / 100n : amt;
+    const outs = await routerR.getAmountsOut(inAfterFee, path());
+    let out = outs[1]; if (side==="buy") out = out * 99n / 100n;
+    $("amtOut").value = side==="buy" ? fmt(E.formatUnits(out, meta.dec), 2) : fmt(E.formatEther(out), 8);
+    return out;
+  } catch (e) { $("amtOut").value = ""; return null; }
+}
+
+async function refreshBal() {
+  if (!me) { $("balIn").textContent = "—"; return; }
+  try {
+    if (side==="buy") $("balIn").textContent = fmt(E.formatEther(await ro.getBalance(me)), 6) + " ETH";
+    else $("balIn").textContent = fmt(E.formatUnits(await tokenR.balanceOf(me), meta.dec), 2) + " " + meta.sym;
+  } catch {}
+}
+
+function updateBtn() {
+  const b = $("swapBtn");
+  if (!E.isAddress(CONFIG.token)) { b.textContent="Not launched yet"; b.disabled=true; return; }
+  b.disabled = false;
+  b.textContent = !signer ? "Connect wallet" : (side==="buy" ? `Buy ${meta.sym}` : `Sell ${meta.sym}`);
+}
+
+async function ensureChain() {
+  const hex = "0x" + CONFIG.chainId.toString(16);
+  const cur = await window.ethereum.request({ method:"eth_chainId" });
+  if (cur === hex) return;
+  try { await window.ethereum.request({ method:"wallet_switchEthereumChain", params:[{ chainId:hex }] }); }
+  catch (e) {
+    if (e.code !== 4902) throw e;
+    await window.ethereum.request({ method:"wallet_addEthereumChain", params:[{
+      chainId:hex, chainName:"Robinhood Chain", nativeCurrency:{name:"Ether",symbol:"ETH",decimals:18},
+      rpcUrls:[CONFIG.rpc], blockExplorerUrls:[CONFIG.explorer] }] });
+  }
+}
+
+async function connect() {
+  if (!window.ethereum) { msg("No wallet found. Install MetaMask, Rabby or Coinbase Wallet.", "bad"); return; }
+  try {
+    await window.ethereum.request({ method:"eth_requestAccounts" });
+    await ensureChain();
+    const bp = new E.BrowserProvider(window.ethereum);
+    signer = await bp.getSigner(); me = await signer.getAddress();
+    $("connectBtn").textContent = me.slice(0,6) + "…" + me.slice(-4);
+    msg(""); updateBtn(); refreshBal();
+  } catch (e) { msg(e.shortMessage || e.message, "bad"); }
+}
+
+async function swap() {
+  if (!signer) return connect();
+  const amt = parsedIn(); if (!amt) return msg("Enter an amount.", "bad");
+  const out = await quote(); if (!out) return msg("No quote — pool may be empty.", "bad");
+  const min = out * BigInt(100 - slip) / 100n;
+  const deadline = Math.floor(Date.now()/1000) + 600;
+  const router = new E.Contract(CONFIG.router, ROUTER_ABI, signer);
+  const b = $("swapBtn"); b.disabled = true;
+  try {
+    await ensureChain();
+    let tx;
+    if (side==="buy") {
+      msg("Confirm in wallet…");
+      tx = await router.swapExactETHForTokensSupportingFeeOnTransferTokens(min, path(), me, deadline, { value: amt });
+    } else {
+      const tok = new E.Contract(CONFIG.token, TOKEN_ABI, signer);
+      if ((await tokenR.allowance(me, CONFIG.router)) < amt) {
+        msg("Approve the router in your wallet…");
+        await (await tok.approve(CONFIG.router, E.MaxUint256)).wait();
+      }
+      msg("Confirm sell in wallet…");
+      tx = await router.swapExactTokensForETHSupportingFeeOnTransferTokens(amt, min, path(), me, deadline);
+    }
+    msg("Pending… " + tx.hash.slice(0,12) + "…");
+    await tx.wait();
+    msg("Done. 1% just went back to the pool.", "good");
+    $("amtIn").value = ""; $("amtOut").value = "";
+    refreshBal(); refreshStats();
+  } catch (e) { msg(e.shortMessage || e.reason || e.message, "bad"); }
+  finally { updateBtn(); }
+}
+
+let qt; $("amtIn").addEventListener("input", () => { clearTimeout(qt); qt = setTimeout(quote, 250); });
+document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => setSide(b.dataset.side));
+document.querySelectorAll(".slip button").forEach(b => b.onclick = () => {
+  slip = Number(b.dataset.s); document.querySelectorAll(".slip button").forEach(x=>x.classList.toggle("on", x===b)); });
+$("maxBtn").onclick = async () => {
+  if (!me) return connect();
+  try {
+    if (side==="sell") $("amtIn").value = E.formatUnits(await tokenR.balanceOf(me), meta.dec);
+    else { const b = await ro.getBalance(me) - E.parseEther("0.0005"); $("amtIn").value = b > 0n ? E.formatEther(b) : "0"; }
+    quote();
+  } catch {}
+};
+$("connectBtn").onclick = connect;
+$("swapBtn").onclick = swap;
+$("copyCa").onclick = async () => { try { await navigator.clipboard.writeText(CONFIG.token); $("copyCa").textContent="Copied"; setTimeout(()=>$("copyCa").textContent="Copy",1200);} catch{} };
+$("watchBtn").onclick = async () => {
+  if (!window.ethereum || !E.isAddress(CONFIG.token)) return;
+  try { await ensureChain(); await window.ethereum.request({ method:"wallet_watchAsset",
+    params:{ type:"ERC20", options:{ address:CONFIG.token, symbol:meta.sym, decimals:meta.dec } } }); } catch (e) { msg(e.message,"bad"); }
+};
+if (window.ethereum) window.ethereum.on?.("accountsChanged", () => location.reload());
+
+init().catch(e => { console.error(e); msg("Couldn't read the token from the chain: " + (e.shortMessage || e.message), "bad"); });
+</script>
+</body>
+</html>
