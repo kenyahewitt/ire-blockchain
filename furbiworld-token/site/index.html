@@ -60,6 +60,8 @@
   #swapBtn{width:100%;margin-top:14px;padding:16px;font-size:16px}
   .msg{font-size:13px;margin-top:10px;min-height:20px;color:var(--mute);word-break:break-word}
   .msg.bad{color:var(--bad)} .msg.good{color:var(--acc)}
+  .impact{font-size:13px;color:var(--mute);margin:10px 2px 0;min-height:20px}
+  .impact.bad{color:var(--bad)}
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:56px}
   .stat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
   .stat .k{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
@@ -112,6 +114,7 @@
       <div class="row"><span>Pool fee</span><b>1% → liquidity</b></div>
       <div class="row"><span>Slippage</span>
         <div class="slip"><button data-s="2">2%</button><button data-s="3" class="on">3%</button><button data-s="5">5%</button></div></div>
+      <div class="impact" id="impactMsg">Pool liquidity is limited. Trades with estimated price impact over 5% are blocked here.</div>
       <button class="btn" id="swapBtn">Connect wallet</button>
       <div class="msg" id="msg"></div>
     </div>
@@ -169,7 +172,7 @@ const E = window.ethers;
 
 const ro = new E.JsonRpcProvider(CONFIG.rpc, CONFIG.chainId, { staticNetwork: true });
 let tokenR, pairR, routerR, meta = { sym:"FURBI", dec:18, weth:null, pair:null };
-let signer = null, me = null, side = "buy", slip = 3;
+let signer = null, me = null, side = "buy", slip = 3, impactBlocked = false;
 
 const fmt = (v, d=4) => { const n = Number(v); if (!isFinite(n)) return "—";
   if (n === 0) return "0"; if (n < 1e-6) return n.toExponential(2);
@@ -212,6 +215,9 @@ async function refreshStats() {
 
 function setSide(s) {
   side = s;
+  impactBlocked = false;
+  $("impactMsg").textContent = "Pool liquidity is limited. Trades with estimated price impact over 5% are blocked here.";
+  $("impactMsg").className = "impact";
   document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on", b.dataset.side===s));
   $("unitIn").textContent = s==="buy" ? "ETH" : meta.sym;
   $("unitOut").textContent = s==="buy" ? meta.sym : "ETH";
@@ -228,14 +234,26 @@ function parsedIn() {
 
 // Router quote ignores the token's 1% fee, so take it off ourselves.
 async function quote() {
-  const amt = parsedIn(); if (!amt) { $("amtOut").value=""; return null; }
+  const amt = parsedIn(); if (!amt) { $("amtOut").value=""; impactBlocked=false; updateBtn(); return null; }
   try {
     const inAfterFee = side==="sell" ? amt * 99n / 100n : amt;
     const outs = await routerR.getAmountsOut(inAfterFee, path());
+    const [[r0,r1], token0] = await Promise.all([pairR.getReserves(),pairR.token0()]);
+    const wethIs0 = token0.toLowerCase() === meta.weth.toLowerCase();
+    const ethReserve = wethIs0 ? r0 : r1, tokenReserve = wethIs0 ? r1 : r0;
+    const spot = side==="buy" ? amt * tokenReserve / ethReserve : inAfterFee * ethReserve / tokenReserve;
+    const impactBps = spot > outs[1] ? (spot - outs[1]) * 10000n / spot : 0n;
+    impactBlocked = impactBps > 500n;
+    const impact = (Number(impactBps) / 100).toFixed(2);
+    $("impactMsg").textContent = impactBlocked
+      ? `Estimated pool impact ${impact}%. Reduce the amount; trades over 5% impact are blocked here.`
+      : `Estimated pool impact ${impact}% (includes the V2 pool fee). The 1% token fee is included in the amount you get.`;
+    $("impactMsg").className = impactBlocked ? "impact bad" : "impact";
     let out = outs[1]; if (side==="buy") out = out * 99n / 100n;
     $("amtOut").value = side==="buy" ? fmt(E.formatUnits(out, meta.dec), 2) : fmt(E.formatEther(out), 8);
+    updateBtn();
     return out;
-  } catch (e) { $("amtOut").value = ""; return null; }
+  } catch (e) { $("amtOut").value = ""; impactBlocked=false; updateBtn(); return null; }
 }
 
 async function refreshBal() {
@@ -249,8 +267,8 @@ async function refreshBal() {
 function updateBtn() {
   const b = $("swapBtn");
   if (!E.isAddress(CONFIG.token)) { b.textContent="Not launched yet"; b.disabled=true; return; }
-  b.disabled = false;
-  b.textContent = !signer ? "Connect wallet" : (side==="buy" ? `Buy ${meta.sym}` : `Sell ${meta.sym}`);
+  b.disabled = impactBlocked;
+  b.textContent = impactBlocked ? "Reduce trade amount" : !signer ? "Connect wallet" : (side==="buy" ? `Buy ${meta.sym}` : `Sell ${meta.sym}`);
 }
 
 async function ensureChain() {
@@ -282,6 +300,7 @@ async function swap() {
   if (!signer) return connect();
   const amt = parsedIn(); if (!amt) return msg("Enter an amount.", "bad");
   const out = await quote(); if (!out) return msg("No quote — pool may be empty.", "bad");
+  if (impactBlocked) return msg("Trade is too large for this pool. Reduce the amount.", "bad");
   const min = out * BigInt(100 - slip) / 100n;
   const deadline = Math.floor(Date.now()/1000) + 600;
   const router = new E.Contract(CONFIG.router, ROUTER_ABI, signer);
