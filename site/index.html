@@ -1,9 +1,194 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>IRE — Make something that stays.</title><meta name="description" content="Explore 500 on-chain artworks, learn about wallets, and help build the IRE public testnet."><link rel="stylesheet" href="/assets/launch/site.css"><script src="/assets/launch/site.js" defer></script></head>
-<body><header><a class="logo" href="/" aria-label="IRE home">IRE.</a><nav aria-label="Main navigation"><a href="#explore">Explore</a><a href="#start">Start here</a><a class="yellow" href="/join/">Validate</a></nav></header>
-<main><section class="hero"><div class="hero-copy"><h1>MAKE<br>SOMETHING<br><span>THAT STAYS.</span></h1><p class="intro">Art. Identity. Ideas.<br>Explore the IRE public testnet.</p><div class="actions"><a class="button primary" href="#explore">Explore First Light <span>↗</span></a><a class="button" href="#start">Start here <span>↗</span></a></div><p class="disclosure">An experimental network for creators, artists, and developers. Test assets have no promised cash value. One active validator; public minting is still being verified.</p></div><div class="hero-media"><img class="creators" src="/assets/launch/creators.png" alt="Fictional adult creators collaborating around a yellow and chrome sculpture" width="1672" height="941"><div class="film"><video id="intro-film" controls playsinline preload="metadata" poster="/assets/launch/creators.png"><source src="/assets/launch/meet-ire.mp4" type="video/mp4"><track kind="captions" src="/assets/launch/meet-ire.vtt" srclang="en" label="English" default></video><div><strong>Meet IRE — a creator introduction</strong><a href="/assets/launch/meet-ire.mp4" download>Download film ↓</a></div><small>AI-generated fictional people · animated photography and narrated demonstrations</small></div></div></section>
-<section class="onboarding" id="start"><h2>YOUR FIRST FIVE MINUTES.</h2><article class="step"><span class="number">1</span><h3>EXPLORE<br>THE ART</h3><p>Start with First Light. See artwork stored on the chain and learn what ownership means.</p><a href="#explore">Explore First Light ↗</a></article><article class="step"><span class="number">2</span><h3>MEET<br>YOUR WALLET</h3><p>A wallet holds your keys. Learn the basics before connecting. Keep your recovery phrase private.</p><button class="text-link" data-guide="wallet">Wallet basics ↗</button></article><article class="step"><span class="number">3</span><h3>JOIN<br>THE NETWORK</h3><p>Make your next move as an artist, developer, or independent validator. Choose your path.</p><button class="text-link" data-guide="paths">Find your path ↗</button></article></section>
-<section class="explore" id="explore"><div class="section-heading"><div><h2>FIRST LIGHT.<br><span>500 ORIGINALS.</span></h2><p>Discover a few of the 500 artworks verified on IRE. Viewing art is open. Public minting is pending.</p></div><div class="edition-controls"><button id="previous" aria-label="Previous artwork">←</button><output id="edition">001 / 500</output><button id="next" aria-label="Next artwork">→</button></div></div><div class="art-stage"><img id="art" src="/assets/launch/art-1.svg" width="512" height="512" alt="First Light edition 1"><div><p class="small">NATIVE IRE INSCRIPTION</p><h3 id="art-name">First Light #001</h3><p>Artwork and metadata verified on-chain. The stored art is independent of this website.</p><a id="art-download" class="button primary" href="/assets/launch/art-1.svg" download>Download artwork ↓</a><p class="muted">A testnet collectible. Trading and public wallet minting are separate release gates.</p></div></div></section>
-<section class="network" id="network"><div class="network-top"><h2>A NETWORK<br><span>YOU CAN SEE.</span></h2><div class="network-info"><h3>IRE PUBLIC TESTNET</h3><p>Check the latest block yourself. A response from a server alone does not prove the chain is advancing.</p><a class="button" href="https://rpc.boomer250.com/rpc/status" target="_blank" rel="noopener">Check live network ↗</a></div></div><div class="network-links"><a href="/join/"><strong>Run a validator ↗</strong><span>Watch the walkthrough and follow the setup guide.</span></a><a href="https://github.com/kenyahewitt/ire-blockchain"><strong>Source code ↗</strong><span>Inspect the protocol. Build and contribute.</span></a><button data-guide="limits"><strong>Testnet limitations ↗</strong><span>Read the current launch gates before taking part.</span></button></div></section></main>
-<footer><span class="logo">IRE.</span><span>Make. Explore. Build.</span><a href="/network/">Network documentation ↗</a></footer>
-<dialog id="guide" aria-labelledby="guide-title"><button class="close" aria-label="Close guide">×</button><h2 id="guide-title"></h2><div id="guide-content"></div></dialog>
-</body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>IRE — Make something that stays.</title>
+    <meta
+      name="description"
+      content="Explore 500 on-chain artworks, learn about wallets, and help build the IRE public testnet."
+    />
+    <link rel="stylesheet" href="/assets/launch/site.css" />
+    <script src="/assets/launch/site.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <a class="logo" href="/" aria-label="IRE home">IRE.</a>
+      <nav aria-label="Main navigation">
+        <a href="#explore">Explore</a><a href="#start">Start here</a
+        ><a class="yellow" href="/join/">Validate</a>
+      </nav>
+    </header>
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <h1>MAKE<br />SOMETHING<br /><span>THAT STAYS.</span></h1>
+          <p class="intro">
+            Art. Identity. Ideas.<br />Explore the IRE public testnet.
+          </p>
+          <div class="actions">
+            <a class="button primary" href="#explore"
+              >Explore First Light <span>↗</span></a
+            ><a class="button" href="#start">Start here <span>↗</span></a>
+          </div>
+          <p class="disclosure">
+            An experimental network for creators, artists, and developers. Test
+            assets have no promised cash value. One active validator; public
+            minting is still being verified.
+          </p>
+        </div>
+        <div class="hero-media">
+          <img
+            class="creators"
+            src="/assets/launch/creators.png"
+            alt="Fictional adult creators collaborating around a yellow and chrome sculpture"
+            width="1672"
+            height="941"
+          />
+          <div class="film">
+            <video
+              id="intro-film"
+              controls
+              playsinline
+              preload="metadata"
+              poster="/assets/launch/creators.png"
+            >
+              <source src="/assets/launch/meet-ire.mp4" type="video/mp4" />
+              <track
+                kind="captions"
+                src="/assets/launch/meet-ire.vtt"
+                srclang="en"
+                label="English"
+                default
+              />
+            </video>
+            <div>
+              <strong>Meet IRE — a creator introduction</strong
+              ><a href="/assets/launch/meet-ire.mp4" download
+                >Download film ↓</a
+              >
+            </div>
+            <small
+              >AI-generated fictional people · animated photography and narrated
+              demonstrations</small
+            >
+          </div>
+        </div>
+      </section>
+      <section class="onboarding" id="start">
+        <h2>YOUR FIRST FIVE MINUTES.</h2>
+        <article class="step">
+          <span class="number">1</span>
+          <h3>EXPLORE<br />THE ART</h3>
+          <p>
+            Start with First Light. See artwork stored on the chain and learn
+            what ownership means.
+          </p>
+          <a href="#explore">Explore First Light ↗</a>
+        </article>
+        <article class="step">
+          <span class="number">2</span>
+          <h3>MEET<br />YOUR WALLET</h3>
+          <p>
+            A wallet holds your keys. Learn the basics before connecting. Keep
+            your recovery phrase private.
+          </p>
+          <button class="text-link" data-guide="wallet">Wallet basics ↗</button>
+        </article>
+        <article class="step">
+          <span class="number">3</span>
+          <h3>JOIN<br />THE NETWORK</h3>
+          <p>
+            Make your next move as an artist, developer, or independent
+            validator. Choose your path.
+          </p>
+          <button class="text-link" data-guide="paths">Find your path ↗</button>
+        </article>
+      </section>
+      <section class="explore" id="explore">
+        <div class="section-heading">
+          <div>
+            <h2>FIRST LIGHT.<br /><span>500 ORIGINALS.</span></h2>
+            <p>
+              Discover a few of the 500 artworks verified on IRE. Viewing art is
+              open. Public minting is pending.
+            </p>
+          </div>
+          <div class="edition-controls">
+            <button id="previous" aria-label="Previous artwork">←</button
+            ><output id="edition">001 / 500</output
+            ><button id="next" aria-label="Next artwork">→</button>
+          </div>
+        </div>
+        <div class="art-stage">
+          <img
+            id="art"
+            src="/assets/launch/art-1.svg"
+            width="512"
+            height="512"
+            alt="First Light edition 1"
+          />
+          <div>
+            <p class="small">NATIVE IRE INSCRIPTION</p>
+            <h3 id="art-name">First Light #001</h3>
+            <p>
+              Artwork and metadata verified on-chain. The stored art is
+              independent of this website.
+            </p>
+            <a
+              id="art-download"
+              class="button primary"
+              href="/assets/launch/art-1.svg"
+              download
+              >Download artwork ↓</a
+            >
+            <p class="muted">
+              A testnet collectible. Trading and public wallet minting are
+              separate release gates.
+            </p>
+          </div>
+        </div>
+      </section>
+      <section class="network" id="network">
+        <div class="network-top">
+          <h2>A NETWORK<br /><span>YOU CAN SEE.</span></h2>
+          <div class="network-info">
+            <h3>IRE PUBLIC TESTNET</h3>
+            <p>
+              Check the latest block yourself. A response from a server alone
+              does not prove the chain is advancing.
+            </p>
+            <a
+              class="button"
+              href="https://rpc.boomer250.com/rpc/status"
+              target="_blank"
+              rel="noopener"
+              >Check live network ↗</a
+            >
+          </div>
+        </div>
+        <div class="network-links">
+          <a href="/join/"
+            ><strong>Run a validator ↗</strong
+            ><span>Watch the walkthrough and follow the setup guide.</span></a
+          ><a href="https://github.com/kenyahewitt/ire-blockchain"
+            ><strong>Source code ↗</strong
+            ><span>Inspect the protocol. Build and contribute.</span></a
+          ><button data-guide="limits">
+            <strong>Testnet limitations ↗</strong
+            ><span>Read the current launch gates before taking part.</span>
+          </button>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <span class="logo">IRE.</span><span>Make. Explore. Build.</span
+      ><a href="/network/">Network documentation ↗</a>
+    </footer>
+    <dialog id="guide" aria-labelledby="guide-title">
+      <button class="close" aria-label="Close guide">×</button>
+      <h2 id="guide-title"></h2>
+      <div id="guide-content"></div>
+    </dialog>
+  </body>
+</html>
